@@ -1,0 +1,57 @@
+{
+    "Error": {
+        "description": "<p>Chúng tôi đã gặp lỗi không mong muốn.</p><p>Bạn có thể thử <retry>tải lại trang</retry> mà bạn đang truy cập.</p>",
+        "title": "Đã xảy ra lỗi!"
+    },
+    "IndexPage": {
+        "description": "Đây là một ví dụ cơ bản minh họa cách sử dụng <code>next-intl</code> với Next.js App Router. Hãy thử thay đổi ngôn ngữ ở góc trên bên phải và xem nội dung thay đổi như thế nào.",
+        "title": "Ví dụ next-intl"
+    },
+    "LocaleLayout": {
+        "title": "Ví dụ next-intl"
+    },
+    "LocaleSwitcher": {
+        "label": "Thay đổi ngôn ngữ",
+        "locale": "{locale, select, de {🇩🇪 Tiếng Đức} en {🇺🇸 Tiếng Anh} vi {🇻🇳 Tiếng Việt} other {Không xác định}}"
+    },
+    "Manifest": {
+        "name": "Ví dụ next-intl"
+    },
+    "Navigation": {
+        "home": "Trang chủ",
+        "pathnames": "Đường dẫn"
+    },
+    "NotFoundPage": {
+        "description": "Vui lòng kiểm tra lại thanh địa chỉ của trình duyệt hoặc sử dụng menu điều hướng để đến một trang hợp lệ.",
+        "title": "Không tìm thấy trang"
+    },
+    "PageLayout": {
+        "links": {
+            "docs": {
+                "description": "Tìm hiểu thêm về next-intl trong tài liệu chính thức.",
+                "href": "https://next-intl.dev",
+                "title": "Tài liệu"
+            },
+            "source": {
+                "description": "Duyệt mã nguồn của ví dụ này trên GitHub.",
+                "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
+                "title": "Mã nguồn"
+            }
+        }
+    },
+    "PathnamesPage": {
+        "description": "<p>Các đường dẫn cũng được dịch.</p><p>Nếu bạn đang sử dụng ngôn ngữ mặc định là tiếng Anh, bạn sẽ thấy <code>/en/pathnames</code> trên thanh địa chỉ trình duyệt khi ở trang này.</p><p>Nếu bạn chuyển sang tiếng Đức, URL sẽ thay đổi tương ứng (<code>/de/pfadnamen</code>).</p>",
+        "title": "Đường dẫn"
+    },
+
+    "LoginPage": {
+        "title": "Đăng nhập",
+        "description": "Vui lòng đăng nhập để tiếp tục.",
+        "googleSignIn": "Đăng nhập bằng Google",
+        "error": "Có lỗi xảy ra, vui lòng thử lại.",
+        "username": "Tên đăng nhập",
+        "usernameDescription": "Tên đăng nhập của bạn",
+        "password": "Mật khẩu",
+        "passwordDescription": "Mật khẩu của bạn"
+    }
+}
