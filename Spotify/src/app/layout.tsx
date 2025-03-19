@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import './globals.css'
-import { ReduxProvider } from '@/lib/provider'
+import { ReduxProvider } from '@/redux/provider'
 
 type Props = {
     children: ReactNode

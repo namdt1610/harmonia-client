@@ -28,6 +28,6 @@
         "**/*.tsx",
         ".next/types/**/*.ts",
         "next-intl.config.mjs"
-, "middleware.js"    ],
+, "src/middleware.ts"    ],
     "exclude": ["node_modules"]
 }
