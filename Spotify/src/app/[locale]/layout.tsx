@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getMessages } from 'next-intl/server'
 import { ReactNode } from 'react'
 import BaseLayout from '@/components/BaseLayout'
 import { routing } from '@/i18n/routing'
@@ -14,6 +14,7 @@ type Props = {
 export default async function LocaleLayout({ children, params }: Props) {
     const resolvedParams = await Promise.resolve(params) // Đảm bảo params đã resolve
     const locale = resolvedParams?.locale
+    const messages = await getMessages();
 
     if (!locale || !routing.locales.includes(locale as any)) {
         notFound()
@@ -21,5 +22,5 @@ export default async function LocaleLayout({ children, params }: Props) {
 
     setRequestLocale(locale as Locale)
 
-    return <BaseLayout locale={locale}>{children}</BaseLayout>
+    return <BaseLayout messages={messages} locale={locale}>{children}</BaseLayout>
 }

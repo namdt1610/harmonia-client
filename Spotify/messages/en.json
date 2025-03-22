@@ -48,5 +48,20 @@
         "description": "Please sign in to continue.",
         "googleSignIn": "Sign in with Google",
         "error": "An error occurred, please try again."
+    },
+    "HomePage": {
+        "title": "Welcome to the next-intl example",
+        "description": "<p>This is a basic example that demonstrates the usage of <code>next-intl</code> with the Next.js App Router. Try changing the locale in the top right corner and see how the content changes.</p><p>To learn more about <code>next-intl</code>, check out the <a href=\"https://next-intl.dev\">documentation</a>.</p>"
+    },
+    "Playlists": {
+        "createPlaylist": "Create Playlist",
+        "likedSongs": "Liked Songs"
+    },
+    "TopBar": {
+        "upgrade": "Upgrade"
+    },
+    "Player": {
+        "songTitle": "Song Title",
+        "artistName": "Artist Name"
     }
 }

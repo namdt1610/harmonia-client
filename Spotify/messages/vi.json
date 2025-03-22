@@ -19,7 +19,9 @@
     },
     "Navigation": {
         "home": "Trang chủ",
-        "pathnames": "Đường dẫn"
+        "pathnames": "Đường dẫn",
+        "search": "Tìm kiếm",
+        "library": "Thư viện"
     },
     "NotFoundPage": {
         "description": "Vui lòng kiểm tra lại thanh địa chỉ của trình duyệt hoặc sử dụng menu điều hướng để đến một trang hợp lệ.",
@@ -53,5 +55,65 @@
         "usernameDescription": "Tên đăng nhập của bạn",
         "password": "Mật khẩu",
         "passwordDescription": "Mật khẩu của bạn"
+    },
+
+    "HomePage": {
+        "title": "Trang chủ",
+        "description": "Chào mừng bạn đến với trang chủ của chúng tôi. Đây là nơi bạn có thể tìm thấy thông tin mới nhất và các liên kết hữu ích.",
+        "greeting": "Xin chào!",
+        "seeAll": "Xem tất cả",
+        "madeForYou": "Được tạo ra cho bạn",
+        "recentlyPlayed": "Những gì bạn đã phát gần đây"
+    },
+    "Playlists": {
+        "createPlaylist": "Tạo danh sách phát",
+        "likedSongs": "Bài hát đã thích"
+    },
+    "TopBar": {
+        "upgrade": "Nâng cấp"
+    },
+    "Player": {
+        "artistName": "Tên nghệ sĩ",
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "next": "Tiếp theo",
+        "previous": "Trước đó",
+        "repeat": "Lặp lại",
+        "shuffle": "Xáo trộn",
+        "volume": "Âm lượng",
+        "mute": "Tắt tiếng",
+        "unmute": "Bỏ tắt tiếng",
+        "seek": "Tìm kiếm",
+        "duration": "Thời gian",
+        "songTitle": "Tiêu đề bài hát",
+        "currentTime": "Thời gian hiện tại",
+        "track": "Bài hát",
+        "artist": "Nghệ sĩ",
+        "album": "Album",
+        "playlist": "Danh sách phát",
+        "addToPlaylist": "Thêm vào danh sách phát",
+        "removeFromPlaylist": "Xóa khỏi danh sách phát",
+        "like": "Thích",
+        "dislike": "Không thích",
+        "share": "Chia sẻ",
+        "download": "Tải xuống",
+        "addToLibrary": "Thêm vào thư viện",
+        "removeFromLibrary": "Xóa khỏi thư viện",
+        "playNext": "Phát tiếp theo",
+        "playLater": "Phát sau",
+        "playNow": "Phát ngay",
+        "playAll": "Phát tất cả",
+        "playSelected": "Phát đã chọn",
+        "playSelectedTracks": "Phát các bài hát đã chọn",
+        "playSelectedAlbum": "Phát album đã chọn",
+        "playSelectedArtist": "Phát nghệ sĩ đã chọn",
+        "playSelectedPlaylist": "Phát danh sách phát đã chọn",
+        "playSelectedSongs": "Phát các bài hát đã chọn",
+        "playSelectedVideos": "Phát các video đã chọn",
+        "playSelectedPodcasts": "Phát các podcast đã chọn",
+        "playSelectedAudiobooks": "Phát các sách nói đã chọn",
+        "playSelectedRadio": "Phát đài phát thanh đã chọn",
+        "playSelectedLive": "Phát trực tiếp đã chọn",
+        "playSelectedLiveRadio": "Phát đài phát thanh trực tiếp đã chọn"
     }
 }
