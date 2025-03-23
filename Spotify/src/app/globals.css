@@ -233,3 +233,20 @@
 .react-resizable-handle-e {
   right: -5px;
 }
+
+span {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+[isCollapsed="true"] span {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+@layer utilities {
+  .xs\:block {
+    @media (min-width: 480px) {
+      display: block;
+    }
+  }
+}

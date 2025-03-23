@@ -1,7 +1,4 @@
 'use client'
-
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
@@ -58,8 +55,8 @@ export default function LoginForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="">
-                <Card className="w-[350px] shadow-lg">
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+                <Card className="w-[350px] shadow-lg transition-all duration-300 ease-in-out hover:scale-105 ">
                     <CardHeader>
                         <CardTitle className="text-center text-lg">
                             {t('title')}

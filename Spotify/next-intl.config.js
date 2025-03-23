@@ -8,8 +8,6 @@ const config = {
     pages: {
         '*': ['HomePage'],
     },
-    localePrefix: 'as-needed',
-    localeDetection: false,
 }
 
 export default config

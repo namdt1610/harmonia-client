@@ -12,9 +12,9 @@ interface SidebarProps {
 
 export default function Sidebar({ locale }: SidebarProps) {
   const [width, setWidth] = useState(256);
-  const MIN_WIDTH = 100;
-  const MAX_WIDTH = 800;
-  const isDragging = useRef(false);
+  const MIN_WIDTH = 0;
+  const MAX_WIDTH = 700;
+  const isDragging = useRef(false); // useRef dùng để lưu trữ trạng thái kéo chuột
   const startX = useRef(0);
   const startWidth = useRef(width);
 
@@ -22,6 +22,7 @@ export default function Sidebar({ locale }: SidebarProps) {
     isDragging.current = true;
     startX.current = event.clientX;
     startWidth.current = width;
+    document.addEventListener("selectstart", preventSelection);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
@@ -36,12 +37,17 @@ export default function Sidebar({ locale }: SidebarProps) {
     isDragging.current = false;
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("selectstart", preventSelection);
+  };
+
+  const preventSelection = (event: Event) => {
+    event.preventDefault();
   };
 
   return (
     <div className="relative flex h-screen">
       {/* Sidebar */}
-      <div className="bg-black h-screen flex flex-col relative" style={{ width }}>
+      <div className="bg-black h-screen flex flex-col relative transition-all duration-300 ease-out" style={{ width }}>
         {/* Logo */}
         <div className="p-6">
           <Link href={`/${locale}`} className="block">
@@ -56,10 +62,8 @@ export default function Sidebar({ locale }: SidebarProps) {
         </div>
 
         {/* Main navigation */}
-        <NavigationLinks locale={locale} />
 
         {/* Playlists section */}
-        <PlaylistSection />
 
         {/* Bottom section */}
         <div className="mt-auto p-6">
