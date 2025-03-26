@@ -9,3 +9,4 @@ export async function withAuth(request: NextRequest, response: NextResponse) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 }
+

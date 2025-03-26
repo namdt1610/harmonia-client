@@ -19,6 +19,7 @@ export const userApi = createApi({
         getUsers: builder.query<User[], void>({
             query: () => 'users/',
         }),
+
         login: builder.mutation<
             { access: string; refresh: string },
             { username: string; password: string }
@@ -29,10 +30,19 @@ export const userApi = createApi({
                 body: credentials,
             }),
         }),
+
+        // Client
+        getCurrentTrack: builder.query({
+            query: () => '/users/current-track', // Endpoint để lấy bài hát hiện tại của người dùng
+        }),
+        getUserProfile: builder.query({
+            query: () => '/users/me',
+        }),
+
     }),
 })
 
-export const { useGetUsersQuery, useLoginMutation } = userApi
+export const { useGetUsersQuery, useLoginMutation, useGetCurrentTrackQuery, useGetUserProfileQuery } = userApi
 
 export type User = {
     id: number

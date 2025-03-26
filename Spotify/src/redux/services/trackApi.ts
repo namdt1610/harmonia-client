@@ -17,6 +17,9 @@ export const trackApi = createApi({
             },
       }),
       endpoints: (builder) => ({
+            getCurrentTrack: builder.query({
+                  query: () => '/tracks/current',
+            }),
             getTracks: builder.query({
                   query: (searchTerm = '') => `tracks/?search=${encodeURIComponent(searchTerm)}`,
             }),
@@ -47,6 +50,8 @@ export const trackApi = createApi({
 })
 
 export const {
+      useGetCurrentTrackQuery,
+      useLazyGetCurrentTrackQuery,
       useCreateTrackMutation,
       useGetTracksQuery,
       useGetTrackByIdQuery,

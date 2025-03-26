@@ -115,5 +115,10 @@
         "playSelectedRadio": "Phát đài phát thanh đã chọn",
         "playSelectedLive": "Phát trực tiếp đã chọn",
         "playSelectedLiveRadio": "Phát đài phát thanh trực tiếp đã chọn"
+    },
+    
+    "SearchBar": {
+        "search": "Tìm kiếm",
+        "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album hoặc danh sách phát"
     }
 }
