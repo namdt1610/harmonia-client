@@ -7,7 +7,7 @@ import { ReactNode, useState } from 'react'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSibebar'
 import TopBar from './TopBar'
-import PlayerBar from '../app/features/player/components/PlayerBar'
+import PlayerBar from '../features/player/components/PlayerBar'
 
 const inter = Inter({ subsets: ['latin'] })
 

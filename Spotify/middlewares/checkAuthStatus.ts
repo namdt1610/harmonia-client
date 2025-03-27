@@ -1,15 +1,14 @@
 import { store } from '@/redux/store';
 import { setAuth, clearAuth } from '@/redux/slices/authSlice';
+import { userApi } from '@/redux/services/userApi';
 
 export const checkAuthStatus = async () => {
     try {
-        const response = await fetch('/api/users/me', {
-            credentials: 'include', // Gửi cookie HTTP-only nếu có từ trình duyệt đến server
-        });
+        // Gửi request để lấy thông tin người dùng
+        const result = await store.dispatch(userApi.endpoints.getUserProfile.initiate(undefined));
 
-        if (response.ok) {
-            const data = await response.json();
-            store.dispatch(setAuth(data.user)); // Cập nhật trạng thái đăng nhập
+        if (result.data) {
+            store.dispatch(setAuth(result.data)); // Cập nhật trạng thái đăng nhập
         } else {
             store.dispatch(clearAuth()); // Xóa trạng thái nếu không xác thực được
         }

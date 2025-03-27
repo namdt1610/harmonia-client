@@ -51,8 +51,21 @@
         "description": "Vui lòng đăng nhập để tiếp tục.",
         "googleSignIn": "Đăng nhập bằng Google",
         "error": "Có lỗi xảy ra, vui lòng thử lại.",
+        "username_or_email": "Tên đăng nhập",
+        "usernameDescription": "Tên đăng nhập hoặc email của bạn",
+        "password": "Mật khẩu",
+        "passwordDescription": "Mật khẩu của bạn"
+    },
+
+    "RegisterPage": {
+        "title": "Đăng ký",
+        "description": "Vui lòng đăng ký để tiếp tục.",
+        "googleSignIn": "Đăng nhập bằng Google",
+        "error": "Có lỗi xảy ra, vui lòng thử lại.",
         "username": "Tên đăng nhập",
         "usernameDescription": "Tên đăng nhập của bạn",
+        "email": "Email",
+        "emailDescription": "Email của bạn",
         "password": "Mật khẩu",
         "passwordDescription": "Mật khẩu của bạn"
     },
@@ -116,7 +129,7 @@
         "playSelectedLive": "Phát trực tiếp đã chọn",
         "playSelectedLiveRadio": "Phát đài phát thanh trực tiếp đã chọn"
     },
-    
+
     "SearchBar": {
         "search": "Tìm kiếm",
         "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album hoặc danh sách phát"

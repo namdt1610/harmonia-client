@@ -17,7 +17,7 @@ export default function TopBar({ locale, onSearchResults }: TopBarProps) {
 
     const handleLogout = () => {
         dispatch(clearAuth())
-        localStorage.removeItem('accessToken')
+        localStorage.removeItem('access_token')
     }
 
     return (
@@ -66,7 +66,10 @@ export default function TopBar({ locale, onSearchResults }: TopBarProps) {
                         </button>
                     </>
                 ) : (
-                    <button className="px-4 py-1 text-sm font-bold bg-white text-black rounded-full hover:scale-105 transition-transform">
+                    <button
+                        className="px-4 py-1 text-sm font-bold bg-white text-black rounded-full hover:scale-105 transition-transform"
+                        onClick={() => (window.location.href = '/login')}
+                    >
                         Login
                     </button>
                 )}

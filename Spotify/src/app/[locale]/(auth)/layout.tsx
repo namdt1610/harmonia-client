@@ -10,14 +10,16 @@ export default function AuthLayout({
     const messages = useMessages()
     return (
         <NextIntlClientProvider locale={locale} messages={messages}>
-            <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-black items-center flex flex-col">
+            <div className="w-screen h-screen bg-gradient-to-b from-neutral-900 to-black items-center flex flex-col">
                 <Aurora
                     colorStops={['#3A29FF', '#FF94B4', '#FF3232']}
                     blend={0.5}
                     amplitude={1.0}
                     speed={0.5}
                 />
-                <div className='absolute min-h-screen flex items-center'>{children}</div>
+                <div className="absolute flex items-center justify-center w-full h-screen">
+                    {children}
+                </div>
             </div>
         </NextIntlClientProvider>
     )
