@@ -20,7 +20,7 @@ interface SearchUIProps {
     isLoading: boolean
     error: string | null
 }
-export function SearchUI({
+export default function SearchUI({
     searchResults,
     searchQuery,
     setSearchQuery,

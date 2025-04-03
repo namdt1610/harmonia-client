@@ -16,10 +16,6 @@ export function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
-    // if (pathname.startsWith('/vi/') || pathname.startsWith('/en/') || pathname == '/vi' || pathname == '/en') {
-    //     return NextResponse.next()
-    // }
-
     const defaultLocale = 'vi'
     const newUrl = new URL(`/${defaultLocale}${pathname}${search}`, request.url)
 

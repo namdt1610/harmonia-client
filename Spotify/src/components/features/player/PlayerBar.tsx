@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react'
-import { usePlayer } from '../hooks/usePlayer'
+import { usePlayer } from '@/hooks/usePlayer'
 import DefaultCover from '@/assets/images/default-cover.webp'
 import Image from 'next/image'
 

@@ -1,14 +1,8 @@
 import React from 'react'
 import Image from 'next/image'
 import { Heart } from 'lucide-react'
-
-interface Track {
-    id: number
-    title: string
-    artist: string
-    duration: string
-    cover: string
-}
+import DefaultCover from '@/assets/images/default-cover.webp'
+import type { Track } from '@/types'
 
 interface TrackItemProps {
     track: Track
@@ -25,13 +19,25 @@ export default function TrackItem({ track, index }: TrackItemProps) {
 
             {/* Track image */}
             <div className="w-10 h-10 sm:mx-3 bg-neutral-800 relative flex-shrink-0">
-                <Image
-                    src={track.cover}
-                    alt={track.title}
-                    fill
-                    sizes="40px"
-                    className="object-cover"
-                />
+                {track.cover && undefined ? (
+                    <Image
+                        src={track.cover}
+                        alt={track.title}
+                        fill
+                        sizes="(max-width: 640px) 40px, 56px"
+                        className="object-cover rounded-md"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-neutral-700 flex items-center justify-center rounded-md">
+                        <Image
+                            src={DefaultCover}
+                            alt="Default cover"
+                            fill
+                            sizes="(max-width: 640px) 40px, 56px"
+                            className="object-cover rounded-md"
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Track info */}

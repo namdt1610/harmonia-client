@@ -16,7 +16,7 @@ interface TracksUIProps {
     error: string | null
 }
 
-export function TracksUI({
+export default function TracksUI({
     tracks,
     searchQuery,
     setSearchQuery,

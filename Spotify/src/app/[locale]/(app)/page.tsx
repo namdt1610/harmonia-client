@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import RecentlyPlayedSection from '@/components/features/home/RecentlyPlayedSection'
 import FeaturedPlaylistsSection from '@/components/features/home/FeaturedPlaylistsSection'
@@ -41,7 +42,7 @@ export default function HomePage() {
         {
             id: 1,
             title: 'Top Hits 2025',
-            cover: '/images/tophits.jpg',
+            cover: '/images/default-cover.webp',
             description: 'Global top hits',
         },
         {
@@ -77,10 +78,10 @@ export default function HomePage() {
                         {t('currentTrack', { fallback: 'Currently Playing' })}
                     </h2>
                     <div className="flex items-center space-x-4">
-                        <img
+                        <Image
                             src={
                                 currentTrack?.albumArt ||
-                                '/images/default-album.jpg'
+                                '/images/default-cover.webp'
                             }
                             alt={currentTrack?.name || 'Unknown Track'}
                             className="w-16 h-16 rounded-lg"

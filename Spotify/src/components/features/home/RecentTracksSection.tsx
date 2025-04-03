@@ -13,8 +13,10 @@ export default function RecentTracksSection({
         id,
         title: `Track Title ${id}`,
         artist: 'Artist Name',
-        duration: '3:45',
+        duration: 1111,
         cover: `/images/track${id}.jpg`,
+        file: `/audio/track${id}.mp3`,
+        created_at: new Date().toISOString(),
     }))
 
     return (

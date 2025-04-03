@@ -1,2 +1,1 @@
-export { default as PlayerBar } from './components/PlayerBar';
-export { usePlayer } from './hooks/usePlayer';
+export { default as PlayerBar } from './PlayerBar';

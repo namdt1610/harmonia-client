@@ -1,15 +1,14 @@
 'use client'
 import { clsx } from 'clsx'
+import Link from 'next/link'
 import { Inter } from 'next/font/google'
-import { NextIntlClientProvider } from 'next-intl'
 import { ReactNode, useState } from 'react'
+import { NextIntlClientProvider } from 'next-intl'
 
+import TopBar from './TopBar'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSibebar'
-import TopBar from './TopBar'
-import PlayerBar from '../features/player/components/PlayerBar'
-import Link from 'next/link'
-import Aurora from '@/blocks/Backgrounds/Aurora/Aurora'
+import PlayerBar from '@/components/features/player/PlayerBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -38,15 +37,11 @@ export default function BaseLayout({ children, locale, messages }: Props) {
     // console.log('Result from BaseLayout: ', searchResults)
 
     return (
-        <NextIntlClientProvider locale={locale} messages={messages}>
-            <div className="absolute top-0 left-0 w-full h-screen overflow-hidden">
-                <Aurora
-                    colorStops={['#191414', '#1DB954', '#191414', '#1DB954']}
-                    blend={0.5}
-                    amplitude={1.0}
-                    speed={0.5}
-                />
-            </div>
+        <NextIntlClientProvider
+            timeZone="Asia/Ho_Chi_Minh"
+            locale={locale}
+            messages={messages}
+        >
             {/* <Navigation /> */}
             <div
                 className={clsx(
