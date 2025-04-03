@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useSearch } from '@/app/[locale]/(app)/search/hooks/useSearch'
+import { useSearch } from '@/hooks/useSearch'
 
 interface SearchBarProps {
     onSearchResults: (results: any) => void

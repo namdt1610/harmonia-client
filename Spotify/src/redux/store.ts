@@ -7,6 +7,7 @@ import { albumApi } from './services/albumApi'
 import { trackApi } from './services/trackApi'
 import { searchApi } from './services/searchApi'
 import authReducer from './slices/authSlice'
+import playerReducer from './slices/playerSlice'
 
 export const store = configureStore({
     reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
         [trackApi.reducerPath]: trackApi.reducer,
         [searchApi.reducerPath]: searchApi.reducer,
         auth: authReducer,
+        player: playerReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

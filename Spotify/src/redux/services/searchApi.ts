@@ -9,7 +9,7 @@ export const searchApi = createApi({
     endpoints: (builder) => ({
         globalSearch: builder.query({
             query: (searchTerm = '') =>
-                `/?q=${encodeURIComponent(searchTerm)}/`,
+                `/?q=${encodeURIComponent(searchTerm)}`,
         }),
     }),
 })

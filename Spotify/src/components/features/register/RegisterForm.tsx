@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/form'
 import GoogleIcon from '@/components/GoogleIcon'
 import { Separator } from '../../../components/ui/separator'
-import { useRegister } from '../.'
+import { useRegister } from '.'
 
 const FormSchema = z.object({
     username: z.string().min(2, {
@@ -86,7 +86,7 @@ export default function RegisterForm() {
                         <CardTitle className="text-center text-lg">
                             {t('title')}
                         </CardTitle>
-                    </CardHeader>   
+                    </CardHeader>
                     <CardContent className="flex flex-col space-y-4">
                         <FormField
                             control={form.control}

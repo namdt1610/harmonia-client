@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { setRequestLocale, getMessages } from 'next-intl/server'
 import { ReactNode } from 'react'
-import BaseLayout from '@/components/BaseLayout'
+import BaseLayout from '@/components/layouts/BaseLayout'
 import { routing } from '@/i18n/routing'
 
 type Locale = (typeof routing.locales)[number] // Định nghĩa kiểu chính xác

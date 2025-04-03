@@ -36,7 +36,13 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-700 to-neutral-400 rounded-sm flex items-center justify-center mr-3">
                         <Heart size={16} className="text-white" />
                     </div>
-                    <span>{t('likedSongs', { fallback: 'Liked Songs' })}</span>
+                    <span
+                        className={`transition-all duration-200 ${
+                            isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'
+                        }`}
+                    >
+                        {t('likedSongs', { fallback: 'Liked Songs' })}
+                    </span>
                 </button>
             </div>
 

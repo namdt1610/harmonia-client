@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/form'
 import GoogleIcon from '@/components/GoogleIcon'
 import { Separator } from '../../../components/ui/separator'
-import { useLogin } from '../.'
+import { useLogin } from '.'
 import { useRouter } from 'next/navigation'
 
 const FormSchema = z.object({

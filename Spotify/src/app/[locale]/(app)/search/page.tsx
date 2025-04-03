@@ -1,25 +1,25 @@
 'use client'
-import { useSearch } from './hooks/useSearch';
-import { SearchUI } from './components/SearchUI';
+import { useSearch } from '@/hooks/useSearch'
+import { SearchUI } from '@/components/features/search/SearchUI'
 
 export default function SearchPage() {
-  const {
-    searchResults,
-    isLoading,
-    error,
-    searchQuery,
-    setSearchQuery,
-    handleSearch,
-  } = useSearch();
+    const {
+        searchResults,
+        isLoading,
+        error,
+        searchQuery,
+        setSearchQuery,
+        handleSearch,
+    } = useSearch()
 
-  return (
-    <SearchUI
-      searchResults={searchResults}
-      searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
-      handleSearch={handleSearch}
-      isLoading={isLoading}
-      error={error}
-    />
-  );
+    return (
+        <SearchUI
+            searchResults={searchResults}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            handleSearch={handleSearch}
+            isLoading={isLoading}
+            error={error}
+        />
+    )
 }

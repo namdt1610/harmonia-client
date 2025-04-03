@@ -3,8 +3,8 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Download, User } from 'lucide-react';
-import NavigationLinks from './NavigationLinks';
-import PlaylistSection from './PlaylistSection';
+import NavigationLinks from '../NavigationLinks';
+import PlaylistSection from '../PlaylistSection';
 
 interface SidebarProps {
   locale: string;

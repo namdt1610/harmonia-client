@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { Artist } from '@/types/types'
+import { Artist } from '@/types'
 
 export const artistApi = createApi({
     reducerPath: 'artistApi',

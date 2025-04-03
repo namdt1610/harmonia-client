@@ -1,5 +1,5 @@
 import React from 'react'
-import { RegitserForm } from '@/features/register/.'
+import { RegitserForm } from '@/components/features/register/.'
 
 export default function RegisterPage() {
     return <RegitserForm />

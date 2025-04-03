@@ -1,8 +1,8 @@
 'use client'
 import { useTranslations } from 'next-intl'
-import RecentlyPlayedSection from '@/components/home/RecentlyPlayedSection'
-import FeaturedPlaylistsSection from '@/components/home/FeaturedPlaylistsSection'
-import RecentTracksSection from '@/components/home/RecentTracksSection'
+import RecentlyPlayedSection from '@/components/features/home/RecentlyPlayedSection'
+import FeaturedPlaylistsSection from '@/components/features/home/FeaturedPlaylistsSection'
+import RecentTracksSection from '@/components/features/home/RecentTracksSection'
 import { useGetCurrentTrackQuery } from '@/redux/services/userApi'
 
 export default function HomePage() {
@@ -65,7 +65,7 @@ export default function HomePage() {
     ]
 
     return (
-        <main className="flex-1 overflow-auto bg-gradient-to-b from-neutral-900 to-black text-white p-3 sm:p-4 md:p-6">
+        <main className="bg-opacity-80 backdrop-filter backdrop-blur flex-1 overflow-auto text-white p-3 sm:p-4 md:p-6">
             {/* Hero section */}
             {isLoadingCurrentTrack ? (
                 <p>Loading current track...</p>

@@ -3,8 +3,9 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Download, User } from 'lucide-react'
-import NavigationLinks from './NavigationLinks'
-import PlaylistSection from './PlaylistSection'
+import NavigationLinks from '../NavigationLinks'
+import PlaylistSection from '../PlaylistSection'
+import DefaulLogo from '@/assets/images/default-logo.png'
 
 interface SidebarProps {
     locale: string
@@ -12,7 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ locale }: SidebarProps) {
     const [width, setWidth] = useState(256)
-    const MIN_WIDTH = 65
+    const MIN_WIDTH = 90
     const MAX_WIDTH = 800
     const isDragging = useRef(false)
     const startX = useRef(0)
@@ -63,9 +64,9 @@ export default function Sidebar({ locale }: SidebarProps) {
                 <div className="p-6">
                     <Link href={`/${locale}`} className="block">
                         <Image
-                            src="/images/spotify-logo.png"
+                            src={DefaulLogo}
                             alt="Spotify"
-                            width={130}
+                            width={40}
                             height={40}
                             className="object-contain"
                         />
@@ -79,7 +80,7 @@ export default function Sidebar({ locale }: SidebarProps) {
                 <PlaylistSection isCollapsed={width <= 100} />
 
                 {/* Bottom section */}
-                <div className="mt-auto p-6">
+                <div className="mt-auto p-14">
                     <a
                         href="#"
                         className="flex items-center text-sm text-neutral-400 hover:text-white mb-6"
