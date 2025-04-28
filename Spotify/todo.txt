@@ -1,0 +1,2 @@
+play tracks on playlist
+play tracks on album

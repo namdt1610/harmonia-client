@@ -4,11 +4,13 @@ import Link from 'next/link'
 import { Inter } from 'next/font/google'
 import { ReactNode, useState } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
+import { usePlayTrack } from '@/hooks/usePlayTrack'
 
 import TopBar from './TopBar'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSibebar'
-import PlayerBar from '@/components/features/player/PlayerBar'
+import PlayerBar from '@/components/features/PlayerBar'
+import { Play } from 'lucide-react'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,7 +36,7 @@ export default function BaseLayout({ children, locale, messages }: Props) {
         setSearchResults(results)
     }
 
-    // console.log('Result from BaseLayout: ', searchResults)
+    const { playTrack } = usePlayTrack()
 
     return (
         <NextIntlClientProvider
@@ -84,32 +86,27 @@ export default function BaseLayout({ children, locale, messages }: Props) {
                                                                 result.id ||
                                                                 index
                                                             }
-                                                            className="p-2 border-b border-neutral-700"
+                                                            className="p-2 border-b border-neutral-700 flex items-center justify-between"
                                                         >
                                                             <Link
                                                                 href={`/${locale}/${key}/${result.id}`}
                                                             >
-                                                                {/* <img
-                                                                    src={
-                                                                        result.images
-                                                                            ? result.images[0].url
-                                                                            : result.album
-                                                                                .images[0]
-                                                                                .url
-                                                                    }
-                                                                    alt={
-                                                                        result.name ||
-                                                                        result.title
-                                                                    }
-                                                                    className="w-12 h-12 rounded mr-4"
-                                                                />
-                                                                <span className="text-sm">
-                                                                    {result.name ||
-                                                                        result.title}
-                                                                </span> */}
                                                                 {result.name ||
                                                                     result.title}
                                                             </Link>
+                                                            <button
+                                                                onClick={() =>
+                                                                    playTrack(
+                                                                        result
+                                                                    )
+                                                                }
+                                                            >
+                                                                {/* play icon */}
+                                                                <Play
+                                                                    size={16}
+                                                                    fill="currentColor"
+                                                                />
+                                                            </button>
                                                         </div>
                                                     )
                                                 )}
