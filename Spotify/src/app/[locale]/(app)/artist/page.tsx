@@ -1,5 +1,5 @@
 'use client'
-import { useGetArtistsQuery } from '@/redux/services/artistApi'
+import { useGetArtistsQuery } from '@/modules/artist/api'
 import FetchWrapper from '@/components/FetchWrapper'
 
 export default function ArtistsPage() {

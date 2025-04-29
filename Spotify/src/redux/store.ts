@@ -1,13 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
-import { userApi } from './services/userApi'
-import { artistApi } from './services/artistApi'
-import { uploadApi } from './services/uploadApi'
-import { albumApi } from './services/albumApi'
-import { trackApi } from './services/trackApi'
-import { searchApi } from './services/searchApi'
-import authReducer from './slices/authSlice'
-import playerReducer from './slices/playerSlice'
+import { userApi } from '../modules/user/api'
+import { artistApi } from '../modules/artist/api'
+import { uploadApi } from '../modules/upload/api'
+import { albumApi } from '../modules/album/api'
+import { trackApi } from '../modules/music/api'
+import { searchApi } from '../modules/search/api'
+import authReducer from '../modules/auth/slice'
+import playerReducer from '../modules/player/slice'
 
 export const store = configureStore({
     reducer: {
@@ -29,10 +29,10 @@ export const store = configureStore({
             uploadApi.middleware,
             albumApi.middleware,
             trackApi.middleware,
-            searchApi.middleware,
+            searchApi.middleware
         ),
 })
 
 setupListeners(store.dispatch)
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

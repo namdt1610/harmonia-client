@@ -1,10 +1,10 @@
 'use client'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import RecentlyPlayedSection from '@/components/features/home/RecentlyPlayedSection'
-import FeaturedPlaylistsSection from '@/components/features/home/FeaturedPlaylistsSection'
-import RecentTracksSection from '@/components/features/home/RecentTracksSection'
-import { useGetCurrentTrackQuery } from '@/redux/services/userApi'
+import RecentlyPlayedSection from '@/modules/home/components/RecentlyPlayedSection'
+import FeaturedPlaylistsSection from '@/modules/home/components/FeaturedPlaylistsSection'
+import RecentTracksSection from '@/modules/home/components/RecentTracksSection'
+import { useGetCurrentTrackQuery } from '@/modules/user/api'
 
 export default function HomePage() {
     const t = useTranslations('HomePage')

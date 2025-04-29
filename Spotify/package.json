@@ -41,7 +41,9 @@
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3",
-        "@types/node": "^20",
+        "@types/estree": "^1.0.7",
+        "@types/json-schema": "^7.0.15",
+        "@types/node": "^20.17.32",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "@types/react-resizable": "^3.0.8",

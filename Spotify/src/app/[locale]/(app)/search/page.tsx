@@ -1,6 +1,6 @@
 'use client'
-import { useSearch } from '@/hooks/useSearch'
-import { SearchUI } from '@/components/features/search/.'
+import { useSearch } from '@/modules/search/hooks/useSearch'
+import { SearchUI } from '@/modules/search/components'
 
 export default function SearchPage() {
     const {

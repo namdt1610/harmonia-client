@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { Inter } from 'next/font/google'
 import { ReactNode, useState } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
-import { usePlayTrack } from '@/hooks/usePlayTrack'
+import { usePlayTrack } from '@/modules/music/hooks/usePlayTrack'
 
 import TopBar from './TopBar'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSibebar'
-import PlayerBar from '@/components/features/PlayerBar'
+import PlayerBar from '@/modules/player/components/PlayerBar'
 import { Play } from 'lucide-react'
 
 const inter = Inter({ subsets: ['latin'] })

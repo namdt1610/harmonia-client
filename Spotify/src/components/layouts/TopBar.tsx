@@ -2,7 +2,7 @@ import { User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import SearchBar from '@/components/layouts/SearchBar'
 import { useSelector, useDispatch } from 'react-redux'
-import { clearAuth } from '@/redux/slices/authSlice'
+import { clearAuth } from '@/modules/auth/slice'
 import { RootState } from '@/redux/store'
 
 interface TopBarProps {
