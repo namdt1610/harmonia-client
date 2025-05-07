@@ -1,5 +1,5 @@
 import React from 'react'
-import TrackItem from './TrackItem'
+import TrackItem from '../../music/components/TrackItem'
 
 interface RecentTracksSectionProps {
     title: string

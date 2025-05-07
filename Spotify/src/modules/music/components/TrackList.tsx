@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 import { setCurrentSong } from '@/modules/player/slice'
 import { Play } from 'lucide-react'
 import type { Track } from '@/types'
-import TrackItem from '@/modules/home/components/TrackItem'
+import TrackItem from '@/modules/music/components/TrackItem'
 
 interface TrackListProps {
     tracks: Track[]

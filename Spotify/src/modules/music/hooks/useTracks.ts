@@ -11,7 +11,7 @@ export function useTracks() {
         isLoading,
         isError,
         refetch,
-    } = useGetTracksQuery(searchQuery)
+    } = useGetTracksQuery({ searchTerm: searchQuery })
 
     const handleSearch = async (query: string) => {
         if (!query.trim()) return

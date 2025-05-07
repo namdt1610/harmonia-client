@@ -1,114 +1,114 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+// src/api/userApi.ts
+import { BaseQueryFn, createApi } from '@reduxjs/toolkit/query/react'
+import type { User, Track, Playlist } from '@/types'
+import { baseQueryWithReauth } from '@/libs/baseQuery'
 
 export const userApi = createApi({
-    reducerPath: 'api',
-    baseQuery: fetchBaseQuery({
-        baseUrl: process.env.NEXT_PUBLIC_API_URL,
-        prepareHeaders: (headers) => {
-            const token =
-                typeof window !== 'undefined'
-                    ? localStorage.getItem('token')
-                    : null
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`)
-            }
-            return headers
-        },
-        credentials: 'include',
-    }),
+    reducerPath: 'userApi',
+    baseQuery: baseQueryWithReauth as BaseQueryFn,
+    tagTypes: ['User', 'Playlist', 'Track'],
     endpoints: (builder) => ({
-        getUsers: builder.query<User[], void>({
-            query: () => '/users/',
+        getMe: builder.query<User, void>({
+            query: () => 'users/me/',
+            providesTags: [{ type: 'User', id: 'ME' }],
         }),
 
-        login: builder.mutation<
-            { user: User; access: string; refresh: string },
-            { username_or_email: string; password: string }
+        updateMe: builder.mutation<User, Partial<User>>({
+            query: (updates) => ({
+                url: 'users/me/',
+                method: 'PUT',
+                body: updates,
+            }),
+            invalidatesTags: [{ type: 'User', id: 'ME' }],
+        }),
+        uploadAvatar: builder.mutation<User, File>({
+            query: (file) => {
+                const formData = new FormData()
+                formData.append('avatar', file)
+                return {
+                    url: 'users/me/avatar/',
+                    method: 'POST',
+                    body: formData,
+                }
+            },
+            invalidatesTags: [{ type: 'User', id: 'ME' }],
+        }),
+
+        // Playlist CRUD
+        getMyPlaylists: builder.query<Playlist[], void>({
+            query: () => 'users/me/playlists/',
+            providesTags: (result) =>
+                result
+                    ? result.map((p) => ({
+                          type: 'Playlist' as const,
+                          id: p.id,
+                      }))
+                    : [],
+        }),
+        createPlaylist: builder.mutation<Playlist, Partial<Playlist>>({
+            query: (payload) => ({
+                url: 'users/me/playlists/',
+                method: 'POST',
+                body: payload,
+            }),
+            invalidatesTags: [{ type: 'Playlist', id: 'LIST' }],
+        }),
+        updatePlaylist: builder.mutation<
+            Playlist,
+            { id: number; data: Partial<Playlist> }
         >({
-            query: (credentials) => ({
-                url: '/login/',
-                method: 'POST',
-                body: credentials,
+            query: ({ id, data }) => ({
+                url: `users/me/playlists/${id}/`,
+                method: 'PUT',
+                body: data,
             }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Playlist', id },
+            ],
         }),
-
-        register: builder.mutation<
-            { access: string; refresh: string },
-            { username: string; email: string; password: string }
-        >({
-            query: (credentials) => ({
-                url: '/register/',
-                method: 'POST',
-                body: credentials,
-            }),
-        }),
-
-        logout: builder.mutation<void, void>({
-            query: () => ({
-                url: '/logout/',
-                method: 'POST',
-            }),
-        }),
-        getCurrentTrack: builder.query({
-            query: () => '/users/current-track', // Endpoint để lấy bài hát hiện tại của người dùng
-        }),
-        getUserProfile: builder.query({
-            query: () => '/profiles/',
-        }),
-        getUserFavoriteTracks: builder.query({
-            query: () => '/users/favorites/',
-        }),
-        addToFavoriteTracks: builder.mutation({
-            query: (trackId) => ({
-                url: `/users/${trackId}/favorite/`,
-                method: 'POST',
-            }),
-        }),
-        removeFromFavoriteTracks: builder.mutation({
-            query: (trackId) => ({
-                url: `/users/${trackId}/favorite/`,
+        deletePlaylist: builder.mutation<void, number>({
+            query: (id) => ({
+                url: `users/me/playlists/${id}/`,
                 method: 'DELETE',
             }),
+            invalidatesTags: (result, error, id) => [{ type: 'Playlist', id }],
         }),
-        getUserFavoriteAlbums: builder.query({
-            query: () => '/users/favorite-albums/',
+
+        // Favorite tracks CRUD
+        getFavoriteTracks: builder.query<Track[], void>({
+            query: () => 'users/me/favorite-tracks/',
+            providesTags: (result) =>
+                result
+                    ? result.map((t) => ({ type: 'Track' as const, id: t.id }))
+                    : [],
         }),
-        addToFavoriteAlbums: builder.mutation({
-            query: (albumId) => ({
-                url: `/users/${albumId}/favorite-album/`,
+        addFavoriteTrack: builder.mutation<void, number>({
+            query: (trackId) => ({
+                url: `users/me/favorite-tracks/`,
                 method: 'POST',
+                body: { track_id: trackId },
             }),
+            invalidatesTags: [{ type: 'Track', id: 'FAVORITES' }],
         }),
-        removeFromFavoriteAlbums: builder.mutation({
-            query: (albumId) => ({
-                url: `/users/${albumId}/favorite-album/`,
+        removeFavoriteTrack: builder.mutation<void, number>({
+            query: (trackId) => ({
+                url: `users/me/favorite-tracks/${trackId}/`,
                 method: 'DELETE',
             }),
-        }),
-        getUserPlaylists: builder.query({
-            query: () => '/users/playlists/',
+            invalidatesTags: (result, error, id) => [{ type: 'Track', id }],
         }),
     }),
 })
 
 export const {
-    useGetUsersQuery,
-    useLoginMutation,
-    useGetCurrentTrackQuery,
-    useGetUserProfileQuery,
-    useLogoutMutation,
-    useRegisterMutation,
-    useGetUserFavoriteTracksQuery,
-    useAddToFavoriteTracksMutation,
-    useRemoveFromFavoriteTracksMutation,
-    useGetUserFavoriteAlbumsQuery,
-    useAddToFavoriteAlbumsMutation,
-    useRemoveFromFavoriteAlbumsMutation,
-    useGetUserPlaylistsQuery,
+    useGetMeQuery,
+    useUpdateMeMutation,
+    useUploadAvatarMutation,
+    useGetMyPlaylistsQuery,
+    useCreatePlaylistMutation,
+    useUpdatePlaylistMutation,
+    useDeletePlaylistMutation,
+    useGetFavoriteTracksQuery,
+    useAddFavoriteTrackMutation,
+    useRemoveFavoriteTrackMutation,
 } = userApi
-
-export type User = {
-    id: number
-    username: string
-    email: string
-}

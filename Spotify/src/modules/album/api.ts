@@ -3,8 +3,15 @@ import { Album } from '@/types'
 
 export const albumApi = createApi({
     reducerPath: 'albumApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/api/' }),
+    baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL }),
+    tagTypes: ['Album'],
     endpoints: (builder) => ({
+        getAllAlbums: builder.query<Album[], void>({
+            query: () => 'albums/',
+            transformResponse: (response: { results: Album[] }) => {
+                return response.results
+            },
+        }),
         getAlbumsByArtist: builder.query<
             Album[],
             string // Chỉ cần truyền artistId
@@ -14,4 +21,4 @@ export const albumApi = createApi({
     }),
 })
 
-export const { useGetAlbumsByArtistQuery } = albumApi
+export const { useGetAllAlbumsQuery, useGetAlbumsByArtistQuery } = albumApi

@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
-import { Heart } from 'lucide-react'
+import { Heart, DownloadIcon, VideoIcon } from 'lucide-react'
 import DefaultCover from '@/assets/images/default-cover.webp'
 import type { Track } from '@/types'
+import { useTrackVideo } from '../hooks/useTrackVideo'
 
 interface TrackItemProps {
     track: Track
@@ -11,6 +12,15 @@ interface TrackItemProps {
 }
 
 export default function TrackItem({ track, index, onClick }: TrackItemProps) {
+    const [showVideo, setShowVideo] = useState(false)
+    const { videoUrl, isLoading, error, handleDownload, isDownloading } =
+        useTrackVideo(track.id)
+
+    const handleShowVideo = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setShowVideo(true)
+    }
+
     return (
         <div
             className="flex items-center p-2 sm:p-3 hover:bg-neutral-800/50 group border-b border-neutral-800/50 last:border-0"
@@ -66,33 +76,52 @@ export default function TrackItem({ track, index, onClick }: TrackItemProps) {
 
             {/* Video & Download buttons */}
             <button
-                onClick={async (e) => {
-                    e.stopPropagation()
-                    const res = await fetch(`/api/tracks/${track.id}/video/`)
-                    const data = await res.json()
-                    if (data.video_url) {
-                        window.open(data.video_url, '_blank')
-                    }
-                }}
+                onClick={handleShowVideo}
                 className="ml-2 text-blue-400 hover:text-blue-600"
+                disabled={isLoading}
+                title="Watch video"
             >
-                🎬
+                <VideoIcon size={16} />
             </button>
+
+            {/* Video Modal */}
+            {showVideo && (
+                <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div className="bg-neutral-900 p-4 rounded-lg">
+                        {isLoading ? (
+                            <div className="text-white">Loading video...</div>
+                        ) : error ? (
+                            <div className="text-red-500">
+                                Cannot load video.
+                            </div>
+                        ) : (
+                            <video
+                                src={videoUrl}
+                                controls
+                                autoPlay
+                                className="w-[400px] max-w-full"
+                            />
+                        )}
+                        <button
+                            className="mt-2 px-4 py-2 bg-red-500 rounded text-white"
+                            onClick={() => setShowVideo(false)}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <button
-                onClick={async (e) => {
+                onClick={(e) => {
                     e.stopPropagation()
-                    const res = await fetch(`/api/tracks/${track.id}/video/`)
-                    const data = await res.json()
-                    if (data.video_url) {
-                        const a = document.createElement('a')
-                        a.href = data.video_url
-                        a.download = ''
-                        a.click()
-                    }
+                    handleDownload()
                 }}
                 className="ml-2 text-green-400 hover:text-green-600"
+                disabled={isDownloading}
+                title="Tải video"
             >
-                ⬇️
+                <DownloadIcon size={16} />
             </button>
         </div>
     )
