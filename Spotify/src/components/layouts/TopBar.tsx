@@ -13,6 +13,7 @@ interface TopBarProps {
 export default function TopBar({ locale, onSearchResults }: TopBarProps) {
     const t = useTranslations('TopBar')
     const { isLoggedIn, user } = useSelector((state: RootState) => state.auth)
+    console.log(isLoggedIn)
     const dispatch = useDispatch()
 
     const handleLogout = () => {

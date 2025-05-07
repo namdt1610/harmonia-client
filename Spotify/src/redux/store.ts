@@ -8,9 +8,11 @@ import { trackApi } from '../modules/music/api'
 import { searchApi } from '../modules/search/api'
 import authReducer from '../modules/auth/slice'
 import playerReducer from '../modules/player/slice'
+import { authApi } from '@/modules/auth/api'
 
 export const store = configureStore({
     reducer: {
+        [authApi.reducerPath]: authApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
         [artistApi.reducerPath]: artistApi.reducer,
         [uploadApi.reducerPath]: uploadApi.reducer,
@@ -24,6 +26,7 @@ export const store = configureStore({
         getDefaultMiddleware({
             serializableCheck: false,
         }).concat(
+            authApi.middleware,
             userApi.middleware,
             artistApi.middleware,
             uploadApi.middleware,

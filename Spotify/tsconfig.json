@@ -28,6 +28,6 @@
         "**/*.tsx",
         ".next/types/**/*.ts",
         "next-intl.config.mjs"
-, "src/middleware.ts"    ],
+, "src/middleware.ts", "../../spotify.django.admin/spotify/modules/tracks/components/UploadTrackForm.tsx"    ],
     "exclude": ["node_modules"]
 }

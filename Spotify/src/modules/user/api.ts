@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const userApi = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://127.0.0.1:8000/api',
+        baseUrl: process.env.NEXT_PUBLIC_API_URL,
         prepareHeaders: (headers) => {
             const token =
                 typeof window !== 'undefined'
@@ -22,7 +22,7 @@ export const userApi = createApi({
         }),
 
         login: builder.mutation<
-            { user: User, access: string; refresh: string },
+            { user: User; access: string; refresh: string },
             { username_or_email: string; password: string }
         >({
             query: (credentials) => ({
@@ -49,18 +49,63 @@ export const userApi = createApi({
                 method: 'POST',
             }),
         }),
-
         getCurrentTrack: builder.query({
             query: () => '/users/current-track', // Endpoint để lấy bài hát hiện tại của người dùng
         }),
         getUserProfile: builder.query({
             query: () => '/profiles/',
         }),
-
+        getUserFavoriteTracks: builder.query({
+            query: () => '/users/favorites/',
+        }),
+        addToFavoriteTracks: builder.mutation({
+            query: (trackId) => ({
+                url: `/users/${trackId}/favorite/`,
+                method: 'POST',
+            }),
+        }),
+        removeFromFavoriteTracks: builder.mutation({
+            query: (trackId) => ({
+                url: `/users/${trackId}/favorite/`,
+                method: 'DELETE',
+            }),
+        }),
+        getUserFavoriteAlbums: builder.query({
+            query: () => '/users/favorite-albums/',
+        }),
+        addToFavoriteAlbums: builder.mutation({
+            query: (albumId) => ({
+                url: `/users/${albumId}/favorite-album/`,
+                method: 'POST',
+            }),
+        }),
+        removeFromFavoriteAlbums: builder.mutation({
+            query: (albumId) => ({
+                url: `/users/${albumId}/favorite-album/`,
+                method: 'DELETE',
+            }),
+        }),
+        getUserPlaylists: builder.query({
+            query: () => '/users/playlists/',
+        }),
     }),
 })
 
-export const { useGetUsersQuery, useLoginMutation, useGetCurrentTrackQuery, useGetUserProfileQuery, useLogoutMutation, useRegisterMutation } = userApi
+export const {
+    useGetUsersQuery,
+    useLoginMutation,
+    useGetCurrentTrackQuery,
+    useGetUserProfileQuery,
+    useLogoutMutation,
+    useRegisterMutation,
+    useGetUserFavoriteTracksQuery,
+    useAddToFavoriteTracksMutation,
+    useRemoveFromFavoriteTracksMutation,
+    useGetUserFavoriteAlbumsQuery,
+    useAddToFavoriteAlbumsMutation,
+    useRemoveFromFavoriteAlbumsMutation,
+    useGetUserPlaylistsQuery,
+} = userApi
 
 export type User = {
     id: number

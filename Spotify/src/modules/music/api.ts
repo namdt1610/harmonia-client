@@ -66,6 +66,30 @@ export const trackApi = createApi({
                 { type: 'Track' as const, id },
             ],
         }),
+        getTrackVideo: builder.query<string, number>({
+            query: (id) => `tracks/${id}/video/`,
+            providesTags: (result, error, id) => [
+                { type: 'Track' as const, id },
+            ],
+            transformResponse: (response: { video_url: string }) => {
+                return response.video_url
+            },
+        }),
+        downloadTrackVideo: builder.mutation<void, number>({
+            query: (id) => ({
+                url: `tracks/${id}/video/`,
+                method: 'GET',
+            }),
+            invalidatesTags: (result, error, id) => [
+                { type: 'Track' as const, id },
+            ],
+            transformResponse: (response: { video_url: string }) => {
+                const a = document.createElement('a')
+                a.href = response.video_url
+                a.download = ''
+                a.click()
+            },
+        }),
     }),
 })
 
@@ -76,4 +100,6 @@ export const {
     useCreateTrackMutation,
     useUpdateTrackMutation,
     useDeleteTrackMutation,
+    useGetTrackVideoQuery,
+    useDownloadTrackVideoMutation,
 } = trackApi

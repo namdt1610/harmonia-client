@@ -17,7 +17,6 @@ export const useRegister = () => {
             return result
         } catch (error) {
             console.error('Register failed:', error)
-            alert('Đăng ký thất bại.')
             throw error
         }
     }

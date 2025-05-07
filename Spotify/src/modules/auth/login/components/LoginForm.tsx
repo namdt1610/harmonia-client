@@ -1,7 +1,7 @@
 'use client'
 import { useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
-import { set, z } from 'zod'
+import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 
@@ -18,8 +18,8 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form'
-import GoogleIcon from '@/components/GoogleIcon'
-import { Separator } from '../../../../components/ui/separator'
+import GoogleIcon from '@/components/shared/GoogleIcon'
+import { Separator } from '@/components/ui/separator'
 import { useLogin } from '@/modules/auth/login/hooks/useLogin'
 import { useRouter } from 'next/navigation'
 
@@ -33,7 +33,7 @@ const FormSchema = z.object({
 })
 
 export default function LoginForm() {
-    const { handleLogin, isLoading } = useLogin()
+    const { handleLogin, isLoading, isError, isSuccess } = useLogin()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -45,46 +45,36 @@ export default function LoginForm() {
     const t = useTranslations('LoginPage')
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        // toast('You submitted the following values:', {
-        //     description: (
-        //         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-        //             <code className="text-white">
-        //                 {JSON.stringify(data, null, 2)}
-        //             </code>
-        //         </pre>
-        //     ),
-        // })
-
         handleLogin(data.username_or_email, data.password)
             .then((res) => {
+                console.log('handleLogin res:', res)
                 if (res) {
                     toast.success('Login successful!')
-                    setTimeout(() => {
-                        router.push('/')
-                    }, 1000)
+                    // const locale =
+                    //     window.location.pathname.split('/')[1] || 'vi'
+                    // // Force reload để Middleware thấy cookie mới
+                    // window.location.href = `/${locale}`
                 }
             })
             .catch((err) => {
-                console.log(err)
-                toast.error(err.message || 'Login failed. Please try again.')
+                toast.error(err?.message || 'Login failed. Please try again.')
             })
-
-        if (isLoading) {
-            toast.loading('Logging in...')
-        }
     }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <Card
-                    className="w-96 shadow-lg transition-all duration-300 ease-in-out hover:scale-105 "
-                    style={{ height: '550px' }}
+                    className=" shadow-lg transition-all duration-300 ease-in-out hover:scale-105 "
+                    style={{ width: '500px' }}
                 >
                     <CardHeader>
                         <CardTitle className="text-center text-lg">
                             {t('title')}
                         </CardTitle>
+                        <button onClick={() => router.push('/')}>
+                            Test Go Home
+                        </button>
                     </CardHeader>
                     <CardContent className="flex flex-col space-y-4">
                         <FormField
@@ -130,8 +120,26 @@ export default function LoginForm() {
                                 </FormItem>
                             )}
                         />
-                        <Button className="w-full" onClick={() => null}>
-                            {t('title')}
+                        <Button
+                            className="w-full"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? t('auth.loading') : t('title')}
+                        </Button>
+                        <Button
+                            variant="link"
+                            className="w-full text-center text-sm text-muted-foreground hover:underline"
+                            onClick={() => router.push('/forgot-password')}
+                        >
+                            {t('forgotPassword')}
+                        </Button>
+                        <Button
+                            variant="link"
+                            className="w-full text-center text-sm text-muted-foreground hover:underline"
+                            onClick={() => router.push('/register')}
+                        >
+                            {t('register')}
                         </Button>
                         <Separator />
                         <Button

@@ -11,10 +11,12 @@ interface RefreshResponse {
 }
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: '/api',
+    // baseUrl: '/api',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL,
     credentials: 'include', // Nếu backend check session/cookie
     prepareHeaders: (headers, { getState }) => {
         const token = (getState() as RootState).auth.accessToken
+        console.log('Token:', token)
         if (token) {
             headers.set('Authorization', `Bearer ${token}`)
         }

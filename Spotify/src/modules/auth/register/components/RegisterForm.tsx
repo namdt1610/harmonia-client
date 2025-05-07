@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,7 @@ const FormSchema = z.object({
 })
 
 export default function RegisterForm() {
+    const router = useRouter()
     const { handleRegister, isLoading, isError } = useRegister()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -81,7 +83,10 @@ export default function RegisterForm() {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <Card className="w-[350px] shadow-lg transition-all duration-300 ease-in-out hover:scale-105 ">
+                <Card
+                    className="shadow-lg transition-all duration-300 ease-in-out hover:scale-105 "
+                    style={{ width: '500px' }}
+                >
                     <CardHeader>
                         <CardTitle className="text-center text-lg">
                             {t('title')}
@@ -148,6 +153,14 @@ export default function RegisterForm() {
                         />
                         <Button className="w-full" onClick={() => null}>
                             {t('title')}
+                        </Button>
+                        <p className='text-center'>Already have an account? </p>
+                        <Button
+                            variant="link"
+                            className="w-full text-center text-sm text-muted-foreground hover:underline"
+                            onClick={() => router.push('/login')}
+                        >
+                            {t('login')}
                         </Button>
                         <Separator />
                         <Button

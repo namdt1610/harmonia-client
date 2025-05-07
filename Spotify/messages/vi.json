@@ -54,7 +54,12 @@
         "username_or_email": "Tên đăng nhập",
         "usernameDescription": "Tên đăng nhập hoặc email của bạn",
         "password": "Mật khẩu",
-        "passwordDescription": "Mật khẩu của bạn"
+        "passwordDescription": "Mật khẩu của bạn",
+        "forgotPassword": "Quên mật khẩu?",
+        "register": "Đăng ký",
+        "auth": {
+            "loading": "Đang tải..."
+        }
     },
 
     "RegisterPage": {

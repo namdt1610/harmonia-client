@@ -1,36 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const LOCALES = ['vi', 'en'] as const
-const PUBLIC_PATHS = ['/login', '/register']
 const DEFAULT_LOCALE = 'vi'
 
 export function middleware(request: NextRequest) {
     const { pathname, search } = request.nextUrl
 
-    // Bỏ qua public pages (đã exclude static/api bằng matcher)
-    if (PUBLIC_PATHS.includes(pathname)) return NextResponse.next()
-
-    // Kiểm tra locale có hợp lệ?
+    // Kiểm tra locale ở đầu path
     const matchedLocale = LOCALES.find(
         (locale) =>
             pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
     )
 
     if (!matchedLocale) {
-        // Chưa có locale => redirect tự động sang locale mặc định
+        // Nếu chưa có locale, redirect sang locale mặc định
         return NextResponse.redirect(
             new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url)
         )
     }
 
-    // Có locale rồi => check đăng nhập
-    const refreshToken = request.cookies.get('refresh_token')
-    if (!refreshToken) {
-        // Chưa có refresh token => redirect tới trang login
-        return NextResponse.redirect(new URL('/login', request.url))
+    // Đã có locale, check nếu là /vi/login hay /en/register, v.v.
+    const pageName = pathname.split('/')[2] // ['', locale, pageName, ...]
+    if (['login', 'register'].includes(pageName)) {
+        // Các trang này cho phép public, không kiểm tra token
+        return NextResponse.next()
     }
 
-    // Lúc này đã có locale và có refresh token => cho qua
+    // Các trang khác phải check đăng nhập
+    const refreshToken = request.cookies.get('refresh_token')
+    if (!refreshToken) {
+        // Redirect về đúng trang login với locale
+        return NextResponse.redirect(
+            new URL(`/${matchedLocale}/login`, request.url)
+        )
+    }
+
     return NextResponse.next()
 }
 

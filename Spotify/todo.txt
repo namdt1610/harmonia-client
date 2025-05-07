@@ -1,2 +1,7 @@
+play track
+play track's video
+download track's video
+user create playlist, favorite tracks
 play tracks on playlist
 play tracks on album
+admin panel

@@ -1,4 +1,3 @@
-// features/auth/authApi.ts
 import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from '@/libs/baseQuery'
 
@@ -14,7 +13,7 @@ export const authApi = createApi({
             }),
         }),
         currentUser: builder.query<any, void>({
-            query: () => '/auth/me',
+            query: () => '/auth/me/',
         }),
         logout: builder.mutation<void, void>({
             query: () => ({
