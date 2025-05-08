@@ -33,7 +33,14 @@ const FormSchema = z.object({
 })
 
 export default function LoginForm() {
-    const { handleLogin, isLoading, isError, isSuccess } = useLogin()
+    const {
+        handleLogin,
+        isLoading,
+        isError,
+        isSuccess,
+        handleGoogleLogin,
+        isGoogleLoading,
+    } = useLogin()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -145,9 +152,8 @@ export default function LoginForm() {
                         <Button
                             variant="outline"
                             className="w-full"
-                            onClick={() =>
-                                signIn('google', { callbackUrl: '/dashboard' })
-                            }
+                            onClick={handleGoogleLogin}
+                            disabled={isGoogleLoading}
                         >
                             <GoogleIcon />
                             {t('googleSignIn')}

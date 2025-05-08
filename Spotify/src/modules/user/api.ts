@@ -11,6 +11,14 @@ export const userApi = createApi({
         getMe: builder.query<User, void>({
             query: () => 'users/me/',
             providesTags: [{ type: 'User', id: 'ME' }],
+            // Cache for 5 minutes
+            keepUnusedDataFor: 300,
+        }),
+
+        getCurrentTrack: builder.query<Track, void>({
+            query: () => 'users/me/current-track/',
+            providesTags: [{ type: 'Track', id: 'CURRENT' }],
+            keepUnusedDataFor: 300,
         }),
 
         updateMe: builder.mutation<User, Partial<User>>({
@@ -20,7 +28,25 @@ export const userApi = createApi({
                 body: updates,
             }),
             invalidatesTags: [{ type: 'User', id: 'ME' }],
+            // Optimistic update
+            async onQueryStarted(updates, { queryFulfilled, dispatch }) {
+                try {
+                    const { data: updatedUser } = await queryFulfilled
+                    dispatch(
+                        userApi.util.updateQueryData(
+                            'getMe',
+                            undefined,
+                            (draft) => {
+                                Object.assign(draft, updatedUser)
+                            }
+                        )
+                    )
+                } catch {
+                    // If the mutation fails, the optimistic update will be automatically rolled back
+                }
+            },
         }),
+
         uploadAvatar: builder.mutation<User, File>({
             query: (file) => {
                 const formData = new FormData()
@@ -39,12 +65,18 @@ export const userApi = createApi({
             query: () => 'users/me/playlists/',
             providesTags: (result) =>
                 result
-                    ? result.map((p) => ({
-                          type: 'Playlist' as const,
-                          id: p.id,
-                      }))
-                    : [],
+                    ? [
+                          { type: 'Playlist', id: 'LIST' },
+                          ...result.map((p) => ({
+                              type: 'Playlist' as const,
+                              id: p.id,
+                          })),
+                      ]
+                    : [{ type: 'Playlist', id: 'LIST' }],
+            // Cache for 5 minutes
+            keepUnusedDataFor: 300,
         }),
+
         createPlaylist: builder.mutation<Playlist, Partial<Playlist>>({
             query: (payload) => ({
                 url: 'users/me/playlists/',
@@ -52,7 +84,25 @@ export const userApi = createApi({
                 body: payload,
             }),
             invalidatesTags: [{ type: 'Playlist', id: 'LIST' }],
+            // Optimistic update
+            async onQueryStarted(payload, { queryFulfilled, dispatch }) {
+                try {
+                    const { data: newPlaylist } = await queryFulfilled
+                    dispatch(
+                        userApi.util.updateQueryData(
+                            'getMyPlaylists',
+                            undefined,
+                            (draft) => {
+                                draft.push(newPlaylist)
+                            }
+                        )
+                    )
+                } catch {
+                    // If the mutation fails, the optimistic update will be automatically rolled back
+                }
+            },
         }),
+
         updatePlaylist: builder.mutation<
             Playlist,
             { id: number; data: Partial<Playlist> }
@@ -64,14 +114,66 @@ export const userApi = createApi({
             }),
             invalidatesTags: (result, error, { id }) => [
                 { type: 'Playlist', id },
+                { type: 'Playlist', id: 'LIST' },
             ],
+            // Optimistic update
+            async onQueryStarted({ id, data }, { queryFulfilled, dispatch }) {
+                try {
+                    const { data: updatedPlaylist } = await queryFulfilled
+                    dispatch(
+                        userApi.util.updateQueryData(
+                            'getMyPlaylists',
+                            undefined,
+                            (draft) => {
+                                const index = draft.findIndex(
+                                    (p) => p.id === id
+                                )
+                                if (index !== -1) {
+                                    draft[index] = {
+                                        ...draft[index],
+                                        ...updatedPlaylist,
+                                    }
+                                }
+                            }
+                        )
+                    )
+                } catch {
+                    // If the mutation fails, the optimistic update will be automatically rolled back
+                }
+            },
         }),
+
         deletePlaylist: builder.mutation<void, number>({
             query: (id) => ({
                 url: `users/me/playlists/${id}/`,
                 method: 'DELETE',
             }),
-            invalidatesTags: (result, error, id) => [{ type: 'Playlist', id }],
+            invalidatesTags: (result, error, id) => [
+                { type: 'Playlist', id },
+                { type: 'Playlist', id: 'LIST' },
+            ],
+            // Optimistic update
+            async onQueryStarted(id, { queryFulfilled, dispatch }) {
+                try {
+                    await queryFulfilled
+                    dispatch(
+                        userApi.util.updateQueryData(
+                            'getMyPlaylists',
+                            undefined,
+                            (draft) => {
+                                const index = draft.findIndex(
+                                    (p) => p.id === id
+                                )
+                                if (index !== -1) {
+                                    draft.splice(index, 1)
+                                }
+                            }
+                        )
+                    )
+                } catch {
+                    // If the mutation fails, the optimistic update will be automatically rolled back
+                }
+            },
         }),
 
         // Favorite tracks CRUD
@@ -79,9 +181,18 @@ export const userApi = createApi({
             query: () => 'users/me/favorite-tracks/',
             providesTags: (result) =>
                 result
-                    ? result.map((t) => ({ type: 'Track' as const, id: t.id }))
-                    : [],
+                    ? [
+                          { type: 'Track', id: 'FAVORITES' },
+                          ...result.map((t) => ({
+                              type: 'Track' as const,
+                              id: t.id,
+                          })),
+                      ]
+                    : [{ type: 'Track', id: 'FAVORITES' }],
+            // Cache for 5 minutes
+            keepUnusedDataFor: 300,
         }),
+
         addFavoriteTrack: builder.mutation<void, number>({
             query: (trackId) => ({
                 url: `users/me/favorite-tracks/`,
@@ -90,18 +201,20 @@ export const userApi = createApi({
             }),
             invalidatesTags: [{ type: 'Track', id: 'FAVORITES' }],
         }),
+
         removeFavoriteTrack: builder.mutation<void, number>({
             query: (trackId) => ({
                 url: `users/me/favorite-tracks/${trackId}/`,
                 method: 'DELETE',
             }),
-            invalidatesTags: (result, error, id) => [{ type: 'Track', id }],
+            invalidatesTags: [{ type: 'Track', id: 'FAVORITES' }],
         }),
     }),
 })
 
 export const {
     useGetMeQuery,
+    useGetCurrentTrackQuery,
     useUpdateMeMutation,
     useUploadAvatarMutation,
     useGetMyPlaylistsQuery,

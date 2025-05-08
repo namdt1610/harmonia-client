@@ -1,58 +1,71 @@
+import React from 'react'
+import {
+    SkipBack,
+    SkipForward,
+    Play,
+    Pause,
+    Shuffle,
+    Repeat,
+} from 'lucide-react'
+
 interface PlayerControlsProps {
     isPlaying: boolean
-    onTogglePlayPause: () => void
+    togglePlayPause: () => void
+    isLoading: boolean
 }
 
-export function PlayerControls({
+export const PlayerControls: React.FC<PlayerControlsProps> = ({
     isPlaying,
-    onTogglePlayPause,
-}: PlayerControlsProps) {
+    togglePlayPause,
+    isLoading,
+}) => {
     return (
-        <div className="flex items-center space-x-4">
-            <button className="text-neutral-400 hover:text-white">
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
+        <div className="flex flex-col items-center">
+            {/* Main Controls */}
+            <div className="flex items-center justify-center space-x-6">
+                <button
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Shuffle"
                 >
-                    <path d="M13.86 7 4.701 1.797a.5.5 0 0 0-.753.43v10.546a.5.5 0 0 0 .753.43L13.86 9a.5.5 0 0 0 0-.999z"></path>
-                </svg>
-            </button>
-            <button
-                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black"
-                onClick={onTogglePlayPause}
-            >
-                {isPlaying ? (
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                    >
-                        <path d="M5 3.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-9zM9 3.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-9z"></path>
-                    </svg>
-                ) : (
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                    >
-                        <path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"></path>
-                    </svg>
-                )}
-            </button>
-            <button className="text-neutral-400 hover:text-white">
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
+                    <Shuffle size={20} />
+                </button>
+
+                <button
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Previous"
                 >
-                    <path d="M2.14 9 11.3 14.203a.5.5 0 0 0 .753-.43V3.227a.5.5 0 0 0-.753-.43L2.14 7a.5.5 0 0 0 0 .999z"></path>
-                </svg>
-            </button>
+                    <SkipBack size={20} />
+                </button>
+
+                <button
+                    onClick={togglePlayPause}
+                    disabled={isLoading}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition-transform disabled:opacity-50"
+                    title={isPlaying ? 'Pause' : 'Play'}
+                >
+                    {isLoading ? (
+                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    ) : isPlaying ? (
+                        <Pause size={20} fill="currentColor" />
+                    ) : (
+                        <Play size={20} fill="currentColor" />
+                    )}
+                </button>
+
+                <button
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Next"
+                >
+                    <SkipForward size={20} />
+                </button>
+
+                <button
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Repeat"
+                >
+                    <Repeat size={20} />
+                </button>
+            </div>
         </div>
     )
 }

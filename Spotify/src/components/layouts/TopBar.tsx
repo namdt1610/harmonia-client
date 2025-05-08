@@ -1,30 +1,35 @@
 import { User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import SearchBar from '@/components/layouts/SearchBar'
 import { useSelector, useDispatch } from 'react-redux'
 import { clearAuth } from '@/modules/auth/slice'
 import { RootState } from '@/redux/store'
+import SearchBar from '@/components/layouts/SearchBar'
+import { useRouter } from 'next/navigation'
 
 interface TopBarProps {
-    locale: string
     onSearchResults: (results: any) => void
 }
 
-export default function TopBar({ locale, onSearchResults }: TopBarProps) {
+export default function TopBar({ onSearchResults }: TopBarProps) {
     const t = useTranslations('TopBar')
     const { isLoggedIn, user } = useSelector((state: RootState) => state.auth)
     console.log(isLoggedIn)
     const dispatch = useDispatch()
+    const router = useRouter()
 
     const handleLogout = () => {
         dispatch(clearAuth())
-        localStorage.removeItem('access_token')
+        sessionStorage.removeItem('access_token')
     }
 
     return (
         <header className="h-16 bg-neutral-900 bg-opacity-80 backdrop-filter backdrop-blur sticky top-0 z-10 flex items-center px-8">
             <div className="flex items-center space-x-4">
-                <button className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <button
+                    className="w-8 h-8 bg-black rounded-full flex items-center justify-center"
+                    onClick={() => router.back()}
+                    aria-label="Back"
+                >
                     <svg
                         width="16"
                         height="16"
@@ -34,7 +39,11 @@ export default function TopBar({ locale, onSearchResults }: TopBarProps) {
                         <path d="M11.03.47a.75.75 0 0 1 0 1.06L4.56 8l6.47 6.47a.75.75 0 1 1-1.06 1.06L2.44 8 9.97.47a.75.75 0 0 1 1.06 0z"></path>
                     </svg>
                 </button>
-                <button className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <button
+                    className="w-8 h-8 bg-black rounded-full flex items-center justify-center"
+                    onClick={() => router.forward()}
+                    aria-label="Forward"
+                >
                     <svg
                         width="16"
                         height="16"
@@ -58,7 +67,9 @@ export default function TopBar({ locale, onSearchResults }: TopBarProps) {
                         <button className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
                             <User size={16} />
                         </button>
-                        <span className="text-sm text-white">{user?.name}</span>
+                        <span className="text-sm text-white">
+                            {user?.display_name}
+                        </span>
                         <button
                             onClick={handleLogout}
                             className="px-4 py-1 text-sm font-bold bg-red-500 text-white rounded-full hover:scale-105 transition-transform"

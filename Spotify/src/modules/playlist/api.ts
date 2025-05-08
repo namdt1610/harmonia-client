@@ -2,7 +2,7 @@ import { BaseQueryFn, createApi } from '@reduxjs/toolkit/query/react'
 import { Playlist } from '@/types'
 import { baseQueryWithReauth } from '@/libs/baseQuery'
 
-const playlistApi = createApi({
+export const playlistApi = createApi({
     reducerPath: 'playlistApi',
     baseQuery: baseQueryWithReauth as BaseQueryFn,
     endpoints: (builder) => ({
@@ -10,6 +10,25 @@ const playlistApi = createApi({
             query: (playlistId) => ({
                 url: `${playlistId}`,
                 method: 'GET',
+            }),
+        }),
+        addTrackToPlaylist: builder.mutation({
+            query: ({
+                playlistId,
+                trackId,
+            }: {
+                playlistId: string
+                trackId: string
+            }) => ({
+                url: `${playlistId}/add-track/${trackId}`,
+                method: 'POST',
+            }),
+        }),
+        createPlaylist: builder.mutation({
+            query: (name: string) => ({
+                url: 'create',
+                method: 'POST',
+                body: { name },
             }),
         }),
         updatePlaylist: builder.mutation({
@@ -32,8 +51,8 @@ const playlistApi = createApi({
             }),
         }),
         getUserPlaylists: builder.query({
-            query: (userId) => ({
-                url: `${userId}/playlists`,
+            query: () => ({
+                url: '',
                 method: 'GET',
             }),
         }),
@@ -52,4 +71,6 @@ export const {
     useDeletePlaylistMutation,
     useGetPlaylistsByUserQuery,
     useGetUserPlaylistsQuery,
+    useCreatePlaylistMutation,
+    useAddTrackToPlaylistMutation,
 } = playlistApi

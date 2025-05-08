@@ -45,9 +45,9 @@ export default function ProfileEditForm() {
         if (avatarFile) {
             try {
                 await uploadAvatar(avatarFile).unwrap()
-                toast.success('Cập nhật ảnh thành công')
+                toast.success('Update avatar successfully')
             } catch {
-                toast.error('Lỗi khi cập nhật ảnh đại diện')
+                toast.error('Error when updating avatar')
                 return
             }
             setAvatarFile(null)

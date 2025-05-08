@@ -1,6 +1,6 @@
 import React from 'react'
-import TrackItem from '../../music/components/TrackItem'
-
+import TrackItem from '@/modules/music/components/TrackItem'
+import { useGetRecentTracksQuery } from '@/modules/music/api'
 interface RecentTracksSectionProps {
     title: string
 }
@@ -8,16 +8,7 @@ interface RecentTracksSectionProps {
 export default function RecentTracksSection({
     title,
 }: RecentTracksSectionProps) {
-    // Mock track data
-    const tracks = [1, 2, 3, 4, 5].map((id) => ({
-        id,
-        title: `Track Title ${id}`,
-        artist: 'Artist Name',
-        duration: 1111,
-        cover: `/images/track${id}.jpg`,
-        file: `/audio/track${id}.mp3`,
-        created_at: new Date().toISOString(),
-    }))
+    const { data: tracks, isLoading } = useGetRecentTracksQuery()
 
     return (
         <section className="mb-5 md:mb-8">
@@ -27,8 +18,15 @@ export default function RecentTracksSection({
                 </h2>
             </div>
             <div className="bg-neutral-900/50 rounded-md overflow-hidden">
-                {tracks.map((track, index) => (
-                    <TrackItem key={track.id} track={track} index={index + 1} />
+                {tracks?.map((track, index) => (
+                    <TrackItem
+                        key={track.id}
+                        track={{
+                            ...track,
+                            artist_name: track.artist?.name || '',
+                            is_favorite: track.is_favorite || false,
+                        }}
+                    />
                 ))}
             </div>
         </section>

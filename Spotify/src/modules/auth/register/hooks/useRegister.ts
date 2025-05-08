@@ -1,4 +1,4 @@
-import { useRegisterMutation } from '@/modules/user/api'
+import { useRegisterMutation } from '@/modules/auth/api'
 
 export const useRegister = () => {
     const [register, { isLoading, isError }] = useRegisterMutation()

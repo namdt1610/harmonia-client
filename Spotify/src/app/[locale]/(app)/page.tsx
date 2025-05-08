@@ -4,17 +4,36 @@ import { useTranslations } from 'next-intl'
 import RecentlyPlayedSection from '@/modules/home/components/RecentlyPlayedSection'
 import FeaturedPlaylistsSection from '@/modules/home/components/FeaturedPlaylistsSection'
 import RecentTracksSection from '@/modules/home/components/RecentTracksSection'
-import { useGetCurrentTrackQuery } from '@/modules/user/api'
+import { useGetCurrentTrackQuery } from '@/modules/music/api'
+import { useGetUserActivityQuery } from '@/modules/activity/api'
+import TrackItem from '@/modules/music/components/TrackItem'
+import { useDispatch } from 'react-redux'
+import { setCurrentSong } from '@/modules/player/slice'
+import { useEffect } from 'react'
 
 export default function HomePage() {
     const t = useTranslations('HomePage')
+    const dispatch = useDispatch()
 
     // Fetch current track for the logged-in user
     const {
         data: currentTrack,
         isLoading: isLoadingCurrentTrack,
         isError,
-    } = useGetCurrentTrackQuery({})
+    } = useGetCurrentTrackQuery()
+
+    useEffect(() => {
+        if (currentTrack) {
+            dispatch(setCurrentSong(currentTrack))
+        }
+    }, [currentTrack, dispatch])
+
+    // Lấy activity của user
+    const {
+        data: userActivity,
+        isLoading: isLoadingActivity,
+        error: errorActivity,
+    } = useGetUserActivityQuery()
 
     // Giả lập dữ liệu khác
     const recentlyPlayed = [
@@ -80,24 +99,47 @@ export default function HomePage() {
                     <div className="flex items-center space-x-4">
                         <Image
                             src={
-                                currentTrack?.albumArt ||
+                                currentTrack?.album?.cover ||
                                 '/images/default-cover.webp'
                             }
-                            alt={currentTrack?.name || 'Unknown Track'}
+                            alt={currentTrack?.title || 'Unknown Track'}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 rounded-lg"
                         />
                         <div>
                             <p className="text-sm font-medium">
-                                {currentTrack?.name || 'Unknown Track'}
+                                {currentTrack?.title || 'Unknown Track'}
                             </p>
                             <p className="text-xs text-neutral-400">
-                                {currentTrack?.artist || 'Unknown Artist'}
+                                {currentTrack?.artist?.name || 'Unknown Artist'}
                             </p>
                         </div>
                     </div>
                 </div>
             )}
-
+            {/* Recently played tracks từ user activity */}
+            <div className="mb-6">
+                <h2 className="text-xl font-bold mb-4">
+                    {t('recentlyPlayed', { fallback: 'Recently played' })}
+                </h2>
+                {isLoadingActivity ? (
+                    <p>Đang tải...</p>
+                ) : errorActivity ? (
+                    <p>Lỗi khi tải lịch sử nghe nhạc.</p>
+                ) : !userActivity || userActivity.length === 0 ? (
+                    <p>Bạn chưa nghe bài nào gần đây.</p>
+                ) : (
+                    <div>
+                        {userActivity
+                            .filter((a) => a.action === 'play' && a.track)
+                            .slice(0, 10)
+                            .map((a) => (
+                                <TrackItem key={a.id} track={a.track} />
+                            ))}
+                    </div>
+                )}
+            </div>
             {/* Recently played section */}
             <RecentlyPlayedSection
                 title={t('greeting', { fallback: 'Good afternoon' })}
@@ -109,11 +151,6 @@ export default function HomePage() {
                 title={t('madeForYou', { fallback: 'Made for you' })}
                 seeAllLabel={t('seeAll', { fallback: 'See all' })}
                 playlists={featuredPlaylists}
-            />
-
-            {/* Recently played tracks */}
-            <RecentTracksSection
-                title={t('recentlyPlayed', { fallback: 'Recently played' })}
             />
         </main>
     )

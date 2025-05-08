@@ -1,128 +1,193 @@
 import React, { useState } from 'react'
-import Image from 'next/image'
-import { Heart, DownloadIcon, VideoIcon } from 'lucide-react'
-import DefaultCover from '@/assets/images/default-cover.webp'
-import type { Track } from '@/types'
-import { useTrackVideo } from '../hooks/useTrackVideo'
+import { useDispatch } from 'react-redux'
+import { useRemoveFavoriteTrackMutation } from '@/modules/user/api'
+import AddToPlaylistModal from '@/components/AddToPlaylistModal'
+import { usePlayTrack } from '../hooks/usePlayTrack'
+import { Track } from '@/types'
 
 interface TrackItemProps {
     track: Track
-    index: number
-    onClick?: () => void
 }
 
-export default function TrackItem({ track, index, onClick }: TrackItemProps) {
-    const [showVideo, setShowVideo] = useState(false)
-    const { videoUrl, isLoading, error, handleDownload, isDownloading } =
-        useTrackVideo(track.id)
+const TrackItem: React.FC<TrackItemProps> = ({ track }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [removeFromFavorite] = useRemoveFavoriteTrackMutation()
+    const { playTrack } = usePlayTrack()
 
-    const handleShowVideo = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        setShowVideo(true)
+    const formatDuration = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60)
+        const remainingSeconds = seconds % 60
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+    }
+
+    const handleRemoveFromFavorite = async () => {
+        try {
+            await removeFromFavorite(track.id).unwrap()
+        } catch (error) {
+            console.error('Failed to remove from favorites:', error)
+        }
+    }
+
+    const handleDownload = () => {
+        if (track.file) {
+            window.open(track.file, '_blank')
+        }
+    }
+
+    const handleWatchVideo = () => {
+        if (track.music_video) {
+            window.open(track.music_video, '_blank')
+        }
     }
 
     return (
-        <div
-            className="flex items-center p-2 sm:p-3 hover:bg-neutral-800/50 group border-b border-neutral-800/50 last:border-0"
-            onClick={onClick}
-        >
-            {/* Track number */}
-            <div className="w-6 sm:w-10 text-center text-neutral-400 hidden xs:block">
-                {index}
-            </div>
-
-            {/* Track image */}
-            <div className="w-10 h-10 sm:mx-3 bg-neutral-800 relative flex-shrink-0">
-                {track.cover ? (
-                    <Image
-                        src={track.cover}
-                        alt={track.title}
-                        fill
-                        sizes="(max-width: 640px) 40px, 56px"
-                        className="object-cover rounded-md"
-                    />
-                ) : (
-                    <div className="w-full h-full bg-neutral-700 flex items-center justify-center rounded-md">
-                        <Image
-                            src={DefaultCover}
-                            alt="Default cover"
-                            fill
-                            sizes="(max-width: 640px) 40px, 56px"
-                            className="object-cover rounded-md"
+        <div className="flex items-center justify-between p-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg group">
+            <div className="flex items-center space-x-4">
+                <button
+                    onClick={() => playTrack(track)}
+                    className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                    title="Play"
+                >
+                    <svg
+                        className="w-6 h-6 text-gray-600 dark:text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
                         />
-                    </div>
-                )}
-            </div>
-
-            {/* Track info */}
-            <div className="flex-grow min-w-0 px-2 sm:px-0">
-                <h4 className="font-medium truncate text-sm sm:text-base">
-                    {track.title}
-                </h4>
-                <p className="text-xs sm:text-sm text-neutral-400 truncate">
-                    {track.artist.name}
-                </p>
-            </div>
-
-            {/* Duration */}
-            <div className="text-neutral-400 text-xs sm:text-sm ml-2 hidden sm:block">
-                {track.duration}
-            </div>
-
-            {/* Like button */}
-            <button className="ml-2 sm:ml-4 text-neutral-400 opacity-0 group-hover:opacity-100">
-                <Heart size={16} />
-            </button>
-
-            {/* Video & Download buttons */}
-            <button
-                onClick={handleShowVideo}
-                className="ml-2 text-blue-400 hover:text-blue-600"
-                disabled={isLoading}
-                title="Watch video"
-            >
-                <VideoIcon size={16} />
-            </button>
-
-            {/* Video Modal */}
-            {showVideo && (
-                <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-                    <div className="bg-neutral-900 p-4 rounded-lg">
-                        {isLoading ? (
-                            <div className="text-white">Loading video...</div>
-                        ) : error ? (
-                            <div className="text-red-500">
-                                Cannot load video.
-                            </div>
-                        ) : (
-                            <video
-                                src={videoUrl}
-                                controls
-                                autoPlay
-                                className="w-[400px] max-w-full"
-                            />
-                        )}
-                        <button
-                            className="mt-2 px-4 py-2 bg-red-500 rounded text-white"
-                            onClick={() => setShowVideo(false)}
-                        >
-                            Close
-                        </button>
-                    </div>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                </button>
+                <div>
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                        {track.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {track.artist?.name}
+                    </p>
                 </div>
-            )}
+            </div>
 
-            <button
-                onClick={(e) => {
-                    e.stopPropagation()
-                    handleDownload()
-                }}
-                className="ml-2 text-green-400 hover:text-green-600"
-                disabled={isDownloading}
-                title="Tải video"
-            >
-                <DownloadIcon size={16} />
-            </button>
+            <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatDuration(track.duration)}
+                </span>
+
+                {/* Download button */}
+                {track.file && (
+                    <button
+                        onClick={handleDownload}
+                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                        title="Download"
+                    >
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                        </svg>
+                    </button>
+                )}
+
+                {/* Video button */}
+                {track.music_video && (
+                    <button
+                        onClick={handleWatchVideo}
+                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                        title="Watch Video"
+                    >
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                        </svg>
+                    </button>
+                )}
+
+                {/* Add to Playlist button */}
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    title="Add to Playlist"
+                >
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                        />
+                    </svg>
+                </button>
+
+                {/* Favorite button */}
+                <button
+                    onClick={handleRemoveFromFavorite}
+                    className={`p-2 ${
+                        track.is_favorite
+                            ? 'text-pink-500 hover:text-pink-600'
+                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    }`}
+                    title={
+                        track.is_favorite
+                            ? 'Remove from Favorites'
+                            : 'Add to Favorites'
+                    }
+                >
+                    <svg
+                        className="w-5 h-5"
+                        fill={track.is_favorite ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                    </svg>
+                </button>
+            </div>
+
+            {/* Add to Playlist Modal */}
+            <AddToPlaylistModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                trackId={track.id}
+            />
         </div>
     )
 }
+
+export default TrackItem

@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
     // Các trang khác phải check đăng nhập
     const refreshToken = request.cookies.get('refresh_token')
     if (!refreshToken) {
-        // Redirect về đúng trang login với locale
+        // Không có refresh token -> chưa đăng nhập
         return NextResponse.redirect(
             new URL(`/${matchedLocale}/login`, request.url)
         )

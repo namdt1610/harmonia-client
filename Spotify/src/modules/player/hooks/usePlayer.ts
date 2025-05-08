@@ -16,62 +16,86 @@ export const usePlayer = () => {
         // Initialize audio element
         if (!audioRef.current) {
             audioRef.current = new Audio()
+            audioRef.current.preload = 'auto'
 
-            // Thêm xử lý lỗi
-            audioRef.current.addEventListener('error', () => {
-                console.error('Audio error:', audioRef.current?.error)
-                setError('Không thể phát nhạc')
+            // Add error handling
+            audioRef.current.addEventListener('error', (e) => {
+                console.error('Audio error:', e)
+                setError('Không thể phát nhạc. Vui lòng thử lại sau.')
+            })
+
+            // Add loading handling
+            audioRef.current.addEventListener('loadstart', () => {
+                setIsAudioReady(false)
+            })
+
+            audioRef.current.addEventListener('canplay', () => {
+                setIsAudioReady(true)
+                setError(null)
             })
         }
 
-        // Cập nhật nguồn âm thanh khi currentSong thay đổi
-        if (currentSong && currentSong.id) {
-            // Reset lỗi
+        // Update audio source when currentSong changes
+        if (currentSong?.id) {
+            // Reset states
             setError(null)
             setIsAudioReady(false)
 
-            // Tạo URL hợp lệ từ ID bài hát
-            const audioUrl = `http://127.0.0.1:8000/api/tracks/${currentSong.id}/stream/`
+            // Create valid URL from track ID
+            const audioUrl = `http://localhost:8000/api/tracks/${currentSong.id}/stream/`
             console.log('Loading audio:', audioUrl)
 
-            // Thiết lập nguồn âm thanh
-            audioRef.current.src = audioUrl
+            // Set audio source
+            if (audioRef.current) {
+                audioRef.current.src = audioUrl
+                audioRef.current.load() // Force reload
 
-            audioRef.current.addEventListener('loadedmetadata', () => {
-                setIsAudioReady(true)
-            })
-
-            // Phát nhạc nếu isPlaying = true
-            if (isPlaying) {
-                audioRef.current.play().catch((err) => {
-                    console.error('Play error:', err)
-                    setError(err.message)
-                })
+                // Play if isPlaying is true
+                if (isPlaying) {
+                    const playPromise = audioRef.current.play()
+                    if (playPromise !== undefined) {
+                        playPromise.catch((err) => {
+                            console.error('Play error:', err)
+                            setError(err.message)
+                        })
+                    }
+                }
             }
         } else if (audioRef.current) {
-            // Không có bài hát hợp lệ, dừng phát nhạc
+            // No valid song, stop playback
             audioRef.current.pause()
-
-            // Xóa nguồn âm thanh thay vì đặt thành chuỗi rỗng
             audioRef.current.removeAttribute('src')
+            audioRef.current.load() // Force reload
         }
-    }, [currentSong])
 
+        // Cleanup
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause()
+                audioRef.current.removeAttribute('src')
+                audioRef.current.load()
+            }
+        }
+    }, [currentSong, isPlaying])
+
+    // Handle play/pause state
     useEffect(() => {
-        // Xử lý trạng thái phát/dừng
         if (audioRef.current && audioRef.current.src) {
             if (isPlaying) {
-                audioRef.current.play().catch((err) => {
-                    console.error('Play error:', err)
-                    setError(err.message)
-                })
+                const playPromise = audioRef.current.play()
+                if (playPromise !== undefined) {
+                    playPromise.catch((err) => {
+                        console.error('Play error:', err)
+                        setError(err.message)
+                    })
+                }
             } else {
                 audioRef.current.pause()
             }
         }
     }, [isPlaying])
 
-    // Giữ nguyên phần còn lại
+    // Update current time
     useEffect(() => {
         const audio = audioRef.current
         const updateTime = () => {
@@ -92,7 +116,7 @@ export const usePlayer = () => {
     }, [dispatch])
 
     const handleTogglePlayPause = () => {
-        if (!currentSong || !currentSong.id) {
+        if (!currentSong?.id) {
             console.warn('Không có bài hát nào được chọn')
             return
         }

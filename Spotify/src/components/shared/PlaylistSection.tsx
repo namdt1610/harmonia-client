@@ -1,13 +1,15 @@
 import { Plus, Heart } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-
+import CreatePlaylistModal from '../CreatePlaylistModal'
+import { useState } from 'react'
 interface PlaylistSectionProps {
     isCollapsed: boolean
 }
 
 export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
     const t = useTranslations('Playlists')
-
+    const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] =
+        useState(false)
     // Mock data for playlists
     const playlists = [
         { id: 1, name: 'Liked Songs' },
@@ -20,7 +22,10 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
     return (
         <div className="mt-4 px-2">
             <div className="p-3 mb-2 space-y-4">
-                <button className="flex items-center hover:text-white text-neutral-400">
+                <button
+                    className="flex items-center hover:text-white text-neutral-400"
+                    onClick={() => setIsCreatePlaylistModalOpen(true)}
+                >
                     <div className="w-8 h-8 bg-neutral-300 rounded-sm flex items-center justify-center mr-3">
                         <Plus size={20} className="text-black" />
                     </div>
@@ -32,6 +37,7 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
                         {t('createPlaylist', { fallback: 'Create Playlist' })}
                     </span>
                 </button>
+                <CreatePlaylistModal isOpen={isCreatePlaylistModalOpen} onClose={() => setIsCreatePlaylistModalOpen(false)} />
                 <button className="flex items-center hover:text-white text-neutral-400">
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-700 to-neutral-400 rounded-sm flex items-center justify-center mr-3">
                         <Heart size={16} className="text-white" />

@@ -24,6 +24,8 @@ export interface Track {
     lyrics?: string // Lời bài hát
     duration: number // Thời gian (giây)
     created_at: string // Timestamp
+    is_favorite: boolean
+    music_video?: string
 }
 
 export interface Playlist {

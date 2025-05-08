@@ -81,7 +81,9 @@
         "greeting": "Xin chào!",
         "seeAll": "Xem tất cả",
         "madeForYou": "Được tạo ra cho bạn",
-        "recentlyPlayed": "Những gì bạn đã phát gần đây"
+        "recentlyPlayed": "Những gì bạn đã phát gần đây",
+        "currentTrack": "Bài hát hiện tại"
+        
     },
     "Playlists": {
         "createPlaylist": "Tạo danh sách phát",

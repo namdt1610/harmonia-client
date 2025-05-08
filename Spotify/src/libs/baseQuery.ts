@@ -1,11 +1,9 @@
-// libs/baseQuery.ts
-
 import { fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import { setCredentials, clearAuth } from '@/modules/auth/slice'
 import { RootState } from '@/redux/store'
 
 interface RefreshResponse {
-    accessToken: string
+    access: string
     // Nếu backend trả thêm refreshToken mới thì bổ sung ở đây
     // refreshToken?: string
 }
@@ -35,16 +33,19 @@ export const baseQueryWithReauth: BaseQueryFn<any, any, any> = async (
     if (result.error && result.error.status === 401) {
         // Thử gọi refresh token endpoint
         const refreshResult = (await baseQuery(
-            '/auth/refresh', // Đổi sang POST nếu backend yêu cầu
+            {
+                url: '/auth/token/refresh/',
+                method: 'POST',
+            },
             api,
             extraOptions
         )) as { data?: RefreshResponse }
 
-        if (refreshResult.data?.accessToken) {
+        if (refreshResult.data?.access) {
             // Cập nhật accessToken mới vào redux
             api.dispatch(
                 setCredentials({
-                    accessToken: refreshResult.data.accessToken,
+                    accessToken: refreshResult.data.access,
                     user: null,
                 })
             )

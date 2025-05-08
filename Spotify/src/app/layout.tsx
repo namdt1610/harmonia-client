@@ -9,7 +9,7 @@ type Props = {
 
 export default function RootLayout({ children }: Props) {
     return (
-        <html>
+        <html className="dark">
             <body>
                 <ReduxProvider>
                     <AuthBootstrap />

@@ -5,9 +5,12 @@ export const authApi = createApi({
     reducerPath: 'authApi',
     baseQuery: baseQueryWithReauth as BaseQueryFn,
     endpoints: (builder) => ({
-        login: builder.mutation<any, { email: string; password: string }>({
+        login: builder.mutation<
+            any,
+            { username_or_email: string; password: string }
+        >({
             query: (credentials) => ({
-                url: '/auth/login',
+                url: '/auth/login/',
                 method: 'POST',
                 body: credentials,
             }),
@@ -21,7 +24,10 @@ export const authApi = createApi({
                 method: 'POST',
             }),
         }),
-        register: builder.mutation<any, { email: string; password: string }>({
+        register: builder.mutation<
+            any,
+            { email: string; username: string; password: string }
+        >({
             query: (credentials) => ({
                 url: '/auth/register',
                 method: 'POST',
@@ -30,7 +36,13 @@ export const authApi = createApi({
         }),
         refreshToken: builder.mutation<any, void>({
             query: () => ({
-                url: '/auth/refresh',
+                url: '/auth/token/refresh/',
+                method: 'POST',
+            }),
+        }),
+        googleLogin: builder.mutation<any, void>({
+            query: () => ({
+                url: '/auth/google/',
                 method: 'POST',
             }),
         }),
@@ -43,4 +55,5 @@ export const {
     useLogoutMutation,
     useRegisterMutation,
     useRefreshTokenMutation,
+    useGoogleLoginMutation,
 } = authApi
