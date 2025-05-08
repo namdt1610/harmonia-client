@@ -52,12 +52,12 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({
                         src={song.album_cover}
                         alt={song.title}
                         className="w-full h-full object-cover"
-                    />
-                ) : (
+                />
+            ) : (
                     <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                         <span className="text-gray-500">No cover</span>
-                    </div>
-                )}
+                </div>
+            )}
             </div>
 
             {/* Song Info */}

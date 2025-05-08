@@ -28,9 +28,9 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
                     title="Shuffle"
                 >
                     <Shuffle size={20} />
-                </button>
+            </button>
 
-                <button
+            <button
                     className="text-gray-400 hover:text-white transition-colors"
                     title="Previous"
                 >
@@ -42,15 +42,15 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
                     disabled={isLoading}
                     className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition-transform disabled:opacity-50"
                     title={isPlaying ? 'Pause' : 'Play'}
-                >
+            >
                     {isLoading ? (
                         <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
                     ) : isPlaying ? (
                         <Pause size={20} fill="currentColor" />
                     ) : (
                         <Play size={20} fill="currentColor" />
-                    )}
-                </button>
+                )}
+            </button>
 
                 <button
                     className="text-gray-400 hover:text-white transition-colors"
@@ -64,7 +64,7 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
                     title="Repeat"
                 >
                     <Repeat size={20} />
-                </button>
+            </button>
             </div>
         </div>
     )
