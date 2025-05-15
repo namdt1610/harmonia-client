@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
 
 import { Artist } from '@/types'
-import { baseQueryWithReauth } from '@/libs/baseQuery'
+import { baseQueryWithReauth } from '@/lib/baseQuery'
 
 export const artistApi = createApi({
     reducerPath: 'artistApi',

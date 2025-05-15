@@ -1,10 +1,37 @@
-import { User } from 'lucide-react'
+import {
+    User,
+    Home,
+    BellRing,
+    Settings,
+    LogOut,
+    ChevronLeft,
+    ChevronRight,
+    ExternalLink,
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useSelector, useDispatch } from 'react-redux'
 import { clearAuth } from '@/modules/auth/slice'
 import { RootState } from '@/redux/store'
 import SearchBar from '@/components/layouts/SearchBar'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import { cn } from '@/lib/clsx'
+import Link from 'next/link'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface TopBarProps {
     onSearchResults: (results: any) => void
@@ -13,9 +40,10 @@ interface TopBarProps {
 export default function TopBar({ onSearchResults }: TopBarProps) {
     const t = useTranslations('TopBar')
     const { isLoggedIn, user } = useSelector((state: RootState) => state.auth)
-    console.log(isLoggedIn)
     const dispatch = useDispatch()
     const router = useRouter()
+    const pathname = usePathname()
+    const locale = pathname?.split('/')[1] || 'en'
 
     const handleLogout = () => {
         dispatch(clearAuth())
@@ -23,67 +51,159 @@ export default function TopBar({ onSearchResults }: TopBarProps) {
     }
 
     return (
-        <header className="h-16 bg-neutral-900 bg-opacity-80 backdrop-filter backdrop-blur sticky top-0 z-10 flex items-center px-8">
-            <div className="flex items-center space-x-4">
-                <button
-                    className="w-8 h-8 bg-black rounded-full flex items-center justify-center"
-                    onClick={() => router.back()}
-                    aria-label="Back"
-                >
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
+        <header className="h-16 bg-black/80 backdrop-filter backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 border-b border-neutral-800/50">
+            {/* Left Section: Navigation Controls */}
+            <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="rounded-full w-8 h-8 bg-black/60"
+                        onClick={() => router.back()}
+                        aria-label="Back"
                     >
-                        <path d="M11.03.47a.75.75 0 0 1 0 1.06L4.56 8l6.47 6.47a.75.75 0 1 1-1.06 1.06L2.44 8 9.97.47a.75.75 0 0 1 1.06 0z"></path>
-                    </svg>
-                </button>
-                <button
-                    className="w-8 h-8 bg-black rounded-full flex items-center justify-center"
-                    onClick={() => router.forward()}
-                    aria-label="Forward"
-                >
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
+                        <ChevronLeft size={16} />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="rounded-full w-8 h-8 bg-black/60"
+                        onClick={() => router.forward()}
+                        aria-label="Forward"
                     >
-                        <path d="M4.97.47a.75.75 0 0 0 0 1.06L11.44 8l-6.47 6.47a.75.75 0 1 0 1.06 1.06L13.56 8 5.97.47a.75.75 0 0 0-1.06 0z"></path>
-                    </svg>
-                </button>
+                        <ChevronRight size={16} />
+                    </Button>
+                </div>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                    'rounded-full w-8 h-8 ml-2',
+                                    pathname === `/${locale}`
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-black/60 hover:bg-neutral-800'
+                                )}
+                                asChild
+                            >
+                                <Link href={`/${locale}`}>
+                                    <Home size={16} />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Home</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
-            <div className="flex-1 flex items-center justify-center">
+
+            {/* Center Section: Search */}
+            <div className="flex-1 max-w-xl px-4">
                 <SearchBar onSearchResults={onSearchResults} />
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* Right Section: User */}
+            <div className="flex items-center gap-3">
                 {isLoggedIn ? (
                     <>
-                        <button className="px-4 py-1 text-sm font-bold bg-white text-black rounded-full hover:scale-105 transition-transform">
-                            {t('upgrade', { fallback: 'Upgrade' })}
-                        </button>
-                        <button className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
-                            <User size={16} />
-                        </button>
-                        <span className="text-sm text-white">
-                            {user?.display_name}
-                        </span>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-1 text-sm font-bold bg-red-500 text-white rounded-full hover:scale-105 transition-transform"
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full text-xs font-semibold px-4 py-1 h-8 border-neutral-700 bg-transparent hover:bg-neutral-800 hover:border-neutral-600"
                         >
-                            Logout
-                        </button>
+                            <ExternalLink size={12} className="mr-1.5" />
+                            {t('upgrade', { fallback: 'Upgrade' })}
+                        </Button>
+
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="rounded-full w-8 h-8 bg-black/60"
+                        >
+                            <BellRing size={16} />
+                        </Button>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="rounded-full h-8 p-0 bg-transparent hover:bg-transparent"
+                                >
+                                    <Avatar className="h-8 w-8 transition-transform hover:scale-105">
+                                        <AvatarImage
+                                            src={user?.avatar || ''}
+                                            alt={user?.display_name || 'User'}
+                                        />
+                                        <AvatarFallback className="bg-neutral-700 text-xs">
+                                            {user?.display_name?.charAt(0) ||
+                                                'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuLabel className="font-normal">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-medium">
+                                            {user?.display_name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            {user?.email}
+                                        </p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.push(`/${locale}/profile`)
+                                    }
+                                >
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.push(`/${locale}/settings`)
+                                    }
+                                >
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Settings</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    className="text-destructive"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </>
                 ) : (
-                    <button
-                        className="px-4 py-1 text-sm font-bold bg-white text-black rounded-full hover:scale-105 transition-transform"
-                        onClick={() => (window.location.href = '/login')}
-                    >
-                        Login
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            className="text-neutral-400 hover:text-white hover:bg-transparent"
+                            onClick={() =>
+                                (window.location.href = `/${locale}/register`)
+                            }
+                        >
+                            Sign up
+                        </Button>
+                        <Button
+                            className="bg-white hover:bg-white/90 text-black font-semibold rounded-full"
+                            onClick={() =>
+                                (window.location.href = `/${locale}/login`)
+                            }
+                        >
+                            Log in
+                        </Button>
+                    </div>
                 )}
             </div>
         </header>

@@ -9,8 +9,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ locale }: SidebarProps) {
-    const [width, setWidth] = useState(256)
-    const MIN_WIDTH = 0
+    const [width, setWidth] = useState(10)
+    const MIN_WIDTH = 10
     const MAX_WIDTH = 700
     const isDragging = useRef(false) // useRef dùng để lưu trữ trạng thái kéo chuột
     const startX = useRef(0)

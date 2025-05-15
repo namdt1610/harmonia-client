@@ -21,7 +21,8 @@
         "home": "Trang chủ",
         "pathnames": "Đường dẫn",
         "search": "Tìm kiếm",
-        "library": "Thư viện"
+        "library": "Thư viện",
+        "playlists": "Danh sách phát"
     },
     "NotFoundPage": {
         "description": "Vui lòng kiểm tra lại thanh địa chỉ của trình duyệt hoặc sử dụng menu điều hướng để đến một trang hợp lệ.",
@@ -82,10 +83,29 @@
         "seeAll": "Xem tất cả",
         "madeForYou": "Được tạo ra cho bạn",
         "recentlyPlayed": "Những gì bạn đã phát gần đây",
-        "currentTrack": "Bài hát hiện tại"
-        
+        "currentTrack": "Bài hát hiện tại",
+        "goodMorning": "Chào buổi sáng",
+        "goodAfternoon": "Chào buổi chiều",
+        "goodEvening": "Chào buổi tối",
+        "tracks": "Bài hát",
+        "artist": "Nghệ sĩ",
+        "albums": "Album",
+        "playlists": "Danh sách phát",
+        "recent": "Gần đây",
+        "podcasts": "Podcast",
+        "noRecentlyPlayed": "Bạn chưa phát bài hát nào gần đây",
+        "nowPlaying": "Bây giờ đang phát",
+        "play": "Phát",
+        "playAll": "Phát tất cả",
+        "playNext": "Phát tiếp theo",
+        "playPrevious": "Phát trước",
+        "playShuffle": "Phát ngẫu nhiên",
+        "playRepeat": "Phát lặp lại",
+        "playQueue": "Hàng đợi phát",
+        "featuredPlaylists": "Danh sách phát nổi bật"
     },
     "Playlists": {
+        "yourLibrary": "Thư viện của tôi",
         "createPlaylist": "Tạo danh sách phát",
         "likedSongs": "Bài hát đã thích"
     },

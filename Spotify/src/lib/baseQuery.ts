@@ -1,6 +1,5 @@
 import { fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import { setCredentials, clearAuth } from '@/modules/auth/slice'
-import { RootState } from '@/redux/store'
 
 interface RefreshResponse {
     access: string
@@ -8,16 +7,12 @@ interface RefreshResponse {
     // refreshToken?: string
 }
 
+// Configure the base query with credentials: 'include' to ensure cookies are sent
 const baseQuery = fetchBaseQuery({
-    // baseUrl: '/api',
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
-    credentials: 'include', // Nếu backend check session/cookie
-    prepareHeaders: (headers, { getState }) => {
-        const token = (getState() as RootState).auth.accessToken
-        console.log('Token:', token)
-        if (token) {
-            headers.set('Authorization', `Bearer ${token}`)
-        }
+    credentials: 'include', // This ensures cookies are sent with every request
+    prepareHeaders: (headers) => {
+        // No need to add Authorization header since token is in cookies
         return headers
     },
 })
@@ -27,32 +22,41 @@ export const baseQueryWithReauth: BaseQueryFn<any, any, any> = async (
     api,
     extraOptions
 ) => {
+    // Make the initial request
     let result = await baseQuery(args, api, extraOptions)
 
-    // Nếu bị 401 - access token hết hạn
+    // If we get a 401 Unauthorized error
     if (result.error && result.error.status === 401) {
-        // Thử gọi refresh token endpoint
+        console.log('Trying to refresh token...')
+
+        // Try to refresh the token
         const refreshResult = (await baseQuery(
             {
                 url: '/auth/token/refresh/',
                 method: 'POST',
+                // No body needed as refresh token is in the cookie
             },
             api,
             extraOptions
         )) as { data?: RefreshResponse }
 
         if (refreshResult.data?.access) {
-            // Cập nhật accessToken mới vào redux
+            console.log('Token refreshed successfully')
+
+            // Store the new access token in Redux state if needed
             api.dispatch(
                 setCredentials({
                     accessToken: refreshResult.data.access,
                     user: null,
                 })
             )
-            // Thử lại request gốc với token mới
+
+            // Retry the original request
             result = await baseQuery(args, api, extraOptions)
         } else {
-            // Nếu lỗi refresh (refresh token cũng hết hạn hoặc sai), clear local auth
+            console.log('Failed to refresh token, logging out')
+
+            // If refresh fails, clear auth state
             api.dispatch(clearAuth())
         }
     }

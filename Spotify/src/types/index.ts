@@ -2,40 +2,41 @@ export interface Artist {
     id: number
     name: string
     bio?: string
-    avatar: string // URL của ảnh đại diện
-    genres?: string[] // Danh sách thể loại nhạc
+    avatar: string
+    genres?: string[]
 }
 
 export interface Album {
     id: number
     title: string
-    artist: Artist // Tham chiếu đến Artist
-    release_date: string // YYYY-MM-DD
-    cover: string // URL của ảnh bìa album
+    artist: Artist
+    release_date: string
+    cover: string
 }
 
 export interface Track {
     id: number
     title: string
-    album?: Album | null // Có thể null nếu track không thuộc album nào
-    artist: Artist // Tham chiếu đến Artist
-    file: string // URL file nhạc
-    cover?: string // URL của ảnh bìa track
-    lyrics?: string // Lời bài hát
-    duration: number // Thời gian (giây)
-    created_at: string // Timestamp
+    album?: Album | null
+    artist: Artist
+    file: string
+    cover?: string
+    album_cover?: string
+    lyrics?: string
+    duration: number
+    created_at: string
     is_favorite: boolean
     music_video?: string
+    explicit?: boolean
 }
 
 export interface Playlist {
     id: number
-    userId: number // ID user sở hữu playlist
     name: string
-    tracks: Track[] // Danh sách track trong playlist
-    cover?: string // URL của ảnh bìa playlist
+    tracks: Track[]
+    cover?: string
     creator: User
-    tracks_count?: number // Số lượng track trong playlist
+    tracks_count?: number
 }
 
 export interface User {
@@ -44,9 +45,9 @@ export interface User {
     display_name: string
     email: string
     password: string
-    avatar?: string // URL của ảnh đại diện
-    playlists: Playlist[] // Danh sách playlist của user
-    liked_tracks: Track[] // Danh sách track được thích
-    created_at: string // Timestamp
-    updated_at: string // Timestamp
+    avatar?: string
+    playlists: Playlist[]
+    liked_tracks: Track[]
+    created_at: string
+    updated_at: string
 }

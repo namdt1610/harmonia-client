@@ -10,7 +10,7 @@ import TopBar from './TopBar'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSibebar'
 import PlayerBar from '@/modules/player/components/PlayerBar'
-import { Play } from 'lucide-react'
+import TrackItem from '@/modules/music/components/TrackItem'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -52,7 +52,7 @@ export default function BaseLayout({ children, locale, messages }: Props) {
                 )}
             >
                 {/* TopBar */}
-                <TopBar locale={locale} onSearchResults={handleSearchResults} />
+                <TopBar onSearchResults={handleSearchResults} />
 
                 {/* Main content */}
                 <main className="flex-1 overflow-hidden flex flex-row">
@@ -81,33 +81,13 @@ export default function BaseLayout({ children, locale, messages }: Props) {
                                                         result: any,
                                                         index: any
                                                     ) => (
-                                                        <div
+                                                        <TrackItem
                                                             key={
                                                                 result.id ||
                                                                 index
                                                             }
-                                                            className="p-2 border-b border-neutral-700 flex items-center justify-between"
-                                                        >
-                                                            <Link
-                                                                href={`/${locale}/${key}/${result.id}`}
-                                                            >
-                                                                {result.name ||
-                                                                    result.title}
-                                                            </Link>
-                                                            <button
-                                                                onClick={() =>
-                                                                    playTrack(
-                                                                        result
-                                                                    )
-                                                                }
-                                                            >
-                                                                {/* play icon */}
-                                                                <Play
-                                                                    size={16}
-                                                                    fill="currentColor"
-                                                                />
-                                                            </button>
-                                                        </div>
+                                                            track={result}
+                                                        />
                                                     )
                                                 )}
                                             </div>
@@ -124,7 +104,7 @@ export default function BaseLayout({ children, locale, messages }: Props) {
                 </main>
 
                 {/* Player bar */}
-                <PlayerBar />
+                    <PlayerBar />
             </div>
         </NextIntlClientProvider>
     )

@@ -1,6 +1,6 @@
 'use client'
 
-import UploadTrackForm from '@/components/UploadTrackForm'
+import UploadTrackForm from '@/modules/upload/components/UploadTrackForm'
 
 export default function UploadTrackPage() {
     return (

@@ -1,71 +1,47 @@
+// components/PlayerControls.tsx
 import React from 'react'
-import {
-    SkipBack,
-    SkipForward,
-    Play,
-    Pause,
-    Shuffle,
-    Repeat,
-} from 'lucide-react'
+import { usePlayerControls } from '../../hooks/usePlayerControls'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { Play, Pause, SkipForward, SkipBack } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
-interface PlayerControlsProps {
-    isPlaying: boolean
-    togglePlayPause: () => void
-    isLoading: boolean
+interface Props {
+    playerRef: React.RefObject<any>
 }
 
-export const PlayerControls: React.FC<PlayerControlsProps> = ({
-    isPlaying,
-    togglePlayPause,
-    isLoading,
-}) => {
+export const PlayerControls: React.FC<Props> = ({ playerRef }) => {
+    const { togglePlayPause } = usePlayerControls(playerRef)
+    const { isPlaying } = useSelector((state: RootState) => state.player)
+
     return (
-        <div className="flex flex-col items-center">
-            {/* Main Controls */}
-            <div className="flex items-center justify-center space-x-6">
-                <button
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Shuffle"
-                >
-                    <Shuffle size={20} />
-            </button>
-
-            <button
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Previous"
-                >
-                    <SkipBack size={20} />
-                </button>
-
-                <button
-                    onClick={togglePlayPause}
-                    disabled={isLoading}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition-transform disabled:opacity-50"
-                    title={isPlaying ? 'Pause' : 'Play'}
+        <div className="flex items-center space-x-4">
+            <Button
+                variant="ghost"
+                size="icon"
+                className="text-white p-1.5"
+                onClick={() => {}}
             >
-                    {isLoading ? (
-                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                    ) : isPlaying ? (
-                        <Pause size={20} fill="currentColor" />
-                    ) : (
-                        <Play size={20} fill="currentColor" />
-                )}
-            </button>
+                <SkipBack />
+            </Button>
 
-                <button
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Next"
-                >
-                    <SkipForward size={20} />
-                </button>
+            <Button
+                onClick={togglePlayPause}
+                variant="ghost"
+                size="icon"
+                className="bg-white text-black hover:bg-white/80 p-2 rounded-full"
+            >
+                {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+            </Button>
 
-                <button
-                    className="text-gray-400 hover:text-white transition-colors"
-                    title="Repeat"
-                >
-                    <Repeat size={20} />
-            </button>
-            </div>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="text-white p-1.5"
+                onClick={() => {}}
+            >
+                <SkipForward />
+            </Button>
         </div>
     )
 }

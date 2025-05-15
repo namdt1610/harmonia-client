@@ -11,14 +11,21 @@ export const albumApi = createApi({
             transformResponse: (response: { results: Album[] }) => {
                 return response.results
             },
+            providesTags: ['Album'],
         }),
-        getAlbumsByArtist: builder.query<
-            Album[],
-            string // Chỉ cần truyền artistId
-        >({
-            query: (artistId) => `albums/?artist_id=${artistId}`,
+        getAlbumsByArtist: builder.query<Album[], number>({
+            query: (artistId) => `albums/${artistId}`,
+            providesTags: ['Album'],
+        }),
+        getAlbumById: builder.query<Album, number>({
+            query: (albumId) => `albums/${albumId}`,
+            providesTags: ['Album'],
         }),
     }),
 })
 
-export const { useGetAllAlbumsQuery, useGetAlbumsByArtistQuery } = albumApi
+export const {
+    useGetAllAlbumsQuery,
+    useGetAlbumsByArtistQuery,
+    useGetAlbumByIdQuery,
+} = albumApi

@@ -8,31 +8,31 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
-    if (!isOpen) return null
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div
+            className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        >
             {/* Overlay */}
             <div
-                className="absolute inset-0 bg-black bg-opacity-50"
+                className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
                 onClick={onClose}
             />
 
             {/* Modal content */}
-            <div className="relative bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div
+                className={`relative rounded-lg p-6 w-full max-w-md mx-4 bg-gray-900 text-popover-foreground transform transition-all duration-300 ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            >
                 {/* Header */}
                 {title && (
                     <div className="mb-4">
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                            {title}
-                        </h2>
+                        <h2 className="text-xl font-semibold">{title}</h2>
                     </div>
                 )}
 
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-500"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
                 >
                     <svg
                         className="h-6 w-6"

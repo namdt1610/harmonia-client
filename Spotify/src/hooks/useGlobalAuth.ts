@@ -5,14 +5,13 @@ import { useCurrentUserQuery } from '@/modules/auth/api'
 
 export function useGlobalAuth() {
     const dispatch = useDispatch()
-    const accessToken = typeof window !== 'undefined' ? sessionStorage.getItem('access_token') : null
-    const { data: user, error } = useCurrentUserQuery(undefined, { skip: !accessToken })
+    const { data: user, error } = useCurrentUserQuery()
 
     useEffect(() => {
-        if (user && accessToken) {
-            dispatch(setCredentials({ user, accessToken }))
+        if (user) {
+            dispatch(setCredentials({ user, accessToken: '' }))
         } else if (error) {
             dispatch(clearAuth())
         }
-    }, [user, error, accessToken, dispatch])
+    }, [user, error, dispatch])
 }

@@ -1,5 +1,5 @@
 import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithReauth } from '@/libs/baseQuery'
+import { baseQueryWithReauth } from '@/lib/baseQuery'
 import { Track } from '@/types'
 
 export interface UserActivity {
@@ -12,10 +12,12 @@ export interface UserActivity {
 export const userActivityApi = createApi({
     reducerPath: 'userActivityApi',
     baseQuery: baseQueryWithReauth as BaseQueryFn,
+    tagTypes: ['UserActivity'],
     endpoints: (builder) => ({
         getUserActivity: builder.query<UserActivity[], void>({
-            query: () => 'user-activity/',
+            query: () => 'activities/',
             keepUnusedDataFor: 300,
+            providesTags: ['UserActivity'],
         }),
     }),
 })

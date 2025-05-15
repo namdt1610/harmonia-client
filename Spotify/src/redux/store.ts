@@ -9,7 +9,8 @@ import { trackApi } from '@/modules/music/api'
 import { searchApi } from '@/modules/search/api'
 import { authApi } from '@/modules/auth/api'
 import { playlistApi } from '@/modules/playlist/api'
-import { userActivityApi } from '@/modules/activity/api'    
+import { userActivityApi } from '@/modules/activity/api'
+import { favoritesApi } from '@/modules/favorites/api'
 
 import authReducer from '@/modules/auth/slice'
 import playerReducer from '@/modules/player/slice'
@@ -25,6 +26,7 @@ export const store = configureStore({
         [searchApi.reducerPath]: searchApi.reducer,
         [playlistApi.reducerPath]: playlistApi.reducer,
         [userActivityApi.reducerPath]: userActivityApi.reducer,
+        [favoritesApi.reducerPath]: favoritesApi.reducer,
         auth: authReducer,
         player: playerReducer,
     },
@@ -40,7 +42,8 @@ export const store = configureStore({
             trackApi.middleware,
             searchApi.middleware,
             playlistApi.middleware,
-            userActivityApi.middleware
+            userActivityApi.middleware,
+            favoritesApi.middleware
         ),
 })
 

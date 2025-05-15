@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import { baseQueryWithReauth } from '@/libs/baseQuery'
+import { baseQueryWithReauth } from '@/lib/baseQuery'
 import { Track } from '@/types'
 
 export const trackApi = createApi({
@@ -16,6 +16,7 @@ export const trackApi = createApi({
                     : [{ type: 'Track', id: 'CURRENT' }],
             keepUnusedDataFor: 60,
         }),
+
         getTracks: builder.query<Track[], { searchTerm?: string }>({
             query: ({ searchTerm = '' } = {}) => ({
                 url: `tracks/?search=${encodeURIComponent(searchTerm)}`,
@@ -34,12 +35,14 @@ export const trackApi = createApi({
             },
             keepUnusedDataFor: 300,
         }),
+
         getTrackById: builder.query<Track, number>({
             query: (id) => `tracks/${id}/`,
             providesTags: (result) =>
                 result ? [{ type: 'Track' as const, id: result.id }] : [],
             keepUnusedDataFor: 300,
         }),
+
         createTrack: builder.mutation<Track, Track>({
             query: (newTrack) => ({
                 url: 'tracks/',
@@ -64,6 +67,7 @@ export const trackApi = createApi({
                 }
             },
         }),
+
         updateTrack: builder.mutation<Track, { id: number; updates: Track }>({
             query: ({ id, updates }) => ({
                 url: `tracks/${id}/`,
@@ -102,6 +106,7 @@ export const trackApi = createApi({
                 }
             },
         }),
+
         deleteTrack: builder.mutation<void, number>({
             query: (id) => ({
                 url: `tracks/${id}/`,
@@ -133,6 +138,7 @@ export const trackApi = createApi({
                 }
             },
         }),
+
         getTrackVideo: builder.query<string, number>({
             query: (id) => `tracks/${id}/video/`,
             providesTags: (result, error, id) => [{ type: 'Track', id }],
@@ -141,6 +147,7 @@ export const trackApi = createApi({
             },
             keepUnusedDataFor: 300,
         }),
+
         downloadTrackVideo: builder.mutation<void, number>({
             query: (id) => ({
                 url: `tracks/${id}/video/`,
@@ -154,24 +161,27 @@ export const trackApi = createApi({
                 a.click()
             },
         }),
+
         getTrendingTracks: builder.query<Track[], void>({
             query: () => 'tracks/trending/',
             providesTags: [{ type: 'Track', id: 'TRENDING' }],
             keepUnusedDataFor: 1800,
         }),
+
         getRecentTracks: builder.query<Track[], void>({
             query: () => 'tracks/recent/',
             providesTags: [{ type: 'Track', id: 'RECENT' }],
             keepUnusedDataFor: 900,
         }),
+        
         getTracksByGenre: builder.query<Track[], number>({
-            query: (genreId) => `tracks/by_genre/?genre_id=${genreId}`,
+            query: (genreId) => `tracks/by_genre/${genreId}`,
             providesTags: (result, error, genreId) => [
                 { type: 'Track', id: `GENRE_${genreId}` },
             ],
             keepUnusedDataFor: 3600,
         }),
-        
+
         playTrackActivity: builder.mutation<void, number>({
             query: (trackId) => ({
                 url: `tracks/${trackId}/play/`,

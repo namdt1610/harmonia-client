@@ -1,98 +1,75 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
+import { Slider } from '@/components/ui/slider'
 
 interface ProgressBarProps {
     currentTime: number
     duration: number
     formatTime: (seconds: number) => string
+    onSeek: (time: number) => void
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
     currentTime,
     duration,
     formatTime,
+    onSeek,
 }) => {
     const [isDragging, setIsDragging] = useState(false)
     const [dragValue, setDragValue] = useState(0)
-    const progressRef = useRef<HTMLDivElement>(null)
 
     const progress = isDragging
-        ? dragValue
+        ? [dragValue]
         : duration > 0
-        ? (currentTime / duration) * 100
-        : 0
+          ? [(currentTime / duration) * 100]
+          : [0]
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (!progressRef.current) return
+    const handleValueChange = (value: number[]) => {
+        setDragValue(value[0])
         setIsDragging(true)
-        const rect = progressRef.current.getBoundingClientRect()
-        const percent = (e.clientX - rect.left) / rect.width
-        setDragValue(Math.max(0, Math.min(100, percent * 100)))
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-        if (!isDragging || !progressRef.current) return
-        const rect = progressRef.current.getBoundingClientRect()
-        const percent = (e.clientX - rect.left) / rect.width
-        setDragValue(Math.max(0, Math.min(100, percent * 100)))
-    }
-
-    const handleMouseUp = () => {
+    const handleValueCommitted = () => {
         setIsDragging(false)
-        // Here you would typically seek to the new position
-        // const newTime = (dragValue / 100) * duration
-        // onSeek(newTime)
+        // Calculate the new time position based on the drag value
+        const newTime = (dragValue / 100) * duration
+        console.log('Seeking to:', newTime)
+        onSeek(newTime)
     }
 
-    useEffect(() => {
-        if (isDragging) {
-            document.addEventListener('mousemove', handleMouseMove)
-            document.addEventListener('mouseup', handleMouseUp)
-        }
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove)
-            document.removeEventListener('mouseup', handleMouseUp)
-        }
-    }, [isDragging])
+    // Immediate seek when clicking on the track
+    const handleSliderClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        const sliderRect = event.currentTarget.getBoundingClientRect()
+        const clickPosition = event.clientX - sliderRect.left
+        const percentage = (clickPosition / sliderRect.width) * 100
+        const newTime = (percentage / 100) * duration
+        console.log('Direct click seek to:', newTime)
+        onSeek(newTime)
+    }
 
     return (
-        <div className="w-full h-1 bg-gray-600 group cursor-pointer">
-            <div
-                ref={progressRef}
-                className="relative h-full"
-                onMouseDown={handleMouseDown}
-            >
-                {/* Background */}
-                <div className="absolute inset-0 bg-gray-600" />
+        <div className="flex items-center px-2 w-full">
+            {/* Current time */}
+            <div className="min-w-[40px] text-right text-xs text-[#a7a7a7] font-normal pr-2">
+                {formatTime(currentTime)}
+            </div>
 
-                {/* Progress */}
-                <div
-                    className="absolute inset-y-0 left-0 bg-white"
-                    style={{ width: `${progress}%` }}
+            <div className="w-full group" onClick={handleSliderClick}>
+                <Slider
+                    value={progress}
+                    max={100}
+                    step={0.1}
+                    onValueChange={handleValueChange}
+                    onValueCommit={handleValueCommitted}
+                    className="cursor-pointer"
+                    trackClassName="bg-[#5e5e5e] h-1"
+                    rangeClassName="bg-[#b3b3b3] group-hover:bg-[#1ed760]"
+                    thumbClassName="h-3 w-3 opacity-0 group-hover:opacity-100 border-0 bg-white"
                 />
+            </div>
 
-                {/* Hover effect */}
-                <div
-                    className="absolute inset-y-0 left-0 bg-white opacity-0 group-hover:opacity-30"
-                    style={{ width: `${progress}%` }}
-                />
-
-                {/* Time tooltip */}
-                <div
-                    className="absolute top-0 -translate-y-8 left-0 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ left: `${progress}%` }}
-                >
-                    {formatTime((progress / 100) * duration)}
-                </div>
-
-                {/* Current time */}
-                <div className="absolute -top-6 left-0 text-xs text-gray-400">
-                    {formatTime(currentTime)}
-                </div>
-
-                {/* Duration */}
-                <div className="absolute -top-6 right-0 text-xs text-gray-400">
-                    {formatTime(duration)}
-                </div>
+            {/* Duration */}
+            <div className="min-w-[40px] text-xs text-[#a7a7a7] font-normal pl-2">
+                {formatTime(duration)}
             </div>
         </div>
     )

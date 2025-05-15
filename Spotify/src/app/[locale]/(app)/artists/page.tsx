@@ -1,9 +1,9 @@
 'use client'
-import { useGetArtistsQuery } from '@/modules/artist/api'
-import FetchWrapper from '@/components/FetchWrapper'
+import { useGetAllArtistsQuery } from '@/modules/artist/api'
+import FetchWrapper from '@/components/shared/FetchWrapper'
 
 export default function ArtistsPage() {
-    const { data: artists, isLoading, isError, error } = useGetArtistsQuery()
+    const { data: artists, isLoading, isError, error } = useGetAllArtistsQuery()
 
     return (
         <div className="p-4">

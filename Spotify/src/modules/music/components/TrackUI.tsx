@@ -16,14 +16,14 @@ interface TracksUIProps {
     error: string | null
 }
 
-export default function TracksUI({
+export const TracksUI = ({
     tracks,
     searchQuery,
     setSearchQuery,
     handleSearch,
     isLoading,
     error,
-}: TracksUIProps) {
+}: TracksUIProps) => {
     // Format duration from milliseconds to mm:ss
     function formatDuration(ms: number): string {
         const seconds = Math.floor(ms / 1000)

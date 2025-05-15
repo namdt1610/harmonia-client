@@ -21,7 +21,7 @@ const TrackList = ({ tracks }: TrackListProps) => {
                 <TrackItem
                     key={track.id}
                     track={track}
-                    index={idx + 1}
+                    in  dex={idx + 1}
                     onClick={() => handleTrackClick(track)}
                 />
             ))}

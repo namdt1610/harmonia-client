@@ -1,11 +1,13 @@
 import React from 'react'
-import Modal from './Modal'
+import Modal from '../../../components/Modal'
 import {
     useGetUserPlaylistsQuery,
     useAddTrackToPlaylistMutation,
 } from '@/modules/playlist/api'
 import { useAddFavoriteTrackMutation } from '@/modules/user/api'
 import { Playlist } from '@/types'
+import { Button } from '@/components/ui/button'
+import PlaylistItem from './PlaylistItem'
 
 interface AddToPlaylistModalProps {
     isOpen: boolean
@@ -18,7 +20,7 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
     onClose,
     trackId,
 }) => {
-    const { data: playlistsData, isLoading } = useGetUserPlaylistsQuery()
+    const { data: playlistsData, isLoading, error } = useGetUserPlaylistsQuery()
     const [addTrackToPlaylist] = useAddTrackToPlaylistMutation()
     const [addToFavorite] = useAddFavoriteTrackMutation()
 
@@ -43,43 +45,55 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
         }
     }
 
-    // Ensure playlists is an array
-    const playlists = Array.isArray(playlistsData) ? playlistsData : []
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
+
+    if (error) {
+        return (
+            <div>
+                Error:{' '}
+                {String((error as any)?.message) || 'Something went wrong'}
+            </div>
+        )
+    }
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Add to Playlist">
             <div className="space-y-4">
                 {/* Add to Favorites button */}
-                <button
+                <Button
                     onClick={handleAddToFavorite}
-                    className="w-full px-4 py-2 text-sm font-medium text-white bg-pink-600 rounded-md hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                    className="w-full"
+                    variant="default"
                 >
                     Add to Favorites
-                </button>
+                </Button>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Your Playlists
-                    </h3>
+                <div className="border-t pt-4 border-border">
+                    <h3 className="text-sm font-medium mb-2">Your Playlists</h3>
                     {isLoading ? (
                         <div className="text-center py-4">Loading...</div>
-                    ) : playlists.length === 0 ? (
-                        <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                    ) : playlistsData?.results.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground">
                             No playlists found
                         </div>
                     ) : (
                         <div className="space-y-2 max-h-60 overflow-y-auto">
-                            {playlists.map((playlist: Playlist) => (
-                                <button
-                                    key={playlist.id}
-                                    onClick={() =>
-                                        handleAddToPlaylist(playlist.id)
-                                    }
-                                    className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
-                                >
-                                    {playlist.name}
-                                </button>
-                            ))}
+                            {playlistsData?.results.map(
+                                (playlist: Playlist) => (
+                                    <Button
+                                        key={playlist.id}
+                                        onClick={() =>
+                                            handleAddToPlaylist(playlist.id)
+                                        }
+                                        className="w-full justify-start"
+                                        variant="outline"
+                                    >
+                                        {playlist.name}
+                                    </Button>
+                                )
+                            )}
                         </div>
                     )}
                 </div>
@@ -89,4 +103,3 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
 }
 
 export default AddToPlaylistModal
- 
