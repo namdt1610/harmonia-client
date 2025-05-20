@@ -171,7 +171,7 @@ export default function Sidebar({ locale, children }: SidebarProps) {
                                         : 'opacity-100 w-auto'
                                 )}
                             >
-                                Spotify
+                                Harmonia
                             </span>
                         </Link>
                     </div>

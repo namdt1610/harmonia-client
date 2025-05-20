@@ -1,47 +1,114 @@
-// components/PlayerControls.tsx
 import React from 'react'
-import { usePlayerControls } from '../../hooks/usePlayerControls'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/redux/store'
-import { Play, Pause, SkipForward, SkipBack } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+    Play,
+    Pause,
+    SkipBack,
+    SkipForward,
+    Shuffle,
+    Repeat,
+    Repeat1,
+} from 'lucide-react'
 
-interface Props {
-    playerRef: React.RefObject<any>
+interface PlayerControlsProps {
+    isPlaying: boolean
+    onPlayPause: () => void
+    onNext: () => void
+    onPrev: () => void
+    onShuffle: () => void
+    onRepeat: () => void
+    onRepeatOne: () => void
+    canPrev: boolean
+    canNext: boolean
+    isShuffling: boolean
+    isRepeating: boolean
+    isRepeatOne: boolean
 }
 
-export const PlayerControls: React.FC<Props> = ({ playerRef }) => {
-    const { togglePlayPause } = usePlayerControls(playerRef)
-    const { isPlaying } = useSelector((state: RootState) => state.player)
-
+export function PlayerControls({
+    isPlaying,
+    onPlayPause,
+    onNext,
+    onPrev,
+    onShuffle,
+    onRepeat,
+    onRepeatOne,
+    canPrev,
+    canNext,
+    isShuffling,
+    isRepeating,
+    isRepeatOne,
+}: PlayerControlsProps) {
     return (
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
             <Button
                 variant="ghost"
                 size="icon"
-                className="text-white p-1.5"
-                onClick={() => {}}
+                onClick={onShuffle}
+                className={
+                    isShuffling
+                        ? 'text-white'
+                        : 'text-neutral-400 hover:text-white'
+                }
             >
-                <SkipBack />
+                <Shuffle className="h-4 w-4" />
             </Button>
-
             <Button
-                onClick={togglePlayPause}
                 variant="ghost"
                 size="icon"
-                className="bg-white text-black hover:bg-white/80 p-2 rounded-full"
+                onClick={onPrev}
+                disabled={!canPrev}
+                className="text-neutral-400 hover:text-white"
             >
-                {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                <SkipBack className="h-5 w-5" />
             </Button>
-
+            <Button
+                onClick={onPlayPause}
+                className="rounded-full transition-transform"
+                size="icon"
+            >
+                {isPlaying ? (
+                    <Pause className="h-5 w-5" />
+                ) : (
+                    <Play className="h-5 w-5" />
+                )}
+            </Button>
             <Button
                 variant="ghost"
                 size="icon"
-                className="text-white p-1.5"
-                onClick={() => {}}
+                onClick={onNext}
+                disabled={!canNext}
+                className="text-neutral-400 hover:text-white"
             >
-                <SkipForward />
+                <SkipForward className="h-5 w-5" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={onRepeat}
+                className={
+                    isRepeating
+                        ? 'text-white'
+                        : 'text-neutral-400 hover:text-white'
+                }
+                title="Repeat all"
+            >
+                <Repeat className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={onRepeatOne}
+                className={
+                    isRepeatOne
+                        ? 'text-white'
+                        : 'text-neutral-400 hover:text-white'
+                }
+                title="Repeat one"
+            >
+                <Repeat1 className="h-4 w-4" />
             </Button>
         </div>
     )
 }
+export default PlayerControls

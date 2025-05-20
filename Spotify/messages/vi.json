@@ -160,5 +160,20 @@
     "SearchBar": {
         "search": "Tìm kiếm",
         "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album hoặc danh sách phát"
+    },
+
+    "TrackItem": {
+        "addToQueue": "Thêm vào hàng đợi",
+        "removeFromQueue": "Xóa khỏi hàng đợi",
+        "addToFavorite": "Thêm vào danh sách yêu thích",
+        "removeFromFavorite": "Xóa khỏi danh sách yêu thích",
+        "download": "Tải xuống",
+        "watchVideo": "Xem video",
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "playNext": "Phát tiếp theo",
+        "playPrevious": "Phát trước",
+        "addToPlaylist": "Thêm vào danh sách phát",
+        "removeFromPlaylist": "Xóa khỏi danh sách phát"
     }
 }

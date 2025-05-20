@@ -1,5 +1,5 @@
 import { Plus, Heart, Library, Search } from 'lucide-react'
-import CreatePlaylistModal from '@/modules/playlist/components/CreatePlaylistModal'
+import CreatePlaylistModal from '@/modules/playlists/components/CreatePlaylistModal'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'

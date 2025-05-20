@@ -1,196 +1,267 @@
-// components/PlayerBar.tsx
-import React, { useRef, useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '@/redux/store'
-import { Volume2, VolumeX } from 'lucide-react'
+import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Slider } from '@/components/ui/slider'
-import { PlayerControls } from './PlayerControls'
-import {
-    setDuration,
-    setIsLoading,
-    setVolume,
-    toggleMute,
-    updateCurrentTime,
-} from '@/modules/player/slice'
-import ReactHowler from 'react-howler'
-import { useGetTrackByIdQuery } from '@/modules/music/api'
+import { Heart, Download, ListMusic, Video } from 'lucide-react'
+import { useAudioStream } from '../../hooks/useAudioStream'
+import { usePlayerQueue } from '../../hooks/usePlayerQueue'
+import PlayerTrackInfo from './PlayerTrackInfo'
+import PlayerControls from './PlayerControls'
+import PlayerVolume from './PlayerVolume'
+import PlayerProgressBar from './PlayerProgressBar'
+import { useRouter } from 'next/navigation'
 
-const PlayerBar: React.FC = () => {
-    const dispatch = useDispatch()
-    const { currentTrackIndex, isPlaying, volume, isMuted, repeat } =
-        useSelector((state: RootState) => state.player)
-    const { data: currentTrackInfo } = useGetTrackByIdQuery(currentTrackIndex)
-    const playerRef = useRef<ReactHowler>(null)
-    const [currentTime, setCurrentTime] = useState(0)
-    const [localDuration, setLocalDuration] = useState(0)
-    const rafIdRef = useRef<number | null>(null)
+export default function Player() {
+    const {
+        currentTrack,
+        queue,
+        currentIndex,
+        trackData,
+        setCurrentTrack,
+        handleAddToFavorite,
+        handleDownload,
+        getCoverImage,
+        toggleQueueVisibility,
+    } = usePlayerQueue()
 
-    // Set up duration when sound is loaded
-    const handleLoad = () => {
-        if (playerRef.current) {
-            const duration = playerRef.current.duration()
-            setLocalDuration(duration)
-            dispatch(setDuration(duration))
+    // State cho repeat, repeat one, shuffle
+    const [isRepeating, setIsRepeating] = useState(false)
+    const [isRepeatOne, setIsRepeatOne] = useState(false)
+    const [isShuffling, setIsShuffling] = useState(false)
+    const [shuffledQueue, setShuffledQueue] = useState<any[]>([])
+
+    // Shuffle logic
+    function shuffleArray(array: any[]) {
+        const arr = [...array]
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[arr[i], arr[j]] = [arr[j], arr[i]]
         }
+        return arr
     }
 
-    // Update current time while playing
-    const updateTime = () => {
-        if (playerRef.current && isPlaying) {
-            const time = playerRef.current.seek()
-            if (typeof time === 'number') {
-                setCurrentTime(time)
-                dispatch(updateCurrentTime(time))
-            }
-            rafIdRef.current = requestAnimationFrame(updateTime)
-        }
-    }
-
-    // Start timer when playing
     useEffect(() => {
-        if (isPlaying) {
-            updateTime()
-        } else if (rafIdRef.current) {
-            cancelAnimationFrame(rafIdRef.current)
-            rafIdRef.current = null
+        if (isShuffling) {
+            setShuffledQueue(shuffleArray(queue))
+        } else {
+            setShuffledQueue([])
         }
+    }, [isShuffling, queue])
+
+    // Xác định queue đang dùng
+    const activeQueue =
+        isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+    const activeIndex = activeQueue.findIndex(
+        (t: any, idx: number) => t.track.id === currentTrack?.id
+    )
+
+    // Xử lý khi hết bài
+    const handleEnd = () => {
+        if (isRepeatOne && currentTrack) {
+            setCurrentTrack(currentTrack.id)
+        } else if (activeIndex < activeQueue.length - 1) {
+            setCurrentTrack(activeQueue[activeIndex + 1].track.id)
+        } else if (isRepeating && activeQueue.length > 0) {
+            setCurrentTrack(activeQueue[0].track.id)
+        }
+        // Nếu không repeat và hết queue thì dừng lại
+    }
+
+    // Hàm phát bài trước đó
+    const handlePrev = () => {
+        if (activeIndex > 0) {
+            setCurrentTrack(activeQueue[activeIndex - 1].track.id)
+        } else if (isRepeating && activeQueue.length > 0) {
+            setCurrentTrack(activeQueue[activeQueue.length - 1].track.id)
+        }
+    }
+
+    const router = useRouter()
+    const handlePlayVideo = () => {
+        if (currentTrack) {
+            router.push(`/video/${currentTrack.id}`)
+        }
+    }
+
+    const {
+        audioRef: audioStreamRef,
+        isLoaded: audioStreamIsLoaded,
+        isPlaying: audioStreamIsPlaying,
+        currentTime: audioStreamCurrentTime,
+        duration: audioStreamDuration,
+        volume: audioStreamVolume,
+        isMuted: audioStreamIsMuted,
+        play: audioStreamPlay,
+        pause: audioStreamPause,
+        seek: audioStreamSeek,
+        toggleMute: audioStreamToggleMute,
+        setVolume: audioStreamSetVolume,
+        error: audioStreamError,
+    } = useAudioStream({
+        track: currentTrack,
+        autoPlay: true,
+        onError: (e: any) => {},
+        onEnd: handleEnd,
+    })
+
+    const [progressPercentage, setProgressPercentage] = useState(0)
+    const [seekableTo, setSeekableTo] = useState(0)
+    const [pendingSeek, setPendingSeek] = useState<number | null>(null)
+    const [localDuration, setLocalDuration] = useState(0)
+    const progressbarRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const audio = audioStreamRef.current
+        if (!audio) return
+
+        const handleLoadedMetadata = () => {
+            setLocalDuration(audio.duration)
+        }
+
+        const handleProgress = () => {
+            if (audio.buffered.length > 0) {
+                const bufferedEnd = audio.buffered.end(
+                    audio.buffered.length - 1
+                )
+                setSeekableTo(bufferedEnd)
+            }
+        }
+
+        const handleTimeUpdate = () => {
+            if (audio.duration > 0) {
+                const percentage = (audio.currentTime / audio.duration) * 100
+                setProgressPercentage(percentage)
+            }
+        }
+
+        audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+        audio.addEventListener('progress', handleProgress)
+        audio.addEventListener('timeupdate', handleTimeUpdate)
 
         return () => {
-            if (rafIdRef.current) {
-                cancelAnimationFrame(rafIdRef.current)
-                rafIdRef.current = null
-            }
+            audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+            audio.removeEventListener('progress', handleProgress)
+            audio.removeEventListener('timeupdate', handleTimeUpdate)
         }
-    }, [isPlaying])
+    }, [audioStreamRef])
 
-    // Handle seeking
-    const handleSeek = (value: number[]) => {
-        const seekTime = value[0]
-        setCurrentTime(seekTime)
-        if (playerRef.current) {
-            playerRef.current.seek(seekTime)
-        }
+    const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!progressbarRef.current || !audioStreamRef.current) return
+
+        const rect = progressbarRef.current.getBoundingClientRect()
+        const clickPosition = e.clientX - rect.left
+        const percentage = clickPosition / rect.width
+        const newTime = percentage * audioStreamDuration
+
+        audioStreamSeek(newTime)
     }
 
-    // Handle song end
-    const handleEnd = () => {
-        // If repeat one is enabled, just replay the current song
-        if (repeat === 'one') {
-            if (playerRef.current) {
-                playerRef.current.seek(0)
-                setCurrentTime(0)
-                dispatch(updateCurrentTime(0))
-            }
-        }
-        // Skip to next handled automatically by ReactHowler's onEnd
-    }
-
-    // Handle volume change
-    const handleVolumeChange = (newVolume: number[]) => {
-        dispatch(setVolume(newVolume[0]))
-    }
-
-    // Handle mute toggle
-    const handleMuteToggle = () => {
-        dispatch(toggleMute())
-    }
-
-    if (!currentTrackIndex) return null
+    const formatTime = (sec: number) =>
+        `${Math.floor(sec / 60)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(sec % 60)
+            .toString()
+            .padStart(2, '0')}`
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-[#282828] py-2 px-4 z-50">
-            {currentTrackIndex && (
-                <ReactHowler
-                    src={`http://localhost:8000/api/tracks/${currentTrackIndex}/stream/`}
-                    playing={isPlaying}
-                    onLoad={handleLoad}
-                    onEnd={handleEnd}
-                    ref={playerRef}
-                    html5={true}
-                    volume={isMuted ? 0 : volume}
-                    preload={true}
-                    onLoadError={() => dispatch(setIsLoading(false))}
-                />
-            )}
-
-            <div className="flex items-center justify-between">
-                {/* Song info */}
-                <div className="flex items-center space-x-3 w-1/4">
-                    <img
-                        src={
-                            currentTrackInfo?.album?.cover ||
-                            '/placeholder-album.png'
+        <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-neutral-800 p-3 flex items-center">
+            <audio
+                ref={audioStreamRef}
+                preload="auto"
+                crossOrigin="anonymous"
+            />
+            <PlayerTrackInfo
+                trackData={trackData}
+                getCoverImage={getCoverImage}
+                audioError={audioStreamError}
+            />
+            <div className="flex-1 flex flex-col items-center gap-1">
+                <PlayerControls
+                    isPlaying={audioStreamIsPlaying}
+                    onPlayPause={() =>
+                        audioStreamIsPlaying
+                            ? audioStreamPause()
+                            : audioStreamPlay()
+                    }
+                    onNext={() => {
+                        if (activeIndex < activeQueue.length - 1) {
+                            setCurrentTrack(
+                                activeQueue[activeIndex + 1].track.id
+                            )
+                        } else if (isRepeating && activeQueue.length > 0) {
+                            setCurrentTrack(activeQueue[0].track.id)
                         }
-                        alt={currentTrackInfo?.title}
-                        className="h-12 w-12 object-cover"
-                    />
-                    <div>
-                        <div className="text-white text-sm font-medium">
-                            {currentTrackInfo?.title}
-                        </div>
-                        <div className="text-[#b3b3b3] text-xs">
-                            {currentTrackInfo?.artist?.name}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Player controls and progress */}
-                <div className="flex flex-col items-center space-y-1 w-1/2">
-                    <PlayerControls playerRef={playerRef} />
-
-                    {/* Progress bar */}
-                    <div className="w-full flex items-center space-x-2">
-                        <span className="text-[#b3b3b3] text-xs w-10 text-right">
-                            {formatTime(currentTime)}
-                        </span>
-                        <Slider
-                            value={[currentTime]}
-                            min={0}
-                            max={localDuration || 100}
-                            step={0.1}
-                            onValueChange={handleSeek}
-                            className="flex-grow cursor-pointer"
-                        />
-                        <span className="text-[#b3b3b3] text-xs w-10">
-                            {formatTime(localDuration)}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Volume control */}
-                <div className="flex items-center space-x-2 w-1/4 justify-end">
-                    <Button
-                        onClick={handleMuteToggle}
-                        variant="ghost"
-                        className="text-[#b3b3b3] hover:text-white p-0"
-                    >
-                        {isMuted || volume === 0 ? (
-                            <VolumeX size={18} />
-                        ) : (
-                            <Volume2 size={18} />
-                        )}
-                    </Button>
-                    <Slider
-                        value={[isMuted ? 0 : volume]}
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        onValueChange={handleVolumeChange}
-                        className="w-full cursor-pointer"
-                    />
-                </div>
+                    }}
+                    onPrev={handlePrev}
+                    onShuffle={() => setIsShuffling((v) => !v)}
+                    onRepeat={() => setIsRepeating((v) => !v)}
+                    onRepeatOne={() => setIsRepeatOne((v) => !v)}
+                    canPrev={
+                        activeIndex > 0 ||
+                        (isRepeating && activeQueue.length > 0)
+                    }
+                    canNext={
+                        activeIndex < activeQueue.length - 1 ||
+                        (isRepeating && activeQueue.length > 0)
+                    }
+                    isShuffling={isShuffling}
+                    isRepeating={isRepeating}
+                    isRepeatOne={isRepeatOne}
+                />
+                <PlayerProgressBar
+                    progressbarRef={progressbarRef}
+                    isLoaded={audioStreamIsLoaded}
+                    progressPercentage={progressPercentage}
+                    seekableTo={seekableTo}
+                    localDuration={localDuration}
+                    pendingSeek={pendingSeek}
+                    currentTime={audioStreamCurrentTime}
+                    duration={audioStreamDuration}
+                    formatTime={formatTime}
+                    onProgressBarClick={handleProgressBarClick}
+                />
+            </div>
+            <div className="w-1/4 flex justify-end items-center gap-2">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-neutral-400 hover:text-white"
+                    onClick={handleAddToFavorite}
+                >
+                    <Heart className="h-5 w-5" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-neutral-400 hover:text-white"
+                    onClick={handlePlayVideo}
+                >
+                    <Video className="h-5 w-5" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-neutral-400 hover:text-white"
+                    onClick={handleDownload}
+                >
+                    <Download className="h-5 w-5" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-neutral-400 hover:text-white"
+                    onClick={toggleQueueVisibility}
+                    title="Show queue"
+                >
+                    <ListMusic className="h-5 w-5" />
+                </Button>
+                <PlayerVolume
+                    volume={audioStreamVolume * 100}
+                    isMuted={audioStreamIsMuted}
+                    onMute={audioStreamToggleMute}
+                    onVolumeChange={(v: number) =>
+                        audioStreamSetVolume(v / 100)
+                    }
+                />
             </div>
         </div>
     )
 }
-
-// Format time as mm:ss
-const formatTime = (time: number) => {
-    if (!time) return '0:00'
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
-}
-
-export default PlayerBar

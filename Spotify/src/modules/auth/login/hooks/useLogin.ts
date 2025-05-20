@@ -15,7 +15,7 @@ export const useLogin = () => {
         try {
             // Call login endpoint - backend will set cookies
             const result = await login({ username_or_email, password }).unwrap()
-
+            console.log('result', result)
             // Set user info in Redux state
             dispatch(
                 setCredentials({

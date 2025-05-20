@@ -2,15 +2,16 @@ import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 
 import { userApi } from '@/modules/user/api'
-import { artistApi } from '@/modules/artist/api'
+import { artistApi } from '@/modules/artists/api'
 import { uploadApi } from '@/modules/upload/api'
-import { albumApi } from '@/modules/album/api'
-import { trackApi } from '@/modules/music/api'
+import { albumApi } from '@/modules/albums/api'
+import { trackApi } from '@/modules/tracks/api'
 import { searchApi } from '@/modules/search/api'
 import { authApi } from '@/modules/auth/api'
-import { playlistApi } from '@/modules/playlist/api'
+import { playlistApi } from '@/modules/playlists/api'
 import { userActivityApi } from '@/modules/activity/api'
 import { favoritesApi } from '@/modules/favorites/api'
+import { queueApi } from '@/modules/queue/api'
 
 import authReducer from '@/modules/auth/slice'
 import playerReducer from '@/modules/player/slice'
@@ -27,6 +28,7 @@ export const store = configureStore({
         [playlistApi.reducerPath]: playlistApi.reducer,
         [userActivityApi.reducerPath]: userActivityApi.reducer,
         [favoritesApi.reducerPath]: favoritesApi.reducer,
+        [queueApi.reducerPath]: queueApi.reducer,
         auth: authReducer,
         player: playerReducer,
     },
@@ -43,7 +45,8 @@ export const store = configureStore({
             searchApi.middleware,
             playlistApi.middleware,
             userActivityApi.middleware,
-            favoritesApi.middleware
+            favoritesApi.middleware,
+            queueApi.middleware
         ),
 })
 

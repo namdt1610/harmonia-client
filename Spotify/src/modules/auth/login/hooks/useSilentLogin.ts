@@ -1,10 +1,10 @@
-// src/hooks/useSilentLogin.ts
 'use client'
 import { useEffect } from 'react'
 import { useAppDispatch } from '@/redux/hooks' // hoặc '@/store/hooks', tuỳ cấu trúc
 import { useRefreshTokenMutation } from '@/modules/auth/api'
-import { setCredentials, clearAuth } from '@/modules/auth/slice'
+import { setCredentials, clearCredentials } from '@/modules/auth/slice'
 
+// This hook is used to refresh the access token silently
 export function useSilentLogin() {
     const dispatch = useAppDispatch()
     const [refresh, { isLoading }] = useRefreshTokenMutation()
@@ -23,7 +23,7 @@ export function useSilentLogin() {
                     )
                 }
             } catch (err) {
-                dispatch(clearAuth())
+                dispatch(clearCredentials())
                 // Nếu không có refreshToken hoặc bị lỗi (mất session)
                 // Có thể redirect về login ở đây nếu muốn
             }

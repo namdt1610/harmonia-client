@@ -1,13 +1,13 @@
 import React from 'react'
-import Modal from '../../../components/Modal'
+import Modal from '../../../components/shared/Modal'
 import {
     useGetUserPlaylistsQuery,
     useAddTrackToPlaylistMutation,
-} from '@/modules/playlist/api'
+} from '@/modules/playlists/api'
 import { useAddFavoriteTrackMutation } from '@/modules/user/api'
 import { Playlist } from '@/types'
 import { Button } from '@/components/ui/button'
-import PlaylistItem from './PlaylistItem'
+import PlaylistItem from './PlaylistsModal'
 
 interface AddToPlaylistModalProps {
     isOpen: boolean

@@ -1,5 +1,5 @@
 'use client'
-import { useGetAllArtistsQuery } from '@/modules/artist/api'
+import { useGetAllArtistsQuery } from '@/modules/artists/api'
 import FetchWrapper from '@/components/shared/FetchWrapper'
 
 export default function ArtistsPage() {

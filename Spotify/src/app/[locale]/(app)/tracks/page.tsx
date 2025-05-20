@@ -1,6 +1,6 @@
 'use client'
-import { useTracks } from '../../../../modules/music/hooks/useTracks'
-import { TracksUI } from '../../../../modules/music/components/TrackUI'
+import { useTracks } from '../../../../modules/tracks/hooks/useTracks'
+import { TracksUI } from '../../../../modules/tracks/components/TrackUI'
 
 export default function TracksPage() {
     const {

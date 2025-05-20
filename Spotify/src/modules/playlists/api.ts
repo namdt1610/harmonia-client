@@ -7,6 +7,16 @@ export const playlistApi = createApi({
     baseQuery: baseQueryWithReauth as BaseQueryFn,
     tagTypes: ['Playlists'],
     endpoints: (builder) => ({
+        getPublicPlaylists: builder.query<Playlist[], { user?: string } | void>(
+            {
+                query: (params) => ({
+                    url: 'playlists/public/',
+                    method: 'GET',
+                    params,
+                }),
+                providesTags: ['Playlists'],
+            }
+        ),
         getPlaylistById: builder.query({
             query: (playlistId) => ({
                 url: `playlists/${playlistId}`,
@@ -18,8 +28,8 @@ export const playlistApi = createApi({
                 playlistId,
                 trackId,
             }: {
-                playlistId: string
-                trackId: string
+                playlistId: number
+                trackId: number
             }) => ({
                 url: `playlists/${playlistId}/add-track/${trackId}/`,
                 method: 'POST',
@@ -70,4 +80,5 @@ export const {
     useGetUserPlaylistsQuery,
     useCreatePlaylistMutation,
     useAddTrackToPlaylistMutation,
+    useGetPublicPlaylistsQuery,
 } = playlistApi

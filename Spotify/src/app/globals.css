@@ -322,3 +322,13 @@ span {
     @apply border-border;}
   body {
     @apply bg-background text-foreground;}}
+
+/* Loading animation for audio player */
+@keyframes loading {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 100%;
+  }
+}

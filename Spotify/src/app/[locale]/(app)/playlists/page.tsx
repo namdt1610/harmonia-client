@@ -1,12 +1,12 @@
 'use client'
-import { useGetUserPlaylistsQuery } from '@/modules/playlist/api'
+import { useGetUserPlaylistsQuery } from '@/modules/playlists/api'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import { Playlist } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import PlaylistItem from '@/modules/playlist/components/PlaylistItem'
-import CreatePlaylistModal from '@/modules/playlist/components/CreatePlaylistModal'
+import PlaylistItem from '@/modules/playlists/components/PlaylistsModal'
+import CreatePlaylistModal from '@/modules/playlists/components/CreatePlaylistModal'
 import { useState } from 'react'
 export default function PlaylistsPage() {
     const { data: playlists, isLoading, error } = useGetUserPlaylistsQuery()

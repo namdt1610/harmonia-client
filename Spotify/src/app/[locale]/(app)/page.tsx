@@ -4,11 +4,14 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useDispatch } from 'react-redux'
-import { useGetCurrentTrackQuery } from '@/modules/music/api'
+import { useGetCurrentTrackQuery } from '@/modules/tracks/api'
 import { useGetUserActivityQuery } from '@/modules/activity/api'
-import { setCurrentTrackIndex } from '@/modules/player/slice'
+import { setCurrentTrack } from '@/modules/player/slice'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
+import { useGetPublicPlaylistsQuery } from '@/modules/playlists/api'
+import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
+import { PlaylistItem } from '@/modules/playlists/components/PlaylistItem'
 
 import {
     Play,
@@ -24,7 +27,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import TrackItem from '@/modules/music/components/TrackItem'
+import TrackItem from '@/modules/tracks/components/TrackItem'
 import { cn } from '@/lib/clsx'
 
 interface CategoryLinkProps {
@@ -61,7 +64,7 @@ export default function HomePage() {
 
     useEffect(() => {
         if (currentTrack) {
-            dispatch(setCurrentTrackIndex(currentTrack.id))
+            dispatch(setCurrentTrack(currentTrack.id))
         }
     }, [currentTrack, dispatch])
 
@@ -69,83 +72,14 @@ export default function HomePage() {
     const { data: userActivity, isLoading: isLoadingActivity } =
         useGetUserActivityQuery()
 
-    // Giả lập dữ liệu playlist cho UI
-    const featuredPlaylists = [
-        {
-            id: 1,
-            title: "Today's Top Hits",
-            cover: 'https://i.scdn.co/image/ab67706f00000003f52b9d5cc73f4e2851421ec9',
-            description: 'Drake is on top of the Hottest 50!',
-            color: 'from-blue-500 to-purple-600',
-        },
-        {
-            id: 2,
-            title: 'Chill Vibes',
-            cover: 'https://i.scdn.co/image/ab67706f00000003e8e28219724c2423afa4d320',
-            description: 'Relaxing music for your day',
-            color: 'from-green-500 to-emerald-600',
-        },
-        {
-            id: 3,
-            title: 'RapCaviar',
-            cover: 'https://i.scdn.co/image/ab67706f00000003c2a4947184a8324be74ad04a',
-            description: 'New music from Metro Boomin',
-            color: 'from-yellow-500 to-orange-600',
-        },
-        {
-            id: 4,
-            title: 'All Out 2010s',
-            cover: 'https://i.scdn.co/image/ab67706f000000034d26d431869cabfc53c67d8e',
-            description: 'The biggest songs of the 2010s',
-            color: 'from-red-500 to-pink-600',
-        },
-        {
-            id: 5,
-            title: 'Rock Classics',
-            cover: 'https://i.scdn.co/image/ab67706f00000003780d8952e456c00be947b3cb',
-            description: 'Rock legends & epic songs',
-            color: 'from-stone-500 to-stone-700',
-        },
-        {
-            id: 6,
-            title: 'Mood Booster',
-            cover: 'https://i.scdn.co/image/ab67706f00000003bd0e19e810bb4b55ab164a95',
-            description: "Get happy with today's dose of feel-good songs!",
-            color: 'from-cyan-500 to-blue-600',
-        },
-    ]
-
-    // Daily mixes
-    const dailyMixes = [
-        {
-            id: 1,
-            title: 'Daily Mix 1',
-            cover: 'https://dailymix-images.scdn.co/v2/img/ab6761610000e5ebf3cbb4058963dd192e5e19a4/1/en/default',
-            description: 'Travis Scott, Future, 21 Savage and more',
-            color: 'from-indigo-500 to-indigo-700',
-        },
-        {
-            id: 2,
-            title: 'Daily Mix 2',
-            cover: 'https://dailymix-images.scdn.co/v2/img/ab6761610000e5eb6be070445e01ba7ecfeda7f2/2/en/default',
-            description: 'The Weeknd, Doja Cat, SZA and more',
-            color: 'from-pink-500 to-pink-700',
-        },
-        {
-            id: 3,
-            title: 'Daily Mix 3',
-            cover: 'https://dailymix-images.scdn.co/v2/img/ab6761610000e5eb2e83342b0f36ba888c77be8e/3/en/default',
-            description: 'Kendrick Lamar, J. Cole, Drake and more',
-            color: 'from-yellow-500 to-amber-700',
-        },
-        {
-            id: 4,
-            title: 'Daily Mix 4',
-            cover: 'https://dailymix-images.scdn.co/v2/img/ab6761610000e5ebfc9d2abc85b6f1056a6a70af/4/en/default',
-            description: 'Post Malone, Lil Nas X, Kid Cudi and more',
-            color: 'from-green-500 to-green-700',
-        },
-    ]
+    // Fetch system playlists
+    const {
+        data: playlists,
+        isLoading: isLoadingPlaylists,
+        error: playlistsError,
+    } = useGetPublicPlaylistsQuery({ user: 'system' })
+    const { addPlaylistToQueue } = usePlayerQueue()
+    const systemPlaylists = playlists || []
 
     // Get current time to show appropriate greeting
     const currentHour = new Date().getHours()
@@ -264,63 +198,7 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* Made for you section */}
-            <div className="px-6 pt-6 pb-2">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
-                        <Sparkles size={20} className="text-primary" />
-                        {t('madeForYou', { fallback: 'Made for you' })}
-                    </h2>
-                    <Button
-                        variant="link"
-                        className="text-neutral-400 hover:text-white"
-                    >
-                        {t('seeAll', { fallback: 'See all' })}
-                    </Button>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
-                    {dailyMixes.map((mix) => (
-                        <Card
-                            key={mix.id}
-                            className="bg-neutral-800/50 border-none group overflow-hidden hover:bg-neutral-700/50 transition-colors"
-                        >
-                            <CardContent className="p-3">
-                                <div className="relative">
-                                    <div className="aspect-square w-full overflow-hidden rounded-md mb-3">
-                                        <Image
-                                            src={mix.cover}
-                                            alt={mix.title}
-                                            width={200}
-                                            height={200}
-                                            className="object-cover w-full h-full"
-                                        />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <Button
-                                                size="icon"
-                                                className="rounded-full w-12 h-12 bg-primary hover:bg-primary/90 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform opacity-0 group-hover:opacity-100"
-                                            >
-                                                <Play
-                                                    size={20}
-                                                    className="text-primary-foreground ml-0.5"
-                                                />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <h3 className="font-bold truncate">
-                                        {mix.title}
-                                    </h3>
-                                    <p className="text-sm text-neutral-400 truncate">
-                                        {mix.description}
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-
-            {/* Featured playlists */}
+            {/* Featured playlists (dynamic) */}
             <div className="px-6 pt-6 pb-2">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-bold">
@@ -336,45 +214,28 @@ export default function HomePage() {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
-                    {featuredPlaylists.map((playlist) => (
-                        <Card
-                            key={playlist.id}
-                            className="bg-neutral-800/50 border-none group overflow-hidden hover:bg-neutral-700/50 transition-colors"
-                        >
-                            <CardContent className="p-3">
-                                <div className="relative">
-                                    <div className="aspect-square w-full overflow-hidden rounded-md mb-3">
-                                        <Image
-                                            src={playlist.cover}
-                                            alt={playlist.title}
-                                            width={200}
-                                            height={200}
-                                            className="object-cover w-full h-full"
-                                        />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <Button
-                                                size="icon"
-                                                className="rounded-full w-12 h-12 bg-primary hover:bg-primary/90 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform opacity-0 group-hover:opacity-100"
-                                            >
-                                                <Play
-                                                    size={20}
-                                                    className="text-primary-foreground ml-0.5"
-                                                />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <h3 className="font-bold truncate">
-                                        {playlist.title}
-                                    </h3>
-                                    <p className="text-sm text-neutral-400 truncate">
-                                        {playlist.description}
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                {isLoadingPlaylists ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                        {[...Array(6)].map((_, idx) => (
+                            <Skeleton
+                                key={idx}
+                                className="h-[250px] rounded-lg"
+                            />
+                        ))}
+                    </div>
+                ) : playlistsError ? (
+                    <div className="text-red-500">Error loading playlists</div>
+                ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                        {systemPlaylists.map((playlist: any) => (
+                            <PlaylistItem
+                                key={playlist.id}
+                                playlist={playlist}
+                                onPlay={addPlaylistToQueue}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Currently playing section */}

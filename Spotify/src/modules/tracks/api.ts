@@ -1,4 +1,4 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
 import { baseQueryWithReauth } from '@/lib/baseQuery'
 import { Track } from '@/types'
@@ -173,7 +173,7 @@ export const trackApi = createApi({
             providesTags: [{ type: 'Track', id: 'RECENT' }],
             keepUnusedDataFor: 900,
         }),
-        
+
         getTracksByGenre: builder.query<Track[], number>({
             query: (genreId) => `tracks/by_genre/${genreId}`,
             providesTags: (result, error, genreId) => [
@@ -186,6 +186,74 @@ export const trackApi = createApi({
             query: (trackId) => ({
                 url: `tracks/${trackId}/play/`,
                 method: 'POST',
+            }),
+        }),
+
+        downloadTrack: builder.mutation<void, number>({
+            query: (trackId) => ({
+                url: `tracks/${trackId}/download/`,
+                method: 'GET',
+                responseHandler: async (response: Response) => {
+                    // For direct file download, we don't need to parse the response as JSON
+                    // Check if we have a file response
+                    const contentType = response.headers.get('content-type')
+                    if (contentType && contentType.includes('audio/')) {
+                        // This is a direct file download
+                        const blob = await response.blob()
+                        const url = window.URL.createObjectURL(blob)
+
+                        // Get filename from Content-Disposition header if available
+                        let filename = ''
+                        const disposition = response.headers.get(
+                            'content-disposition'
+                        )
+                        if (disposition && disposition.includes('filename=')) {
+                            const matches =
+                                /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(
+                                    disposition
+                                )
+                            if (matches && matches[1]) {
+                                filename = matches[1].replace(/['"]/g, '')
+                            }
+                        }
+
+                        // Create a temporary link and click it to download
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = filename || `track-${trackId}.mp3`
+                        document.body.appendChild(a)
+                        a.click()
+
+                        // Clean up
+                        window.URL.revokeObjectURL(url)
+                        document.body.removeChild(a)
+                        return null
+                    } else {
+                        // If not a file, parse as JSON
+                        return response.json()
+                    }
+                },
+            }),
+        }),
+
+        streamTrack: builder.query<Blob, number>({
+            query: (id) => ({
+                url: `tracks/${id}/stream/`,
+                responseHandler: async (response: Response) => response.blob(),
+            }),
+        }),
+
+        streamVideo: builder.query<Blob, number>({
+            query: (id) => ({
+                url: `tracks/${id}/video/`,
+                responseHandler: async (response: Response) => response.blob(),
+            }),
+        }),
+
+        downloadVideo: builder.query<Blob, number>({
+            query: (id) => ({
+                url: `tracks/${id}/download_video/`,
+                responseHandler: async (response: Response) => response.blob(),
             }),
         }),
     }),
@@ -204,4 +272,8 @@ export const {
     useGetRecentTracksQuery,
     useGetTracksByGenreQuery,
     usePlayTrackActivityMutation,
+    useDownloadTrackMutation,
+    useStreamTrackQuery,
+    useStreamVideoQuery,
+    useDownloadVideoQuery,
 } = trackApi

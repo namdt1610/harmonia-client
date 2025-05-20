@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useSelector, useDispatch } from 'react-redux'
-import { clearAuth } from '@/modules/auth/slice'
+import { clearCredentials } from '@/modules/auth/slice'
 import { RootState } from '@/redux/store'
 import SearchBar from '@/components/layouts/SearchBar'
 import { useRouter, usePathname } from 'next/navigation'
@@ -46,8 +46,7 @@ export default function TopBar({ onSearchResults }: TopBarProps) {
     const locale = pathname?.split('/')[1] || 'en'
 
     const handleLogout = () => {
-        dispatch(clearAuth())
-        sessionStorage.removeItem('access_token')
+        dispatch(clearCredentials())
     }
 
     return (
@@ -157,6 +156,16 @@ export default function TopBar({ onSearchResults }: TopBarProps) {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
+                                {user?.is_superuser && (
+                                    <>
+                                        <DropdownMenuItem>
+                                            <Link href="http://localhost:3030/admin/">
+                                                Admin Panel
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
                                 <DropdownMenuItem
                                     onClick={() =>
                                         router.push(`/${locale}/profile`)

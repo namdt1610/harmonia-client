@@ -1,5 +1,5 @@
 import { fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react'
-import { setCredentials, clearAuth } from '@/modules/auth/slice'
+import { setCredentials, clearCredentials } from '@/modules/auth/slice'
 
 interface RefreshResponse {
     access: string
@@ -57,7 +57,7 @@ export const baseQueryWithReauth: BaseQueryFn<any, any, any> = async (
             console.log('Failed to refresh token, logging out')
 
             // If refresh fails, clear auth state
-            api.dispatch(clearAuth())
+            api.dispatch(clearCredentials())
         }
     }
 

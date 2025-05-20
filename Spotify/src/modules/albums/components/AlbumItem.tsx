@@ -9,18 +9,56 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { Album } from '@/types'
+import { useDispatch } from 'react-redux'
+import {
+    setQueue,
+    setCurrentTrackIndex,
+    setIsPlaying,
+} from '@/modules/player/slice'
+import { useGetAlbumTracksQuery } from '@/modules/albums/api'
+import { toast } from 'sonner'
+import {
+    useAddAlbumMutation,
+    useSetCurrentTrackMutation,
+} from '@/modules/queue/api'
 
 interface AlbumItemProps {
     album: Album
-    onPlay?: (id: number) => void
     onMoreOptions?: (id: number) => void
 }
 
-export default function AlbumItem({
-    album,
-    onPlay,
-    onMoreOptions,
-}: AlbumItemProps) {
+export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
+    const dispatch = useDispatch()
+    const { data: albumTracks, isLoading } = useGetAlbumTracksQuery(album.id, {
+        skip: false, // We'll fetch tracks when needed
+    })
+    const [addAlbumToQueue] = useAddAlbumMutation()
+    const [setCurrentTrack] = useSetCurrentTrackMutation()
+
+    const handlePlay = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        toast.loading(`Loading album: ${album.title}`)
+
+        try {
+            // Add all tracks from album to queue
+            await addAlbumToQueue(album.id).unwrap()
+
+            // If tracks are available, set first track as current
+            if (albumTracks?.length) {
+                await setCurrentTrack(albumTracks[0].id).unwrap()
+            }
+
+            toast.dismiss()
+            toast.success(`Playing: ${album.title}`)
+        } catch (error) {
+            toast.dismiss()
+            toast.error('Failed to play album')
+            console.error('Error playing album:', error)
+        }
+    }
+
     return (
         <Card className="aspect-[1/1.25] p-3 bg-neutral-900/70 border-none shadow-none relative group transition-colors hover:bg-neutral-800/90 select-none">
             <CardContent className="p-0 pb-2 flex flex-col items-center">
@@ -37,11 +75,9 @@ export default function AlbumItem({
                     <Button
                         size="icon"
                         className="absolute bottom-2 right-2 bg-green-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onPlay?.(album.id)
-                        }}
+                        onClick={handlePlay}
                         aria-label="Play album"
+                        disabled={isLoading}
                     >
                         <Play size={20} />
                     </Button>

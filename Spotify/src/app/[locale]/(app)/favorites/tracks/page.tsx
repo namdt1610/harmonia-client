@@ -15,8 +15,8 @@ import {
     Loader2,
 } from 'lucide-react'
 import FetchWrapper from '@/components/shared/FetchWrapper'
-import TrackList from '@/modules/music/components/TrackList'
-import { usePlayTrack } from '@/modules/music/hooks/usePlayTrack'
+import TrackList from '@/modules/tracks/components/TrackList'
+import { usePlayTrack } from '@/modules/tracks/hooks/usePlayTrack'
 import {
     DropdownMenu,
     DropdownMenuContent,

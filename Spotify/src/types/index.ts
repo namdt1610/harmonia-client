@@ -4,6 +4,8 @@ export interface Artist {
     bio?: string
     avatar: string
     genres?: string[]
+    tracks: Track[]
+    albums: Album[]
 }
 
 export interface Album {
@@ -12,6 +14,7 @@ export interface Album {
     artist: Artist
     release_date: string
     cover: string
+    tracks: Track[]
 }
 
 export interface Track {
@@ -26,7 +29,7 @@ export interface Track {
     duration: number
     created_at: string
     is_favorite: boolean
-    music_video?: string
+    video?: string
     explicit?: boolean
 }
 
@@ -50,4 +53,5 @@ export interface User {
     liked_tracks: Track[]
     created_at: string
     updated_at: string
+    is_superuser: boolean
 }

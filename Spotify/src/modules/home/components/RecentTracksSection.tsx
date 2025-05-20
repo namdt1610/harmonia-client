@@ -1,6 +1,6 @@
 import React from 'react'
-import TrackItem from '@/modules/music/components/TrackItem'
-import { useGetRecentTracksQuery } from '@/modules/music/api'
+import TrackItem from '@/modules/tracks/components/TrackItem'
+import { useGetRecentTracksQuery } from '@/modules/tracks/api'
 interface RecentTracksSectionProps {
     title: string
 }

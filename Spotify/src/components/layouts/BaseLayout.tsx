@@ -4,13 +4,13 @@ import Link from 'next/link'
 import { Inter } from 'next/font/google'
 import { ReactNode, useState } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
-import { usePlayTrack } from '@/modules/music/hooks/usePlayTrack'
+import { usePlayTrack } from '@/modules/tracks/hooks/usePlayTrack'
 
 import TopBar from './TopBar'
 import LeftSidebar from './LeftSidebar'
-import RightSidebar from './RightSibebar'
+import RightSidebar from './RightSidebar'
 import PlayerBar from '@/modules/player/components/PlayerBar'
-import TrackItem from '@/modules/music/components/TrackItem'
+import TrackItem from '@/modules/tracks/components/TrackItem'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -36,8 +36,6 @@ export default function BaseLayout({ children, locale, messages }: Props) {
         setSearchResults(results)
     }
 
-    const { playTrack } = usePlayTrack()
-
     return (
         <NextIntlClientProvider
             timeZone="Asia/Ho_Chi_Minh"
@@ -56,7 +54,7 @@ export default function BaseLayout({ children, locale, messages }: Props) {
 
                 {/* Main content */}
                 <main className="flex-1 overflow-hidden flex flex-row">
-                    <LeftSidebar locale={locale} />
+                    <LeftSidebar children locale={locale} />
 
                     <div className="flex-1 overflow-auto">
                         {searchResults ? (
@@ -104,7 +102,7 @@ export default function BaseLayout({ children, locale, messages }: Props) {
                 </main>
 
                 {/* Player bar */}
-                    <PlayerBar />
+                <PlayerBar />
             </div>
         </NextIntlClientProvider>
     )

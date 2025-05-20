@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useGetTracksQuery } from '@/modules/music/api'
+import { useGetTracksQuery } from '@/modules/tracks/api'
 
 export function useTracks() {
     const [searchQuery, setSearchQuery] = useState('')
