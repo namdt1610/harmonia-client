@@ -2,20 +2,13 @@ import React from 'react'
 import Image from 'next/image'
 import { Play } from 'lucide-react'
 import DefaultCover from '@/assets/images/default-logo.png'
-import { setCurrentSong } from '@/modules/player/slice'
+import { setCurrentTrack } from '@/modules/player/slice'
 import type { Track } from '@/types'
 import { useDispatch } from 'react-redux'
 
-interface RecentItem {
-    id: number
-    title: string
-    cover: string
-    artist: string
-}
-
 interface RecentlyPlayedSectionProps {
     title: string
-    items: RecentItem[]
+    items: Track[]
 }
 
 export default function RecentlyPlayedSection({
@@ -37,14 +30,14 @@ export default function RecentlyPlayedSection({
 }
 
 interface RecentlyPlayedCardProps {
-    item: RecentItem
+    item: Track
 }
 
 function RecentlyPlayedCard({ item }: RecentlyPlayedCardProps) {
     const dispatch = useDispatch()
 
     const handlePlayTrack = (track: Track) => {
-        dispatch(setCurrentSong(track))
+        dispatch(setCurrentTrack(track.id))
     }
 
     return (
@@ -75,11 +68,11 @@ function RecentlyPlayedCard({ item }: RecentlyPlayedCardProps) {
                     {item.title}
                 </h3>
                 <p className="text-neutral-400 text-xs sm:text-sm">
-                    {item.artist}
+                    {item.artist.name}
                 </p>
             </div>
             <button
-                onClick={() => handlePlayTrack(playlist)}
+                onClick={() => handlePlayTrack(item)}
                 className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-green-500 shadow-lg text-black flex items-center justify-center mr-2 sm:mr-3 md:mr-4 opacity-0 group-hover:opacity-100 transition-opacity"
             >
                 <Play size={16} className="sm:hidden" fill="currentColor" />

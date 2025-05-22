@@ -2,7 +2,19 @@ import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Volume2, VolumeX } from 'lucide-react'
 
-export function PlayerVolume({ volume, isMuted, onMute, onVolumeChange }) {
+interface PlayerVolumeProps {
+    volume: number
+    isMuted: boolean
+    onMute: () => void
+    onVolumeChange: (value: number) => void
+}
+
+export function PlayerVolume({
+    volume,
+    isMuted,
+    onMute,
+    onVolumeChange,
+}: PlayerVolumeProps) {
     return (
         <div className="flex items-center gap-2">
             <Button

@@ -7,7 +7,7 @@ interface UseAlbumsProps {
 export function useAlbums({ artistId }: UseAlbumsProps = {}) {
     // Nếu có artistId thì gọi albums theo artist, ngược lại lấy tất cả
     const query = artistId
-        ? useGetAlbumsByArtistQuery(artistId)
+        ? useGetAlbumsByArtistQuery(Number(artistId))
         : useGetAllAlbumsQuery()
 
     const { data: albums, isLoading, isError, error, refetch } = query

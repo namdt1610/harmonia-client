@@ -1,10 +1,8 @@
 'use client'
 import { clsx } from 'clsx'
-import Link from 'next/link'
 import { Inter } from 'next/font/google'
 import { ReactNode, useState } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
-import { usePlayTrack } from '@/modules/tracks/hooks/usePlayTrack'
 
 import TopBar from './TopBar'
 import LeftSidebar from './LeftSidebar'
@@ -51,7 +49,6 @@ export default function BaseLayout({ children, locale, messages }: Props) {
             >
                 {/* TopBar */}
                 <TopBar onSearchResults={handleSearchResults} />
-
                 {/* Main content */}
                 <main className="flex-1 overflow-hidden flex flex-row">
                     <LeftSidebar children locale={locale} />

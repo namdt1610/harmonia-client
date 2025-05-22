@@ -9,8 +9,7 @@ import {
     ExternalLink,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useSelector, useDispatch } from 'react-redux'
-import { clearCredentials } from '@/modules/auth/slice'
+import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import SearchBar from '@/components/layouts/SearchBar'
 import { useRouter, usePathname } from 'next/navigation'
@@ -32,6 +31,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useLogout } from '@/hooks/useLogout'
 
 interface TopBarProps {
     onSearchResults: (results: any) => void
@@ -40,14 +40,10 @@ interface TopBarProps {
 export default function TopBar({ onSearchResults }: TopBarProps) {
     const t = useTranslations('TopBar')
     const { isLoggedIn, user } = useSelector((state: RootState) => state.auth)
-    const dispatch = useDispatch()
     const router = useRouter()
     const pathname = usePathname()
     const locale = pathname?.split('/')[1] || 'en'
-
-    const handleLogout = () => {
-        dispatch(clearCredentials())
-    }
+    const { logout, isLoggingOut } = useLogout()
 
     return (
         <header className="h-16 bg-black/80 backdrop-filter backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 border-b border-neutral-800/50">
@@ -185,10 +181,15 @@ export default function TopBar({ onSearchResults }: TopBarProps) {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     className="text-destructive"
-                                    onClick={handleLogout}
+                                    onClick={logout}
+                                    disabled={isLoggingOut}
                                 >
                                     <LogOut className="mr-2 h-4 w-4" />
-                                    <span>Log out</span>
+                                    <span>
+                                        {isLoggingOut
+                                            ? 'Logging out...'
+                                            : 'Log out'}
+                                    </span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

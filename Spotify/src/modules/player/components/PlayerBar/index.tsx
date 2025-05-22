@@ -1,19 +1,21 @@
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Heart, Download, ListMusic, Video } from 'lucide-react'
+import { Heart, Download, ListMusic, Video, Plus } from 'lucide-react'
 import { useAudioStream } from '../../hooks/useAudioStream'
 import { usePlayerQueue } from '../../hooks/usePlayerQueue'
+
 import PlayerTrackInfo from './PlayerTrackInfo'
 import PlayerControls from './PlayerControls'
 import PlayerVolume from './PlayerVolume'
 import PlayerProgressBar from './PlayerProgressBar'
+import PlaylistsModal from '@/modules/playlists/components/PlaylistsModal'
+
 import { useRouter } from 'next/navigation'
 
 export default function Player() {
     const {
         currentTrack,
         queue,
-        currentIndex,
         trackData,
         setCurrentTrack,
         handleAddToFavorite,
@@ -27,7 +29,7 @@ export default function Player() {
     const [isRepeatOne, setIsRepeatOne] = useState(false)
     const [isShuffling, setIsShuffling] = useState(false)
     const [shuffledQueue, setShuffledQueue] = useState<any[]>([])
-
+    const [isPlaylistsModalOpen, setIsPlaylistsModalOpen] = useState(false)
     // Shuffle logic
     function shuffleArray(array: any[]) {
         const arr = [...array]
@@ -169,7 +171,7 @@ export default function Player() {
                 crossOrigin="anonymous"
             />
             <PlayerTrackInfo
-                trackData={trackData}
+                trackData={trackData ?? null}
                 getCoverImage={getCoverImage}
                 audioError={audioStreamError}
             />
@@ -228,6 +230,19 @@ export default function Player() {
                 >
                     <Heart className="h-5 w-5" />
                 </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-neutral-400 hover:text-white"
+                    onClick={() => setIsPlaylistsModalOpen(true)}
+                >
+                    <Plus className="h-5 w-5" />
+                </Button>
+                <PlaylistsModal
+                    open={isPlaylistsModalOpen}
+                    onClose={() => setIsPlaylistsModalOpen(false)}
+                    trackId={currentTrack?.id}
+                />
                 <Button
                     variant="ghost"
                     size="icon"

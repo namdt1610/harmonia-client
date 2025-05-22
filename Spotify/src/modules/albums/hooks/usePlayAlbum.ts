@@ -1,10 +1,10 @@
 import { useAppDispatch } from '@/redux/hooks'
-import { setCurrentPlaylist } from '@/modules/player/slice'
+import { setQueue } from '@/modules/player/slice'
 
 export function usePlayAlbum() {
-  const dispatch = useAppDispatch()
-  const playAlbum = (tracks: any[]) => {
-    dispatch(setCurrentPlaylist(tracks))
-  }
-  return { playAlbum }
+    const dispatch = useAppDispatch()
+    const playAlbum = (tracks: any[]) => {
+        dispatch(setQueue(tracks))
+    }
+    return { playAlbum }
 }

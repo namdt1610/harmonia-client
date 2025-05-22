@@ -1,7 +1,6 @@
-import { useAddToFavoriteTracksMutation } from '../api'
+import { useAddFavoriteTrackMutation } from '../api'
 
 export function useFavoriteTrack() {
-    const [favoriteTrack, { isLoading, error }] =
-        useAddToFavoriteTracksMutation()
+    const [favoriteTrack, { isLoading, error }] = useAddFavoriteTrackMutation()
     return { favoriteTrack, isLoading, error }
 }

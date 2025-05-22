@@ -15,7 +15,7 @@ import {
     setCurrentTrackIndex,
     setIsPlaying,
 } from '@/modules/player/slice'
-import { useGetAlbumTracksQuery } from '@/modules/albums/api'
+import { useGetAlbumByIdQuery } from '@/modules/albums/api'
 import { toast } from 'sonner'
 import {
     useAddAlbumMutation,
@@ -28,9 +28,8 @@ interface AlbumItemProps {
 }
 
 export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
-    const dispatch = useDispatch()
-    const { data: albumTracks, isLoading } = useGetAlbumTracksQuery(album.id, {
-        skip: false, // We'll fetch tracks when needed
+    const { data: albumTracks, isLoading } = useGetAlbumByIdQuery(album.id, {
+        skip: false,
     })
     const [addAlbumToQueue] = useAddAlbumMutation()
     const [setCurrentTrack] = useSetCurrentTrackMutation()
@@ -42,12 +41,10 @@ export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
         toast.loading(`Loading album: ${album.title}`)
 
         try {
-            // Add all tracks from album to queue
             await addAlbumToQueue(album.id).unwrap()
 
-            // If tracks are available, set first track as current
-            if (albumTracks?.length) {
-                await setCurrentTrack(albumTracks[0].id).unwrap()
+            if (albumTracks?.tracks?.length) {
+                await setCurrentTrack(albumTracks.tracks[0].id).unwrap()
             }
 
             toast.dismiss()

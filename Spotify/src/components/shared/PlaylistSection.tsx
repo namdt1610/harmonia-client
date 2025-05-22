@@ -13,7 +13,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-
+import { useGetUserPlaylistsQuery } from '@/modules/playlists/api'
+import { Playlist } from '@/types'
 interface PlaylistSectionProps {
     isCollapsed: boolean
 }
@@ -25,30 +26,9 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
     const [filterText, setFilterText] = useState('')
 
     // Mock data for playlists - in a real app, this would come from API
-    const playlists = [
-        { id: 1, name: 'Daily Mix 1', color: 'from-blue-500 to-blue-700' },
-        {
-            id: 2,
-            name: 'Your Top Songs 2024',
-            color: 'from-purple-500 to-indigo-700',
-        },
-        {
-            id: 3,
-            name: 'Discover Weekly',
-            color: 'from-green-500 to-emerald-700',
-        },
-        { id: 4, name: 'Release Radar', color: 'from-red-500 to-pink-700' },
-        { id: 5, name: 'Chill Mix', color: 'from-orange-500 to-amber-700' },
-        { id: 6, name: 'Dance Vibes', color: 'from-teal-500 to-cyan-700' },
-        { id: 7, name: 'Classic Rock', color: 'from-gray-500 to-gray-700' },
-        {
-            id: 8,
-            name: 'Jazz Classics',
-            color: 'from-yellow-500 to-yellow-700',
-        },
-    ]
+    const { data: playlists } = useGetUserPlaylistsQuery()
 
-    const filteredPlaylists = playlists.filter((playlist) =>
+    const filteredPlaylists = playlists?.filter((playlist: Playlist) =>
         playlist.name.toLowerCase().includes(filterText.toLowerCase())
     )
 
@@ -164,7 +144,7 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
 
                 {/* User playlists */}
                 <div className="space-y-1">
-                    {filteredPlaylists.map((playlist) => (
+                    {filteredPlaylists?.map((playlist) => (
                         <Link
                             key={playlist.id}
                             href={`/playlists/${playlist.id}`}

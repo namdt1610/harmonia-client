@@ -1,6 +1,17 @@
 import React from 'react'
+import { Track } from '@/types'
 
-export function PlayerTrackInfo({ trackData, getCoverImage, audioError }) {
+interface PlayerTrackInfoProps {
+    trackData: Track | null
+    getCoverImage: () => string | null
+    audioError: string | null
+}
+
+export function PlayerTrackInfo({
+    trackData,
+    getCoverImage,
+    audioError,
+}: PlayerTrackInfoProps) {
     if (!trackData) return null
     return (
         <div className="w-1/4 flex items-center gap-3">

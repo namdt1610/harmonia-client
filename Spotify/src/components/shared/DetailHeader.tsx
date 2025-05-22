@@ -86,7 +86,7 @@ export default function DetailHeader({
                             size="icon"
                             className={cn(
                                 'text-neutral-400 hover:text-white',
-                                isFavorite && 'text-green-500'
+                                isFavorite ? 'text-green-500' : ''
                             )}
                             onClick={onAddToFavorite}
                         >

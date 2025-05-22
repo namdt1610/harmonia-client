@@ -5,14 +5,18 @@ import { RootState } from '@/redux/store'
 import { Playlist } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import PlaylistItem from '@/modules/playlists/components/PlaylistsModal'
+import { PlaylistItem } from '@/modules/playlists/components/PlaylistItem'
 import CreatePlaylistModal from '@/modules/playlists/components/CreatePlaylistModal'
 import { useState } from 'react'
+import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
+
 export default function PlaylistsPage() {
     const { data: playlists, isLoading, error } = useGetUserPlaylistsQuery()
     const userId = useSelector((state: RootState) => state.auth.user?.id)
     console.log('Playlists of user Id: ', userId, playlists)
     const [isOpen, setIsOpen] = useState(false)
+    const { addPlaylistToQueue } = usePlayerQueue()
+
 
     if (isLoading) {
         return <div>Loading...</div>
@@ -45,8 +49,12 @@ export default function PlaylistsPage() {
             </div>
             <div className="mt-4">
                 <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {playlists?.results?.map((playlist: Playlist) => (
-                        <PlaylistItem key={playlist.id} playlist={playlist} />
+                    {playlists?.map((playlist: Playlist) => (
+                        <PlaylistItem
+                            key={playlist.id}
+                            playlist={playlist}
+                            onPlay={addPlaylistToQueue}
+                        />
                     ))}
                 </ul>
             </div>

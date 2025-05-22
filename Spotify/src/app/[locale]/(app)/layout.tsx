@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import BaseLayout from '@/components/layouts/BaseLayout'
 import { routing } from '@/i18n/routing'
 
+
 type Locale = (typeof routing.locales)[number] // Định nghĩa kiểu chính xác
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
 export default async function LocaleLayout({ children, params }: Props) {
     const resolvedParams = await Promise.resolve(params) // Đảm bảo params đã resolve
     const locale = resolvedParams?.locale
-    const messages = await getMessages();
+    const messages = await getMessages()
 
     if (!locale || !routing.locales.includes(locale as any)) {
         notFound()
@@ -22,5 +23,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
     setRequestLocale(locale as Locale)
 
-    return <BaseLayout messages={messages} locale={locale}>{children}</BaseLayout>
+    return (
+            <BaseLayout messages={messages} locale={locale}>
+                {children}
+            </BaseLayout>
+    )
 }

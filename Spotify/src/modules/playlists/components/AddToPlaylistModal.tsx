@@ -27,8 +27,8 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
     const handleAddToPlaylist = async (playlistId: number) => {
         try {
             await addTrackToPlaylist({
-                playlistId: playlistId.toString(),
-                trackId: trackId.toString(),
+                playlistId,
+                trackId,
             }).unwrap()
             onClose()
         } catch (error) {
@@ -74,26 +74,24 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                     <h3 className="text-sm font-medium mb-2">Your Playlists</h3>
                     {isLoading ? (
                         <div className="text-center py-4">Loading...</div>
-                    ) : playlistsData?.results.length === 0 ? (
+                    ) : playlistsData?.length === 0 ? (
                         <div className="text-center py-4 text-muted-foreground">
                             No playlists found
                         </div>
                     ) : (
                         <div className="space-y-2 max-h-60 overflow-y-auto">
-                            {playlistsData?.results.map(
-                                (playlist: Playlist) => (
-                                    <Button
-                                        key={playlist.id}
-                                        onClick={() =>
-                                            handleAddToPlaylist(playlist.id)
-                                        }
-                                        className="w-full justify-start"
-                                        variant="outline"
-                                    >
-                                        {playlist.name}
-                                    </Button>
-                                )
-                            )}
+                            {playlistsData?.map((playlist: Playlist) => (
+                                <Button
+                                    key={playlist.id}
+                                    onClick={() =>
+                                        handleAddToPlaylist(playlist.id)
+                                    }
+                                    className="w-full justify-start"
+                                    variant="outline"
+                                >
+                                    {playlist.name}
+                                </Button>
+                            ))}
                         </div>
                     )}
                 </div>

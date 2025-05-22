@@ -3,15 +3,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import DefaultCover from '@/assets/images/default-cover.webp'
+import { Playlist } from '@/types'
 
 interface PlaylistItemProps {
-    playlist: {
-        id: number
-        name: string
-        description?: string
-        cover?: string
-        tracks: any[]
-    }
+    playlist: Playlist
     onPlay: (playlistId: number) => void
 }
 
@@ -23,10 +19,7 @@ export function PlaylistItem({ playlist, onPlay }: PlaylistItemProps) {
                     <div className="relative">
                         <div className="aspect-square w-full overflow-hidden rounded-md mb-3">
                             <Image
-                                src={
-                                    playlist.cover ||
-                                    '/images/default-cover.webp'
-                                }
+                                src={playlist.cover || DefaultCover}
                                 alt={playlist.name}
                                 width={200}
                                 height={200}

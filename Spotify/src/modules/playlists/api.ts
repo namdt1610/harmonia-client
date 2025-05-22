@@ -57,7 +57,7 @@ export const playlistApi = createApi({
                 method: 'DELETE',
             }),
         }),
-        getUserPlaylists: builder.query<{ results: Playlist[] }, void>({
+        getUserPlaylists: builder.query<Playlist[], void>({
             query: () => ({
                 url: 'playlists/',
                 method: 'GET',

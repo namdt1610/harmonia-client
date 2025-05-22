@@ -130,11 +130,11 @@ export default function PlaylistsModal({
                                 <div className="text-center py-4 text-neutral-400">
                                     Loading playlists...
                                 </div>
-                            ) : !playlistsData ? (
+                            ) : !playlistsData || playlistsData.length === 0 ? (
                                 <div className="text-center py-4 text-neutral-400">
                                     No playlists found
                                 </div>
-                            ) : Array.isArray(playlistsData) ? (
+                            ) : (
                                 playlistsData.map((playlist) => (
                                     <Button
                                         key={playlist.id}
@@ -170,48 +170,6 @@ export default function PlaylistsModal({
                                         </div>
                                     </Button>
                                 ))
-                            ) : // Handle the case where playlistsData might have a results property
-                            playlistsData.results &&
-                              Array.isArray(playlistsData.results) ? (
-                                playlistsData.results.map((playlist) => (
-                                    <Button
-                                        key={playlist.id}
-                                        variant="ghost"
-                                        className="justify-start text-white hover:bg-neutral-800 flex items-center p-3"
-                                        onClick={() =>
-                                            handleAddTrackToPlaylist(
-                                                playlist.id
-                                            )
-                                        }
-                                    >
-                                        <div className="h-10 w-10 bg-neutral-700 rounded overflow-hidden mr-3">
-                                            {playlist.cover ? (
-                                                <img
-                                                    src={playlist.cover}
-                                                    alt={playlist.name}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="h-full w-full flex items-center justify-center bg-neutral-800">
-                                                    <Music className="h-5 w-5 text-gray-400" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="truncate">
-                                            <div className="font-medium">
-                                                {playlist.name}
-                                            </div>
-                                            <div className="text-xs text-neutral-400">
-                                                {playlist.tracks_count || 0}{' '}
-                                                tracks
-                                            </div>
-                                        </div>
-                                    </Button>
-                                ))
-                            ) : (
-                                <div className="text-center py-4 text-neutral-400">
-                                    No playlists found
-                                </div>
                             )}
                         </div>
                     </>

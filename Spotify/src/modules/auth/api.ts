@@ -1,9 +1,22 @@
-import { createApi, BaseQueryFn } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithReauth } from '@/lib/baseQuery'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const authApi = createApi({
     reducerPath: 'authApi',
-    baseQuery: baseQueryWithReauth as BaseQueryFn,
+    baseQuery: fetchBaseQuery({
+        baseUrl: process.env.NEXT_PUBLIC_API_URL,
+        credentials: 'include',
+        prepareHeaders: (headers, { getState }) => {
+            // Get the current path from the request
+            const path = (getState() as any)?.router?.location?.pathname
+
+            // Don't include credentials for logout
+            if (path?.includes('/logout')) {
+                headers.set('credentials', 'omit')
+            }
+
+            return headers
+        },
+    }),
     endpoints: (builder) => ({
         login: builder.mutation<
             any,
@@ -20,7 +33,7 @@ export const authApi = createApi({
         }),
         logout: builder.mutation<void, void>({
             query: () => ({
-                url: '/auth/logout',
+                url: '/auth/logout/',
                 method: 'POST',
             }),
         }),

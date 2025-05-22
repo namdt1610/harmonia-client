@@ -33,14 +33,8 @@ const FormSchema = z.object({
 })
 
 export default function LoginForm() {
-    const {
-        handleLogin,
-        isLoading,
-        isError,
-        isSuccess,
-        handleGoogleLogin,
-        isGoogleLoading,
-    } = useLogin()
+    const { handleLogin, isLoading, handleGoogleLogin, isGoogleLoading } =
+        useLogin()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {

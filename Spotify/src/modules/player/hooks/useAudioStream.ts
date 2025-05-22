@@ -1,9 +1,22 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import Hls from 'hls.js'
+import { Track } from '@/types'
 
-export function useAudioStream({ track, autoPlay = false, onError, onEnd }) {
+interface UseAudioStreamProps {
+    track: Track | null
+    autoPlay?: boolean
+    onError?: (error: any) => void
+    onEnd?: () => void
+}
+
+export function useAudioStream({
+    track,
+    autoPlay = false,
+    onError,
+    onEnd,
+}: UseAudioStreamProps) {
     const audioRef = useRef<HTMLAudioElement>(null)
-    const hlsRef = useRef(null)
+    const hlsRef = useRef<Hls | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isPlaying, setIsPlaying] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
@@ -12,8 +25,8 @@ export function useAudioStream({ track, autoPlay = false, onError, onEnd }) {
     const [isMuted, setIsMuted] = useState(false)
     const [useDirectStream, setUseDirectStream] = useState(false)
     const [isHlsSupported, setIsHlsSupported] = useState(false)
-    const [error, setError] = useState(null)
-    const [pendingSeek, setPendingSeek] = useState(null)
+    const [error, setError] = useState<string | null>(null)
+    const [pendingSeek, setPendingSeek] = useState<number | null>(null)
 
     // Check HLS support
     useEffect(() => {
@@ -112,7 +125,7 @@ export function useAudioStream({ track, autoPlay = false, onError, onEnd }) {
         const handlePlay = () => setIsPlaying(true)
         const handlePause = () => setIsPlaying(false)
         const handleEnded = () => onEnd && onEnd()
-        const handleError = (e) => {
+        const handleError = (e: Event) => {
             setError('Audio error')
             onError && onError(e)
             setUseDirectStream(true)
@@ -151,14 +164,14 @@ export function useAudioStream({ track, autoPlay = false, onError, onEnd }) {
     // Controls
     const play = useCallback(() => audioRef.current?.play(), [])
     const pause = useCallback(() => audioRef.current?.pause(), [])
-    const seek = useCallback((time) => {
+    const seek = useCallback((time: number) => {
         if (!audioRef.current) return
         audioRef.current.currentTime = time
         setCurrentTime(time)
     }, [])
     const toggleMute = useCallback(() => setIsMuted((m) => !m), [])
     const setVolumeSafe = useCallback(
-        (v) => setVolume(Math.max(0, Math.min(1, v))),
+        (v: number) => setVolume(Math.max(0, Math.min(1, v))),
         []
     )
 

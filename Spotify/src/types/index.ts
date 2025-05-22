@@ -8,6 +8,11 @@ export interface Artist {
     albums: Album[]
 }
 
+export interface Genre {
+    id: number
+    name: string
+}
+
 export interface Album {
     id: number
     title: string
@@ -31,6 +36,9 @@ export interface Track {
     is_favorite: boolean
     video?: string
     explicit?: boolean
+    genre?: Genre
+    release_date: string
+    play_count: number
 }
 
 export interface Playlist {
@@ -40,6 +48,8 @@ export interface Playlist {
     cover?: string
     creator: User
     tracks_count?: number
+    color?: string
+    description?: string
 }
 
 export interface User {

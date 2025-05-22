@@ -23,7 +23,10 @@ export default function RecentTracksSection({
                         key={track.id}
                         track={{
                             ...track,
-                            artist_name: track.artist?.name || '',
+                            artist: {
+                                ...track.artist,
+                                name: track.artist?.name || '',
+                            },
                             is_favorite: track.is_favorite || false,
                         }}
                     />

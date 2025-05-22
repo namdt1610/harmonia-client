@@ -13,23 +13,17 @@ export const useLogin = () => {
 
     const handleLogin = async (username_or_email: string, password: string) => {
         try {
-            // Call login endpoint - backend will set cookies
             const result = await login({ username_or_email, password }).unwrap()
-            console.log('result', result)
-            // Set user info in Redux state
             dispatch(
                 setCredentials({
                     accessToken: result.access,
                     user: result.user,
                 })
             )
-
-            // Navigate to home page
             router.push('/')
             return result
         } catch (error: any) {
-            // Có thể lấy error.data.detail nếu backend trả về
-            throw error // Cho phép hàm cha biết là lỗi (optional)
+            throw error
         }
     }
 

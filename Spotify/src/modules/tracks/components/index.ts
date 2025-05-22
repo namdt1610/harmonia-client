@@ -1,2 +1,2 @@
-export { default as TrackList } from '../TrackList'
-export { default as TrackUI } from './TrackUI'
+export { default as TrackList } from './TrackList'
+export { TracksUI } from './TrackUI'

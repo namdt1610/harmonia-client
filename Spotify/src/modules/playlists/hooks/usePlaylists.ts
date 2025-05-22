@@ -1,11 +1,10 @@
-import { useGetPlaylistsByUserQuery } from '../api'
+import { useAddTrackToPlaylistMutation } from '../api'
 
-export function usePlaylists(userId: number) {
-    const {
-        data: playlists,
-        isLoading,
-        isError,
-        error,
-    } = useGetPlaylistsByUserQuery(userId)
-    return { playlists, isLoading, isError, error }
+export function usePlaylists() {
+    const [addTrackToPlaylist, { isLoading, isError, error }] =
+        useAddTrackToPlaylistMutation()
+    const handleAddToPlaylist = (playlistId: number, trackId: number) => {
+        addTrackToPlaylist({ playlistId, trackId })
+    }
+    return { handleAddToPlaylist, isLoading, isError, error }
 }
