@@ -7,7 +7,6 @@ import {
 import { useAddFavoriteTrackMutation } from '@/modules/user/api'
 import { Playlist } from '@/types'
 import { Button } from '@/components/ui/button'
-import PlaylistItem from './PlaylistsModal'
 
 interface AddToPlaylistModalProps {
     isOpen: boolean

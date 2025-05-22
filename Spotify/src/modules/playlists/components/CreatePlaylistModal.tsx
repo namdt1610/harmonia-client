@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
 import Modal from '../../../components/shared/Modal'
 import { useCreatePlaylistMutation } from '@/modules/playlists/api'
 import { toast } from 'sonner'
@@ -10,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import {
     PlusCircle,
-    X,
     Music,
     Loader2,
     ImagePlus,
@@ -19,6 +17,7 @@ import {
     Lock,
 } from 'lucide-react'
 import { cn } from '@/lib/clsx'
+import Image from 'next/image'
 
 interface CreatePlaylistModalProps {
     isOpen: boolean
@@ -87,11 +86,15 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
                         >
                             {coverImage ? (
                                 <>
-                                    <img
-                                        src={coverImage}
-                                        alt="Playlist cover"
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <div className="w-12 h-12 rounded-md overflow-hidden">
+                                        <Image
+                                            src={coverImage}
+                                            alt={name}
+                                            width={48}
+                                            height={48}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
                                     <Button
                                         type="button"
                                         size="icon"

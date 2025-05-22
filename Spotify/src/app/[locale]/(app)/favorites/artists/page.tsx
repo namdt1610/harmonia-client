@@ -3,6 +3,7 @@
 import { useGetFavoriteArtistsQuery } from '@/modules/favorites/api'
 import { Users } from 'lucide-react'
 import FetchWrapper from '@/components/shared/FetchWrapper'
+import Image from 'next/image'
 
 export default function FavoriteArtistsPage() {
     const {
@@ -28,9 +29,11 @@ export default function FavoriteArtistsPage() {
                         >
                             <div className="aspect-square w-full max-w-[180px] rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
                                 {artist.avatar ? (
-                                    <img
+                                    <Image
                                         src={artist.avatar}
                                         alt={artist.name}
+                                        width={180}
+                                        height={180}
                                         className="object-cover w-full h-full transition-transform group-hover:scale-105"
                                     />
                                 ) : (

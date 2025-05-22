@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
 
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'

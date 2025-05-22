@@ -1,21 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import {
     useGetFavoriteTracksQuery,
     useRemoveFavoriteTrackMutation,
 } from '@/modules/favorites/api'
 import { Button } from '@/components/ui/button'
-import {
-    Heart,
-    Music,
-    Play,
-    MoreHorizontal,
-    Trash2,
-    Loader2,
-} from 'lucide-react'
+import { Heart, Play, MoreHorizontal, Trash2 } from 'lucide-react'
 import FetchWrapper from '@/components/shared/FetchWrapper'
-import TrackList from '@/modules/tracks/components/TrackList'
 import { usePlayTrack } from '@/modules/tracks/hooks/usePlayTrack'
 import {
     DropdownMenu,
@@ -155,9 +146,12 @@ export default function FavoritesTracksPage() {
                                                             )
                                                         }
                                                         className="text-destructive"
+                                                        disabled={isRemoving}
                                                     >
                                                         <Trash2 className="h-4 w-4 mr-2" />
-                                                        Remove from Liked Songs
+                                                        {isRemoving
+                                                            ? 'Removing...'
+                                                            : 'Remove from Liked Songs'}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>

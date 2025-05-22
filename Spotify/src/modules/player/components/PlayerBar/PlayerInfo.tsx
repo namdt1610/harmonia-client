@@ -1,5 +1,7 @@
 import React from 'react'
 import { Track } from '@/types'
+import Image from 'next/image'
+import DefaultCover from '@/assets/default-cover.png'
 
 interface PlayerInfoProps {
     song: Track
@@ -44,18 +46,14 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({
     return (
         <div className="flex items-center">
             {/* Album Cover */}
-            <div className="w-[56px] h-[56px] rounded shadow-lg overflow-hidden mr-4">
-                {song.album_cover ? (
-                        <img
-                            src={song.album_cover}
-                            alt={song.title}
-                        className="w-full h-full object-cover"
-                        />
-                ) : (
-                    <div className="w-full h-full bg-[#282828] flex items-center justify-center">
-                        <span className="text-[#7f7f7f]">No cover</span>
-                    </div>
-                )}
+            <div className="w-12 h-12 rounded-md overflow-hidden">
+                <Image
+                    src={song.album_cover || DefaultCover}
+                    alt={song.title}
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-cover"
+                />
             </div>
 
             {/* Song Info */}

@@ -3,6 +3,7 @@
 import { useGetFavoriteAlbumsQuery } from '@/modules/favorites/api'
 import { Disc } from 'lucide-react'
 import FetchWrapper from '@/components/shared/FetchWrapper'
+import Image from 'next/image'
 
 export default function FavoriteAlbumsPage() {
     const {
@@ -25,9 +26,11 @@ export default function FavoriteAlbumsPage() {
                         <div key={album.id} className="group relative">
                             <div className="aspect-square rounded-md overflow-hidden bg-gray-100 dark:bg-gray-800">
                                 {album.cover ? (
-                                    <img
+                                    <Image
                                         src={album.cover}
                                         alt={album.title}
+                                        width={300}
+                                        height={300}
                                         className="object-cover w-full h-full transition-transform group-hover:scale-105"
                                     />
                                 ) : (

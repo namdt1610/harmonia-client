@@ -1,16 +1,6 @@
 import { useDispatch } from 'react-redux'
-import { useState } from 'react'
-import { RootState } from '@/redux/store'
-import {
-    setIsPlaying,
-    setCurrentTime,
-    setDuration,
-    playNext,
-    playPrevious,
-    playTrack,
-    setQueue,
-    setCurrentTrackIndex,
-} from '../slice'
+
+
 import { useGetTrackByIdQuery } from '@/modules/tracks/api'
 import {
     useGetCurrentTrackQuery,

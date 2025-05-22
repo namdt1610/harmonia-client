@@ -51,51 +51,52 @@ export default function BaseLayout({ children, locale, messages }: Props) {
                 <TopBar onSearchResults={handleSearchResults} />
                 {/* Main content */}
                 <main className="flex-1 overflow-hidden flex flex-row">
-                    <LeftSidebar children locale={locale} />
-
-                    <div className="flex-1 overflow-auto">
-                        {searchResults ? (
-                            Object.values(searchResults).every(
-                                (value) =>
-                                    Array.isArray(value) && value.length === 0
-                            ) ? (
-                                <div className="p-4 text-center text-neutral-400">
-                                    No results found. Try searching for
-                                    something else.
-                                </div>
+                    <LeftSidebar locale={locale}>
+                        <div className="flex-1 overflow-auto">
+                            {searchResults ? (
+                                Object.values(searchResults).every(
+                                    (value) =>
+                                        Array.isArray(value) &&
+                                        value.length === 0
+                                ) ? (
+                                    <div className="p-4 text-center text-neutral-400">
+                                        No results found. Try searching for
+                                        something else.
+                                    </div>
+                                ) : (
+                                    <div className="p-4">
+                                        {Object.entries(searchResults).map(
+                                            ([key, results]) => (
+                                                <div key={key} className="mb-6">
+                                                    <h3 className="text-lg font-bold capitalize mb-2">
+                                                        {key}
+                                                    </h3>
+                                                    {results.map(
+                                                        (
+                                                            result: any,
+                                                            index: any
+                                                        ) => (
+                                                            <TrackItem
+                                                                key={
+                                                                    result.id ||
+                                                                    index
+                                                                }
+                                                                track={result}
+                                                            />
+                                                        )
+                                                    )}
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                )
                             ) : (
-                                <div className="p-4">
-                                    {Object.entries(searchResults).map(
-                                        ([key, results]) => (
-                                            <div key={key} className="mb-6">
-                                                <h3 className="text-lg font-bold capitalize mb-2">
-                                                    {key}
-                                                </h3>
-                                                {results.map(
-                                                    (
-                                                        result: any,
-                                                        index: any
-                                                    ) => (
-                                                        <TrackItem
-                                                            key={
-                                                                result.id ||
-                                                                index
-                                                            }
-                                                            track={result}
-                                                        />
-                                                    )
-                                                )}
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            )
-                        ) : (
-                            children
-                        )}
-                    </div>
+                                children
+                            )}
+                        </div>
+                    </LeftSidebar>
 
-                    <RightSidebar locale={locale} />
+                    <RightSidebar isOpen={true} onClose={() => {}} />
                 </main>
 
                 {/* Player bar */}

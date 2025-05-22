@@ -11,6 +11,7 @@ import {
 } from '../api'
 import { formatDuration } from '@/lib/utils'
 import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
+import { useTranslation } from 'react-i18next'
 
 export default function QueuePanel() {
     const { data, isLoading, error } = useGetQueueQuery()
@@ -27,6 +28,8 @@ export default function QueuePanel() {
         (item: any) => item.track.id === currentTrackId
     )
 
+    const { t } = useTranslation()
+
     if (isLoading) return <div>Loading queue...</div>
     if (error) return <div>Error loading queue</div>
     if (!tracks.length)
@@ -40,13 +43,11 @@ export default function QueuePanel() {
                     </div>
                 </div>
                 <ListMusic size={48} className="text-neutral-500 mb-4" />
-                <h3 className="text-lg font-medium mb-2">
-                    Your queue is empty
-                </h3>
-                <p className="text-sm text-neutral-400">
-                    Add songs to your queue by clicking the three dots next to a
-                    track and selecting "Add to queue"
-                </p>
+                <div className="text-center text-muted-foreground py-8">
+                    {t('emptyQueue', {
+                        fallback: 'Your queue is empty',
+                    })}
+                </div>
             </div>
         )
 

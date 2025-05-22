@@ -9,12 +9,8 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { Album } from '@/types'
-import { useDispatch } from 'react-redux'
-import {
-    setQueue,
-    setCurrentTrackIndex,
-    setIsPlaying,
-} from '@/modules/player/slice'
+
+
 import { useGetAlbumByIdQuery } from '@/modules/albums/api'
 import { toast } from 'sonner'
 import {

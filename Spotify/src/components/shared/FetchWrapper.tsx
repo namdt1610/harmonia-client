@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Loader2, AlertCircle, Package } from "lucide-react";
 
 interface FetchWrapperProps {

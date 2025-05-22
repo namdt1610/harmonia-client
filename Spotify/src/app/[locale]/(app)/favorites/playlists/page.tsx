@@ -4,6 +4,7 @@ import { useGetFavoritePlaylistsQuery } from '@/modules/favorites/api'
 import { ListMusic, Play } from 'lucide-react'
 import FetchWrapper from '@/components/shared/FetchWrapper'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 export default function FavoritePlaylistsPage() {
     const {
@@ -26,9 +27,11 @@ export default function FavoritePlaylistsPage() {
                         <div key={playlist.id} className="group relative">
                             <div className="aspect-square rounded-md overflow-hidden bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700">
                                 {playlist.cover ? (
-                                    <img
+                                    <Image
                                         src={playlist.cover}
                                         alt={playlist.name}
+                                        width={300}
+                                        height={300}
                                         className="object-cover w-full h-full transition-transform group-hover:scale-105"
                                     />
                                 ) : (

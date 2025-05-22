@@ -12,44 +12,10 @@ import { useGetPublicPlaylistsQuery } from '@/modules/playlists/api'
 import { useGetArtistByIdQuery } from '@/modules/artists/api'
 import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { PlaylistItem } from '@/modules/playlists/components/PlaylistItem'
-
-import {
-    Play,
-    Clock,
-    Music,
-    Disc,
-    ListMusic,
-    LayoutGrid,
-    Sparkles,
-    Pause,
-} from 'lucide-react'
-
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/clsx'
 import DefaultCover from '@/assets/images/default-cover.webp'
-interface CategoryLinkProps {
-    icon: React.ReactNode
-    label: string
-    active?: boolean
-    onClick?: () => void
-}
-
-const CategoryLink = ({ icon, label, active, onClick }: CategoryLinkProps) => (
-    <button
-        onClick={onClick}
-        className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors',
-            active
-                ? 'bg-white text-black'
-                : 'bg-neutral-800/50 text-white hover:bg-neutral-700/50'
-        )}
-    >
-        {icon}
-        <span>{label}</span>
-    </button>
-)
 
 export default function HomePage() {
     const t = useTranslations('HomePage')
@@ -66,8 +32,7 @@ export default function HomePage() {
     console.log('Artist', artist)
 
     // Fetch user activity
-    const { data: userActivity, isLoading: isLoadingActivity } =
-        useGetUserActivityQuery()
+    const { data: userActivity } = useGetUserActivityQuery()
 
     // Fetch system playlists
     const {
@@ -88,12 +53,6 @@ export default function HomePage() {
         greeting = t('goodAfternoon', { fallback: 'Good afternoon' })
     }
 
-    const recentlyPlayedTracks =
-        userActivity
-            ?.filter((a) => a.action === 'play' && a.track)
-            .slice(0, 6)
-            .map((a) => a.track) || []
-
     return (
         <main className="flex-1 overflow-auto">
             {/* Hero section with background gradient */}
@@ -104,31 +63,6 @@ export default function HomePage() {
                     <h1 className="text-3xl font-bold mb-2">
                         {greeting}, {user?.username || 'User'}
                     </h1>
-
-                    {/* Quick access buttons */}
-                    {/* <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
-                        <CategoryLink
-                            icon={<Clock size={16} />}
-                            label={t('recent', { fallback: 'Recently Played' })}
-                            active
-                        />
-                        <CategoryLink
-                            icon={<Music size={16} />}
-                            label={t('tracks', { fallback: 'Tracks' })}
-                        />
-                        <CategoryLink
-                            icon={<Disc size={16} />}
-                            label={t('albums', { fallback: 'Albums' })}
-                        />
-                        <CategoryLink
-                            icon={<ListMusic size={16} />}
-                            label={t('playlists', { fallback: 'Playlists' })}
-                        />
-                        <CategoryLink
-                            icon={<LayoutGrid size={16} />}
-                            label={t('podcasts', { fallback: 'Podcasts' })}
-                        />
-                    </div> */}
 
                     {/* Currently playing section */}
                     {currentTrack && (
@@ -207,11 +141,11 @@ export default function HomePage() {
                     <div className="text-red-500">Error loading playlists</div>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
-                        {systemPlaylists.map((playlist: any) => (
+                        {systemPlaylists.map((playlist) => (
                             <PlaylistItem
                                 key={playlist.id}
                                 playlist={playlist}
-                                onPlay={addPlaylistToQueue}
+                                onPlay={() => addPlaylistToQueue(playlist.id)}
                             />
                         ))}
                     </div>

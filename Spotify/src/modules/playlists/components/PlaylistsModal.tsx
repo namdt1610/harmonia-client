@@ -13,8 +13,10 @@ import {
 } from '@/modules/playlists/api'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
-import { PlusCircle, Music } from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
+import DefaultCover from '@/assets/images/default-cover.webp'
 
 interface PlaylistsModalProps {
     open: boolean
@@ -146,18 +148,17 @@ export default function PlaylistsModal({
                                             )
                                         }
                                     >
-                                        <div className="h-10 w-10 bg-neutral-700 rounded overflow-hidden mr-3">
-                                            {playlist.cover ? (
-                                                <img
-                                                    src={playlist.cover}
-                                                    alt={playlist.name}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="h-full w-full flex items-center justify-center bg-neutral-800">
-                                                    <Music className="h-5 w-5 text-gray-400" />
-                                                </div>
-                                            )}
+                                        <div className="w-12 h-12 rounded-md overflow-hidden">
+                                            <Image
+                                                src={
+                                                    playlist.cover ||
+                                                    DefaultCover
+                                                }
+                                                alt={playlist.name}
+                                                width={48}
+                                                height={48}
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
                                         <div className="truncate">
                                             <div className="font-medium">

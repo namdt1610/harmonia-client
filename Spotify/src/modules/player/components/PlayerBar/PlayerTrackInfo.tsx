@@ -1,5 +1,6 @@
 import React from 'react'
 import { Track } from '@/types'
+import Image from 'next/image'
 
 interface PlayerTrackInfoProps {
     trackData: Track | null
@@ -15,14 +16,14 @@ export function PlayerTrackInfo({
     if (!trackData) return null
     return (
         <div className="w-1/4 flex items-center gap-3">
-            <div className="h-14 w-14 bg-neutral-800 rounded overflow-hidden">
-                {getCoverImage() && (
-                    <img
-                        src={getCoverImage() || ''}
-                        alt={trackData.title}
-                        className="h-full w-full object-cover"
-                    />
-                )}
+            <div className="w-12 h-12 rounded-md overflow-hidden">
+                <Image
+                    src={getCoverImage() || ''}
+                    alt={trackData.title}
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-cover"
+                />
             </div>
             <div className="flex flex-col">
                 <span className="text-white text-sm font-medium truncate max-w-[150px]">

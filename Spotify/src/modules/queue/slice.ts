@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Track } from '@/types'
 
 interface QueueState {
     queue: any[]

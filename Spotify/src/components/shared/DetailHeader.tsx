@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { cn } from '@/lib/utils'
 import { Track } from '@/types'
+import Image from 'next/image'
 
 interface DetailHeaderProps {
     title: string
@@ -49,8 +50,8 @@ export default function DetailHeader({
             {/* Content */}
             <div className="relative flex items-end gap-6 p-6">
                 {/* Cover Image */}
-                <div className="w-48 h-48 flex-shrink-0">
-                    <img
+                <div className="w-12 h-12 rounded-md overflow-hidden">
+                    <Image
                         src={coverImage}
                         alt={title}
                         className="w-full h-full object-cover rounded-md shadow-2xl"

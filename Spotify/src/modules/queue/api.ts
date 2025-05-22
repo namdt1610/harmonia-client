@@ -1,7 +1,5 @@
 import { BaseQueryFn, createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from '@/lib/baseQuery'
-import { Track } from '@/types'
-import { fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const queueApi = createApi({
     reducerPath: 'queueApi',
