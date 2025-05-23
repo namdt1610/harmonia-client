@@ -1,7 +1,7 @@
 import './globals.css'
 import { ReactNode } from 'react'
 import { ReduxProvider } from '@/redux/provider'
-import { AuthBootstrap } from '@/modules/auth/login/components/AuthBootstrap'
+import { AuthBootstrap } from '@/components/shared/AuthBootstrap'
 
 type Props = {
     children: ReactNode

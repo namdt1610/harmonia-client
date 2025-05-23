@@ -21,7 +21,8 @@ import GoogleIcon from '@/components/shared/GoogleIcon'
 import { Separator } from '@/components/ui/separator'
 import { useLogin } from '@/modules/auth/login/hooks/useLogin'
 import { useRouter } from 'next/navigation'
-
+import { Eye } from 'lucide-react'
+import { useState } from 'react'
 const FormSchema = z.object({
     username_or_email: z.string().min(2, {
         message: 'Username must be at least 2 characters.',
@@ -34,6 +35,7 @@ const FormSchema = z.object({
 export default function LoginForm() {
     const { handleLogin, isLoading, handleGoogleLogin, isGoogleLoading } =
         useLogin()
+    const [showPassword, setShowPassword] = useState(false)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -50,15 +52,19 @@ export default function LoginForm() {
                 console.log('handleLogin res:', res)
                 if (res) {
                     toast.success('Login successful!')
-                    // const locale =
-                    //     window.location.pathname.split('/')[1] || 'vi'
-                    // // Force reload để Middleware thấy cookie mới
-                    // window.location.href = `/${locale}`
+                    const locale =
+                        window.location.pathname.split('/')[1] || 'vi'
+                    // Force reload để Middleware thấy cookie mới
+                    window.location.href = `/${locale}`
                 }
             })
             .catch((err) => {
                 toast.error(err?.message || 'Login failed. Please try again.')
             })
+    }
+
+    const handleShowPassword = () => {
+        setShowPassword(!showPassword)
     }
 
     return (
@@ -72,9 +78,6 @@ export default function LoginForm() {
                         <CardTitle className="text-center text-lg">
                             {t('title')}
                         </CardTitle>
-                        <button onClick={() => router.push('/')}>
-                            Test Go Home
-                        </button>
                     </CardHeader>
                     <CardContent className="flex flex-col space-y-4">
                         <FormField
@@ -108,10 +111,20 @@ export default function LoginForm() {
                                     <FormLabel>{t('password')}</FormLabel>
                                     <FormControl>
                                         <Input
-                                            type="password"
+                                            type={
+                                                showPassword
+                                                    ? 'text'
+                                                    : 'password'
+                                            }
                                             placeholder={`${t('password')}`}
                                             {...field}
                                         />
+                                        <Button
+                                            variant="outline"
+                                            onClick={handleShowPassword}
+                                        >
+                                            <Eye />
+                                        </Button>
                                     </FormControl>
                                     <FormDescription>
                                         {t('passwordDescription')}
