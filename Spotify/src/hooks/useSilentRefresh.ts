@@ -3,12 +3,13 @@ import { useEffect } from 'react'
 import { useAppDispatch } from '@/redux/hooks' // hoặc '@/store/hooks', tuỳ cấu trúc
 import { useRefreshTokenMutation } from '@/modules/auth/api'
 import { setCredentials, clearCredentials } from '@/modules/auth/slice'
+import { useRouter } from 'next/navigation'
 
 // This hook is used to refresh the access token silently
-export function useSilentLogin() {
+export function useSilentRefresh() {
     const dispatch = useAppDispatch()
     const [refresh, { isLoading }] = useRefreshTokenMutation()
-
+    const router = useRouter()
     useEffect(() => {
         let isMounted = true
         const run = async () => {
@@ -26,6 +27,7 @@ export function useSilentLogin() {
                 dispatch(clearCredentials())
                 // Nếu không có refreshToken hoặc bị lỗi (mất session)
                 // Có thể redirect về login ở đây nếu muốn
+                router.push('/login')
             }
         }
         run()

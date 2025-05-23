@@ -26,15 +26,6 @@ export function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
-    // Các trang khác phải check đăng nhập
-    const accessToken = request.cookies.get('access_token')?.value
-    console.log('accessToken', accessToken)
-    if (!accessToken) {
-        return NextResponse.redirect(
-            new URL(`/${matchedLocale}/login`, request.url)
-        )
-    }
-
     return NextResponse.next()
 }
 

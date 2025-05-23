@@ -1,9 +1,9 @@
 'use client'
-import { useSilentLogin } from '@/modules/auth/login/hooks/useSilentLogin'
+import { useSilentRefresh } from '@/hooks/useSilentRefresh'
 import { useGlobalAuth } from '@/hooks/useGlobalAuth'
 
 export function AuthBootstrap() {
     useGlobalAuth()
-    useSilentLogin()
+    useSilentRefresh()
     return null
 }
