@@ -21,11 +21,11 @@ import GoogleIcon from '@/components/shared/GoogleIcon'
 import { Separator } from '@/components/ui/separator'
 import { useLogin } from '@/modules/auth/login/hooks/useLogin'
 import { useRouter } from 'next/navigation'
-import { Eye } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, X } from 'lucide-react'
 import { useState } from 'react'
 const FormSchema = z.object({
     username_or_email: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
+        message: 'Username must be at least 3 characters.',
     }),
     password: z.string().min(6, {
         message: 'Password must be at least 6 characters.',
@@ -89,12 +89,27 @@ export default function LoginForm() {
                                         {t('username_or_email')}
                                     </FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder={`${t(
-                                                'username_or_email'
-                                            )}`}
-                                            {...field}
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                placeholder={`${t(
+                                                    'username_or_email'
+                                                )}`}
+                                                {...field}
+                                            />
+                                            {!!field.value && (
+                                                <Button
+                                                    size="icon"
+                                                    type="button"
+                                                    variant="link"
+                                                    onClick={() =>
+                                                        field.onChange('')
+                                                    }
+                                                    className="absolute right-0 top-1/2 -translate-y-1/2"
+                                                >
+                                                    <X className="text-muted-foreground" />
+                                                </Button>
+                                            )}
+                                        </div>
                                     </FormControl>
                                     <FormDescription>
                                         {t('usernameDescription')}
@@ -110,21 +125,54 @@ export default function LoginForm() {
                                 <FormItem>
                                     <FormLabel>{t('password')}</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            type={
-                                                showPassword
-                                                    ? 'text'
-                                                    : 'password'
-                                            }
-                                            placeholder={`${t('password')}`}
-                                            {...field}
-                                        />
-                                        <Button
-                                            variant="outline"
-                                            onClick={handleShowPassword}
-                                        >
-                                            <Eye />
-                                        </Button>
+                                        <div className="relative flex items-center">
+                                            <Input
+                                                type={
+                                                    showPassword
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                placeholder={`${t('password')}`}
+                                                {...field}
+                                            />
+                                            {!!field.value && (
+                                                <div className="flex items-center justify-end absolute right-0">
+                                                    {showPassword ? (
+                                                        <Button
+                                                            size="icon"
+                                                            type="button"
+                                                            variant="link"
+                                                            onClick={
+                                                                handleShowPassword
+                                                            }
+                                                        >
+                                                            <EyeIcon className="text-muted-foreground" />
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            size="icon"
+                                                            type="button"
+                                                            variant="link"
+                                                            onClick={
+                                                                handleShowPassword
+                                                            }
+                                                        >
+                                                            <EyeOffIcon className="text-muted-foreground" />
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        size="icon"
+                                                        type="button"
+                                                        variant="link"
+                                                        onClick={() =>
+                                                            field.onChange('')
+                                                        }
+                                                    >
+                                                        <X className="text-muted-foreground" />
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </FormControl>
                                     <FormDescription>
                                         {t('passwordDescription')}
@@ -141,6 +189,7 @@ export default function LoginForm() {
                             {isLoading ? t('auth.loading') : t('title')}
                         </Button>
                         <Button
+                            type="button"
                             variant="link"
                             className="w-full text-center text-sm text-muted-foreground hover:underline"
                             onClick={() => router.push('/forgot-password')}
@@ -148,6 +197,7 @@ export default function LoginForm() {
                             {t('forgotPassword')}
                         </Button>
                         <Button
+                            type="button"
                             variant="link"
                             className="w-full text-center text-sm text-muted-foreground hover:underline"
                             onClick={() => router.push('/register')}

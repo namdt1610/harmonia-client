@@ -13,7 +13,8 @@ export default function RootLayout({ children }: Props) {
             <body>
                     <ReduxProvider>
                         <AuthBootstrap />
-                        {children}
+                    {children}
+                    
                     </ReduxProvider>
             </body>
         </html>

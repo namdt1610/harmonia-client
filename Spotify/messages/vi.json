@@ -73,7 +73,8 @@
         "email": "Email",
         "emailDescription": "Email của bạn",
         "password": "Mật khẩu",
-        "passwordDescription": "Mật khẩu của bạn"
+        "passwordDescription": "Mật khẩu của bạn",
+        "login": "Đăng nhập"
     },
 
     "HomePage": {
