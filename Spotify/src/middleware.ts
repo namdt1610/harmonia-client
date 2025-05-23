@@ -27,10 +27,8 @@ export function middleware(request: NextRequest) {
     }
 
     // Các trang khác phải check đăng nhập
-    const accessToken = request.cookies.get('access_token')
-    // const refreshToken = request.cookies.get('refresh_token')
-    if (!accessToken) {
-        // Không có refresh token -> chưa đăng nhập
+    const accessToken = request.cookies.get('access_token')?.value
+    if (!accessToken || accessToken === 'undefined' || accessToken === 'null') {
         return NextResponse.redirect(
             new URL(`/${matchedLocale}/login`, request.url)
         )

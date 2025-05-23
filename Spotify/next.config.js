@@ -6,10 +6,10 @@ const withNextIntl = require('next-intl/plugin')()
 const config = {
     async rewrites() {
         return [
-            // Tất cả request có đường dẫn bắt đầu bằng /api sẽ proxy qua backend Django của bạn
+            // Proxy API requests to the backend
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8000/api/:path*', // Chuyển đến đúng server Django dev
+                destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/:path*`,
             },
         ]
     },
