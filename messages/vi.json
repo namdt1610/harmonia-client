@@ -1,0 +1,196 @@
+{
+    "Error": {
+        "description": "<p>Chúng tôi đã gặp lỗi không mong muốn.</p><p>Bạn có thể thử <retry>tải lại trang</retry> mà bạn đang truy cập.</p>",
+        "title": "Đã xảy ra lỗi!"
+    },
+    "IndexPage": {
+        "description": "Đây là một ví dụ cơ bản minh họa cách sử dụng <code>next-intl</code> với Next.js App Router. Hãy thử thay đổi ngôn ngữ ở góc trên bên phải và xem nội dung thay đổi như thế nào.",
+        "title": "Ví dụ next-intl"
+    },
+    "LocaleLayout": {
+        "title": "Ví dụ next-intl"
+    },
+    "LocaleSwitcher": {
+        "label": "Thay đổi ngôn ngữ",
+        "locale": "{locale, select, de {🇩🇪 Tiếng Đức} en {🇺🇸 Tiếng Anh} vi {🇻🇳 Tiếng Việt} other {Không xác định}}"
+    },
+    "Manifest": {
+        "name": "Ví dụ next-intl"
+    },
+    "Navigation": {
+        "home": "Trang chủ",
+        "pathnames": "Đường dẫn",
+        "search": "Tìm kiếm",
+        "library": "Thư viện",
+        "playlists": "Danh sách phát"
+    },
+    "NotFoundPage": {
+        "description": "Vui lòng kiểm tra lại thanh địa chỉ của trình duyệt hoặc sử dụng menu điều hướng để đến một trang hợp lệ.",
+        "title": "Không tìm thấy trang"
+    },
+    "PageLayout": {
+        "links": {
+            "docs": {
+                "description": "Tìm hiểu thêm về next-intl trong tài liệu chính thức.",
+                "href": "https://next-intl.dev",
+                "title": "Tài liệu"
+            },
+            "source": {
+                "description": "Duyệt mã nguồn của ví dụ này trên GitHub.",
+                "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
+                "title": "Mã nguồn"
+            }
+        }
+    },
+    "PathnamesPage": {
+        "description": "<p>Các đường dẫn cũng được dịch.</p><p>Nếu bạn đang sử dụng ngôn ngữ mặc định là tiếng Anh, bạn sẽ thấy <code>/en/pathnames</code> trên thanh địa chỉ trình duyệt khi ở trang này.</p><p>Nếu bạn chuyển sang tiếng Đức, URL sẽ thay đổi tương ứng (<code>/de/pfadnamen</code>).</p>",
+        "title": "Đường dẫn"
+    },
+
+    "LoginPage": {
+        "title": "Đăng nhập",
+        "description": "Vui lòng đăng nhập để tiếp tục.",
+        "googleSignIn": "Đăng nhập bằng Google",
+        "error": "Có lỗi xảy ra, vui lòng thử lại.",
+        "username_or_email": "Tên đăng nhập",
+        "usernameDescription": "Tên đăng nhập hoặc email của bạn",
+        "password": "Mật khẩu",
+        "passwordDescription": "Mật khẩu của bạn",
+        "rememberMe": "Ghi nhớ tôi",
+        "rememberMeDescription": "Ghi nhớ thông tin đăng nhập của tôi",
+        "forgotPassword": "Quên mật khẩu?",
+        "register": "Đăng ký",
+        "auth": {
+            "loading": "Đang tải..."
+        },
+        "validation": {
+            "usernameOrEmailRequired": "Vui lòng nhập tên đăng nhập hoặc email",
+            "usernameOrEmailMaxLength": "Tên đăng nhập hoặc email không được vượt quá 20 ký tự",
+            "passwordRequired": "Vui lòng nhập mật khẩu, mật khẩu phải có ít nhất 8 ký tự",
+            "passwordMaxLength": "Mật khẩu không được vượt quá 20 ký tự"
+        }
+    },
+
+    "RegisterPage": {
+        "title": "Đăng ký",
+        "description": "Vui lòng đăng ký để tiếp tục.",
+        "googleSignIn": "Đăng nhập bằng Google",
+        "error": "Có lỗi xảy ra, vui lòng thử lại.",
+        "username": "Tên đăng nhập",
+        "usernameDescription": "Tên đăng nhập của bạn",
+        "email": "Email",
+        "emailDescription": "Email của bạn",
+        "password": "Mật khẩu",
+        "passwordDescription": "Mật khẩu của bạn",
+        "login": "Đăng nhập"
+    },
+
+    "HomePage": {
+        "title": "Trang chủ",
+        "description": "Chào mừng bạn đến với trang chủ của chúng tôi. Đây là nơi bạn có thể tìm thấy thông tin mới nhất và các liên kết hữu ích.",
+        "greeting": "Xin chào!",
+        "seeAll": "Xem tất cả",
+        "madeForYou": "Được tạo ra cho bạn",
+        "recentlyPlayed": "Những gì bạn đã phát gần đây",
+        "currentTrack": "Bài hát hiện tại",
+        "goodMorning": "Chào buổi sáng",
+        "goodAfternoon": "Chào buổi chiều",
+        "goodEvening": "Chào buổi tối",
+        "tracks": "Bài hát",
+        "artist": "Nghệ sĩ",
+        "albums": "Album",
+        "playlists": "Danh sách phát",
+        "recent": "Gần đây",
+        "podcasts": "Podcast",
+        "noRecentlyPlayed": "Bạn chưa phát bài hát nào gần đây",
+        "nowPlaying": "Bây giờ đang phát",
+        "play": "Phát",
+        "playAll": "Phát tất cả",
+        "playNext": "Phát tiếp theo",
+        "playPrevious": "Phát trước",
+        "playShuffle": "Phát ngẫu nhiên",
+        "playRepeat": "Phát lặp lại",
+        "playQueue": "Hàng đợi phát",
+        "featuredPlaylists": "Danh sách phát nổi bật"
+    },
+    "Playlists": {
+        "yourLibrary": "Thư viện của tôi",
+        "createPlaylist": "Tạo danh sách phát",
+        "likedSongs": "Bài hát đã thích"
+    },
+    "TopBar": {
+        "upgrade": "Nâng cấp"
+    },
+    "Player": {
+        "artistName": "Tên nghệ sĩ",
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "next": "Tiếp theo",
+        "previous": "Trước đó",
+        "repeat": "Lặp lại",
+        "shuffle": "Xáo trộn",
+        "volume": "Âm lượng",
+        "mute": "Tắt tiếng",
+        "unmute": "Bỏ tắt tiếng",
+        "seek": "Tìm kiếm",
+        "duration": "Thời gian",
+        "songTitle": "Tiêu đề bài hát",
+        "currentTime": "Thời gian hiện tại",
+        "track": "Bài hát",
+        "artist": "Nghệ sĩ",
+        "album": "Album",
+        "playlist": "Danh sách phát",
+        "addToPlaylist": "Thêm vào danh sách phát",
+        "removeFromPlaylist": "Xóa khỏi danh sách phát",
+        "like": "Thích",
+        "dislike": "Không thích",
+        "share": "Chia sẻ",
+        "download": "Tải xuống",
+        "addToLibrary": "Thêm vào thư viện",
+        "removeFromLibrary": "Xóa khỏi thư viện",
+        "playNext": "Phát tiếp theo",
+        "playLater": "Phát sau",
+        "playNow": "Phát ngay",
+        "playAll": "Phát tất cả",
+        "playSelected": "Phát đã chọn",
+        "playSelectedTracks": "Phát các bài hát đã chọn",
+        "playSelectedAlbum": "Phát album đã chọn",
+        "playSelectedArtist": "Phát nghệ sĩ đã chọn",
+        "playSelectedPlaylist": "Phát danh sách phát đã chọn",
+        "playSelectedSongs": "Phát các bài hát đã chọn",
+        "playSelectedVideos": "Phát các video đã chọn",
+        "playSelectedPodcasts": "Phát các podcast đã chọn",
+        "playSelectedAudiobooks": "Phát các sách nói đã chọn",
+        "playSelectedRadio": "Phát đài phát thanh đã chọn",
+        "playSelectedLive": "Phát trực tiếp đã chọn",
+        "playSelectedLiveRadio": "Phát đài phát thanh trực tiếp đã chọn"
+    },
+
+    "SearchBar": {
+        "search": "Tìm kiếm",
+        "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album hoặc danh sách phát"
+    },
+
+    "TrackItem": {
+        "addToQueue": "Thêm vào hàng đợi",
+        "removeFromQueue": "Xóa khỏi hàng đợi",
+        "addToFavorite": "Thêm vào danh sách yêu thích",
+        "removeFromFavorite": "Xóa khỏi danh sách yêu thích",
+        "download": "Tải xuống",
+        "watchVideo": "Xem video",
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "playNext": "Phát tiếp theo",
+        "playPrevious": "Phát trước",
+        "addToPlaylist": "Thêm vào danh sách phát",
+        "removeFromPlaylist": "Xóa khỏi danh sách phát"
+    },
+
+    "ForgotPasswordPage": {
+        "title": "Quên mật khẩu",
+        "email": "Email",
+        "send": "Gửi yêu cầu",
+        "sent": "Yêu cầu đặt lại mật khẩu đã được gửi! Vui lòng kiểm tra email của bạn.",
+        "backToLogin": "Quay lại đăng nhập"
+    }
+}

@@ -1,0 +1,21 @@
+import './globals.css'
+import { ReactNode } from 'react'
+import { ReduxProvider } from '@/contexts/Provider'
+import { AuthBootstrap } from '@/components/shared/AuthBootstrap'
+
+type Props = {
+    children: ReactNode
+}
+
+export default function RootLayout({ children }: Props) {
+    return (
+        <html className="dark">
+            <body>
+                <ReduxProvider>
+                    <AuthBootstrap />
+                    {children}
+                </ReduxProvider>
+            </body>
+        </html>
+    )
+}
