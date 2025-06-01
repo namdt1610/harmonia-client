@@ -5,7 +5,7 @@ import { useHomePage } from '@/modules/home/hooks/useHomePage'
 import { CurrentlyPlayingSection } from '@/modules/home/components/CurrentlyPlayingSection'
 import { FeaturedPlaylistsSection } from '@/modules/home/components/FeaturedPlaylistsSection'
 
-export default function HomePage() {
+export const HomePage = () => {
     const t = useTranslations('HomePage')
     const {
         user,

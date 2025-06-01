@@ -14,11 +14,11 @@ export const artistApi = createApi({
             query: () => api.ARTISTS.GET_ALL,
             providesTags: ['Artist'],
         }),
-        getArtistById: builder.query<Artist, number>({
+        getArtist: builder.query<Artist, number>({
             query: (id) => api.ARTISTS.GET_BY_ID.replace(':id', id.toString()),
             providesTags: ['Artist'],
         }),
     }),
 })
 
-export const { useGetAllArtistsQuery, useGetArtistByIdQuery } = artistApi
+export const { useGetAllArtistsQuery, useGetArtistQuery } = artistApi

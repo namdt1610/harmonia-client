@@ -2,14 +2,13 @@ import { createNavigation } from 'next-intl/navigation'
 import { defineRouting } from 'next-intl/routing'
 
 export const routing = defineRouting({
-    locales: ['en', 'vi', 'de'],
+    locales: ['en', 'vi'],
     defaultLocale: 'vi',
     pathnames: {
         '/': '/',
         '/pathnames': {
             en: '/pathnames',
             vi: '/đường dẫn',
-            de: '/pfadnamen',
         },
     },
 })

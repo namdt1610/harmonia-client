@@ -1,13 +1,19 @@
 'use client'
 import { useGetAllArtistsQuery } from '@/modules/artists/api'
 import FetchWrapper from '@/components/shared/FetchWrapper'
+import { useTranslations } from 'next-intl'
 
-export default function ArtistsPage() {
+export const metadata = {
+    title: 'Artists',
+    description: 'Artists page',
+}
+
+export const ArtistsPage = () => {
+    const t = useTranslations('ArtistsPage')
     const { data: artists, isLoading, isError, error } = useGetAllArtistsQuery()
 
     return (
-        <div className="p-4">
-            <h1 className="text-xl font-semibold mb-4">Artists</h1>
+        <>
             <FetchWrapper
                 isLoading={isLoading}
                 isError={isError}
@@ -25,6 +31,6 @@ export default function ArtistsPage() {
                     ))}
                 </ul>
             </FetchWrapper>
-        </div>
+        </>
     )
 }

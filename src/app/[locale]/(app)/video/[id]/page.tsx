@@ -1,9 +1,17 @@
 'use client'
+
 import { useParams } from 'next/navigation'
 import { useGetTrackByIdQuery } from '@/modules/tracks/api'
-import React from 'react'
+import { useTranslations } from 'next-intl'
 
-function PlayerVideo({ videoUrl }: { videoUrl: string }) {
+export const metadata = {
+    title: 'Video',
+    description: 'Video page',
+}
+
+export const PlayerVideo = ({ videoUrl }: { videoUrl: string }) => {
+    const t = useTranslations('VideoPage')
+
     return (
         <div className="flex flex-col items-center justify-center w-full h-full bg-black min-h-screen">
             <video
@@ -17,28 +25,29 @@ function PlayerVideo({ videoUrl }: { videoUrl: string }) {
                 download
                 className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
-                Tải video
+                {t('download')}
             </a>
         </div>
     )
 }
 
-export default function VideoPage() {
+export const VideoPage = () => {
+    const t = useTranslations('VideoPage')
     const params = useParams() as { id: string }
     const { data: track, isLoading } = useGetTrackByIdQuery(Number(params.id))
 
     if (isLoading)
-        return <div className="text-center text-white p-8">Loading...</div>
+        return <div className="text-center text-white p-8">{t('loading')}</div>
     if (!track)
         return (
             <div className="text-center text-red-400 p-8">
-                Không tìm thấy track.
+                {t('notFound')}
             </div>
         )
     if (!track.video)
         return (
             <div className="text-center text-yellow-400 p-8">
-                Không có video cho track này.
+                {t('noVideo')}
             </div>
         )
 

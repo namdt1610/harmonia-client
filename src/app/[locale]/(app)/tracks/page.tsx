@@ -1,8 +1,14 @@
 'use client'
-import { useTracks } from '../../../../modules/tracks/hooks/useTracks'
-import { TracksUI } from '../../../../modules/tracks/components/TrackUI'
 
-export default function TracksPage() {
+import { useTracks } from '@/modules/tracks/hooks/useTracks'
+import { TracksUI } from '@/modules/tracks/components/TrackUI'
+
+export const metadata = {
+    title: 'Tracks',
+    description: 'Tracks page',
+}
+
+export const TracksPage = () => {
     const {
         tracks,
         isLoading,

@@ -1,26 +1,30 @@
 'use client'
-import DetailHeader from '@/components/shared/DetailHeader'
-import React from 'react'
-import { useGetArtistByIdQuery } from '@/modules/artists/api'
-import { useParams } from 'next/navigation'
 
-export default function ArtistDetails() {
-    const { id } = useParams<{ id: string }>()
-    const { data: artist } = useGetArtistByIdQuery(Number(id))
+import { Artist } from '@/types'
+import { useTranslations } from 'next-intl'
+
+type Props = {
+    artist: Artist
+}
+
+export const ArtistDetails = ({ artist }: Props) => {
+    const t = useTranslations('ArtistPage')
 
     return (
-        <div>
-            <DetailHeader
-                title={artist?.name || 'Artist'}
-                coverImage={artist?.avatar || '/images/default-cover.webp'}
-                type="artist"
-            />
+        <>
             {artist && (
-                <div className="mt-8">
-                    <h2 className="text-2xl font-bold mb-4">Top Tracks</h2>
-                    {/* Ở đây có thể thêm danh sách track của artist nếu API trả về */}
-                </div>
+                <>
+                    <h2 className="text-2xl font-bold mb-4">{t('artist')}</h2>
+                    <div className="flex flex-col gap-2">
+                        <h3 className="text-xl font-semibold">{artist.name}</h3>
+                        {artist.genres && artist.genres.length > 0 && (
+                            <p className="text-sm text-gray-500">
+                                {t('genres')}: {artist.genres.join(', ')}
+                            </p>
+                        )}
+                    </div>
+                </>
             )}
-        </div>
+        </>
     )
 }

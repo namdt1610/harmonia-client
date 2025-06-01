@@ -4,28 +4,38 @@ import { ReactNode } from 'react'
 import BaseLayout from '@/components/layouts/BaseLayout'
 import { routing } from '@/i18n/routing'
 
+type Locale = (typeof routing.locales)[number]
+type Params = { locale?: string }
+type Props = { children: ReactNode; params: Params }
 
-type Locale = (typeof routing.locales)[number] // Định nghĩa kiểu chính xác
-
-type Props = {
-    children: ReactNode
-    params: { locale?: string }
+/**
+ * Kiểm tra xem locale có hợp lệ không
+ * @param locale - Locale cần kiểm tra
+ * @returns true nếu locale hợp lệ, false nếu không
+ */
+const isValidLocale = (locale: string): locale is Locale => {
+    return routing.locales.includes(locale as Locale)
 }
 
-export default async function LocaleLayout({ children, params }: Props) {
-    const resolvedParams = await Promise.resolve(params) // Đảm bảo params đã resolve
-    const locale = resolvedParams?.locale
-    const messages = await getMessages()
+export const LocaleLayout = async ({ children, params }: Props) => {
+    const locale = params?.locale
 
-    if (!locale || !routing.locales.includes(locale as any)) {
+    if (!locale || !isValidLocale(locale)) {
         notFound()
     }
 
-    setRequestLocale(locale as Locale)
+    try {
+        setRequestLocale(locale)
+    } catch (err) {
+        console.error('Locale error:', err)
+        notFound()
+    }
+
+    const messages = await getMessages()
 
     return (
-            <BaseLayout messages={messages} locale={locale}>
-                {children}
-            </BaseLayout>
+        <BaseLayout messages={messages} locale={locale}>
+            {children}
+        </BaseLayout>
     )
 }

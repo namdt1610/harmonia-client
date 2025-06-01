@@ -1,20 +1,28 @@
 'use client'
+
 import DetailHeader from '@/components/shared/DetailHeader'
 import TrackList from '@/modules/tracks/components/TrackList'
-import React from 'react'
-import { useGetAlbumByIdQuery } from '@/modules/albums/api'
-import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Album } from '@/types'
 
-export default function AlbumDetails() {
-    const params = useParams()
-    const id = params.id as string
-    const { data: album } = useGetAlbumByIdQuery(Number(id))
+type Props = {
+    album: Album
+}
+
+export const metadata = {
+    title: 'Album Details',
+    description: 'Album details page',
+}
+
+export const AlbumDetails = ({ album }: Props) => {
+    const t = useTranslations('AlbumPage')
+
     return (
         <div>
             <DetailHeader
-                title="Album"
+                title={t('album')}
                 coverImage="/images/default-cover.webp"
-                type="album"
+                type={t('album') as 'artist' | 'album' | 'playlist' | 'track'}
             />
             <TrackList tracks={album?.tracks || []} />
         </div>
