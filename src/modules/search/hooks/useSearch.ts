@@ -26,8 +26,7 @@ export function useSearch() {
         try {
             await globalSearch(query).unwrap()
         } catch (err) {
-            setError('An error occurred while searching')
-            console.error(err)
+            throw new Error('An error occurred while searching')
         }
     }
 

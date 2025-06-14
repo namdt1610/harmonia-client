@@ -1,9 +1,9 @@
 'use client'
+
 import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
-import { cn } from '@/lib/clsx'
 
 export default function SearchBar() {
     const t = useTranslations('SearchBar')

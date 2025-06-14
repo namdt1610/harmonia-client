@@ -7,6 +7,7 @@ import {
     ChevronLeft,
     ChevronRight,
     ExternalLink,
+    Upload,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useSelector } from 'react-redux'
@@ -148,6 +149,14 @@ export default function TopBar() {
                                 >
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.push(`/${locale}/upload`)
+                                    }
+                                >
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    <span>Upload Track</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() =>
