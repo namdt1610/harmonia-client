@@ -85,9 +85,11 @@ export const API_ROUTES = {
         ADD_PLAYLIST: '/queue/add-playlist/:id/',
         ADD_ALBUM: '/queue/add-album/:id/',
         REMOVE_TRACK: '/queue/remove-track/:id/',
+        CLEAR: '/queue/clear/',
+        SET_CURRENT: '/queue/set-current/:id/',
     },
     SEARCH: {
-        GLOBAL: '/search/',
+        GLOBAL: '/search/global_search/',
     },
     TRACKS: {
         GET_ALL: '/tracks/',

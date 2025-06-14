@@ -2,13 +2,7 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import {
-    User,
-    ChevronLeft,
-    ChevronRight,
-    LogOut,
-    Settings,
-} from 'lucide-react'
+import { User, ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react'
 import PlaylistSection from '@/components/shared/PlaylistSection'
 import DefaultLogo from '@/assets/images/default-logo.png'
 import { cn } from '@/lib/clsx'
@@ -29,10 +23,9 @@ import { Button } from '@/components/ui/button'
 
 interface SidebarProps {
     locale: string
-    children: React.ReactNode // Add children prop for the main content
 }
 
-export default function Sidebar({ locale, children }: SidebarProps) {
+export default function Sidebar({ locale }: SidebarProps) {
     // Default sidebar states and constraints
     const [width, setWidth] = useState(280) // Default width
     const [collapsed, setCollapsed] = useState(false)
@@ -129,170 +122,153 @@ export default function Sidebar({ locale, children }: SidebarProps) {
     }
 
     return (
-        <div className="flex h-screen overflow-hidden">
-            {/* Sidebar with resize handle */}
-            <div
+        <div
+            className={cn(
+                'relative h-screen flex-shrink-0 transition-all',
+                isTransitioning ? 'duration-300 ease-out' : 'duration-0'
+            )}
+            style={{ width }}
+        >
+            <aside
+                ref={sidebarRef}
                 className={cn(
-                    'relative h-screen flex-shrink-0 transition-all',
-                    isTransitioning ? 'duration-300 ease-out' : 'duration-0'
-                )}
-                style={{ width }}
-            >
-                <aside
-                    ref={sidebarRef}
-                    className={cn(
-                        'h-full flex flex-col bg-black border-r border-neutral-800/50 w-full',
-                        isTransitioning
-                            ? 'transition-all duration-300 ease-out'
-                            : ''
-                    )}
-                >
-                    {/* Logo section */}
-                    <div className="flex items-center p-4 h-16">
-                        <Link
-                            href={`/${locale}`}
-                            className="flex items-center gap-3"
-                        >
-                            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-full p-1.5 flex items-center justify-center">
-                                <Image
-                                    src={DefaultLogo}
-                                    alt="Spotify"
-                                    width={collapsed ? 28 : 24}
-                                    height={collapsed ? 28 : 24}
-                                    className="object-contain transition-all duration-300"
-                                />
-                            </div>
-                            <span
-                                className={cn(
-                                    'text-xl font-semibold tracking-tight transition-all duration-300',
-                                    collapsed
-                                        ? 'opacity-0 w-0 overflow-hidden'
-                                        : 'opacity-100 w-auto'
-                                )}
-                            >
-                                Harmonia
-                            </span>
-                        </Link>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="mx-3 h-px bg-neutral-800 my-2"></div>
-
-                    {/* Playlists section - takes up remaining space with scrolling */}
-                    <div className="flex-1 overflow-hidden">
-                        <PlaylistSection isCollapsed={collapsed} />
-                    </div>
-
-                    {/* Bottom user section */}
-                    <div className="border-t border-neutral-800/50 p-3">
-                        <div className="flex items-center justify-between">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        className="flex items-center gap-2 w-full justify-start px-2 py-1.5 h-auto rounded-md hover:bg-neutral-800/80"
-                                    >
-                                        <div className="h-8 w-8 rounded-full bg-neutral-700 flex items-center justify-center flex-shrink-0">
-                                            <User
-                                                size={16}
-                                                className="text-white"
-                                            />
-                                        </div>
-
-                                        <div
-                                            className={cn(
-                                                'truncate flex-1 text-left transition-all duration-300',
-                                                collapsed
-                                                    ? 'opacity-0 w-0 overflow-hidden'
-                                                    : 'opacity-100 w-auto'
-                                            )}
-                                        >
-                                            <p className="text-sm font-medium truncate">
-                                                User Name
-                                            </p>
-                                            <p className="text-xs text-neutral-400 truncate">
-                                                user@example.com
-                                            </p>
-                                        </div>
-                                    </Button>
-                                </DropdownMenuTrigger>
-
-                                <DropdownMenuContent
-                                    align="start"
-                                    sideOffset={8}
-                                    className="w-56"
-                                >
-                                    <DropdownMenuItem>
-                                        <User className="mr-2 h-4 w-4" />
-                                        <span>Profile</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Settings className="mr-2 h-4 w-4" />
-                                        <span>Settings</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        <span>Log out</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
-                </aside>
-
-                {/* Resize handle - now positioned at the right edge of the sidebar container */}
-                <div
-                    className={cn(
-                        'absolute top-0 right-0 h-full w-3 cursor-ew-resize z-20',
-                        'hover:bg-primary/20 active:bg-primary/30',
-                        isDragging.current && 'bg-primary/30',
-                        isTransitioning && 'pointer-events-none' // Disable during transitions
-                    )}
-                    onMouseDown={handleMouseDown}
-                />
-
-                {/* Collapse/expand button */}
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={toggleSidebar}
-                                disabled={isTransitioning}
-                                className={cn(
-                                    'absolute -right-3 top-20 h-6 w-6 rounded-full bg-neutral-800 shadow-md border border-neutral-700 hover:scale-105 transition-all p-0 z-20',
-                                    isTransitioning
-                                        ? 'opacity-50'
-                                        : 'opacity-100'
-                                )}
-                            >
-                                {collapsed ? (
-                                    <ChevronRight className="h-3 w-3 transition-transform duration-300" />
-                                ) : (
-                                    <ChevronLeft className="h-3 w-3 transition-transform duration-300" />
-                                )}
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-
-            {/* Main content area - adjusts based on sidebar width */}
-            <main
-                className={cn(
-                    'flex-1 overflow-auto',
+                    'h-full flex flex-col bg-black border-r border-neutral-800/50 w-full',
                     isTransitioning
                         ? 'transition-all duration-300 ease-out'
                         : ''
                 )}
             >
-                {children}
-            </main>
+                {/* Logo section */}
+                <div className="flex items-center p-4 h-16">
+                    <Link
+                        href={`/${locale}`}
+                        className="flex items-center gap-3"
+                    >
+                        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-full p-1.5 flex items-center justify-center">
+                            <Image
+                                src={DefaultLogo}
+                                alt="Spotify"
+                                width={collapsed ? 28 : 24}
+                                height={collapsed ? 28 : 24}
+                                className="object-contain transition-all duration-300"
+                            />
+                        </div>
+                        <span
+                            className={cn(
+                                'text-xl font-semibold tracking-tight transition-all duration-300',
+                                collapsed
+                                    ? 'opacity-0 w-0 overflow-hidden'
+                                    : 'opacity-100 w-auto'
+                            )}
+                        >
+                            Harmonia
+                        </span>
+                    </Link>
+                </div>
+
+                {/* Divider */}
+                <div className="mx-3 h-px bg-neutral-800 my-2"></div>
+
+                {/* Playlists section - takes up remaining space with scrolling */}
+                <div className="flex-1 overflow-hidden">
+                    <PlaylistSection isCollapsed={collapsed} />
+                </div>
+
+                {/* Bottom user section */}
+                <div className="border-t border-neutral-800/50 p-3">
+                    <div className="flex items-center justify-between">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="flex items-center gap-2 w-full justify-start px-2 py-1.5 h-auto rounded-md hover:bg-neutral-800/80"
+                                >
+                                    <div className="h-8 w-8 rounded-full bg-neutral-700 flex items-center justify-center flex-shrink-0">
+                                        <User
+                                            size={16}
+                                            className="text-white"
+                                        />
+                                    </div>
+
+                                    <div
+                                        className={cn(
+                                            'truncate flex-1 text-left transition-all duration-300',
+                                            collapsed
+                                                ? 'opacity-0 w-0 overflow-hidden'
+                                                : 'opacity-100 w-auto'
+                                        )}
+                                    >
+                                        <p className="text-sm font-medium truncate">
+                                            User Name
+                                        </p>
+                                        <p className="text-xs text-neutral-400 truncate">
+                                            user@example.com
+                                        </p>
+                                    </div>
+                                </Button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent
+                                align="start"
+                                sideOffset={8}
+                                className="w-56"
+                            >
+                                <DropdownMenuItem>
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Settings</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+            </aside>
+
+            {/* Resize handle - now positioned at the right edge of the sidebar container */}
+            <div
+                className={cn(
+                    'absolute top-0 right-0 h-full w-3 cursor-ew-resize z-20',
+                    'hover:bg-primary/20 active:bg-primary/30',
+                    isDragging.current && 'bg-primary/30',
+                    isTransitioning && 'pointer-events-none' // Disable during transitions
+                )}
+                onMouseDown={handleMouseDown}
+            />
+
+            {/* Collapse/expand button */}
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleSidebar}
+                            disabled={isTransitioning}
+                            className={cn(
+                                'absolute -right-3 top-20 h-6 w-6 rounded-full bg-neutral-800 shadow-md border border-neutral-700 hover:scale-105 transition-all p-0 z-20',
+                                isTransitioning ? 'opacity-50' : 'opacity-100'
+                            )}
+                        >
+                            {collapsed ? (
+                                <ChevronRight className="h-3 w-3 transition-transform duration-300" />
+                            ) : (
+                                <ChevronLeft className="h-3 w-3 transition-transform duration-300" />
+                            )}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                        {collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
         </div>
     )
 }

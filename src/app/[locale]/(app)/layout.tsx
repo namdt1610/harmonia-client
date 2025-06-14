@@ -17,7 +17,7 @@ const isValidLocale = (locale: string): locale is Locale => {
     return routing.locales.includes(locale as Locale)
 }
 
-export const LocaleLayout = async ({ children, params }: Props) => {
+export default async function LocaleLayout({ children, params }: Props) {
     const locale = params?.locale
 
     if (!locale || !isValidLocale(locale)) {

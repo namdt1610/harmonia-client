@@ -20,6 +20,7 @@ export const authApi = createApi({
     reducerPath: 'authApi',
     baseQuery: fetchBaseQuery({
         baseUrl: api.API_URL,
+        credentials: 'include',
     }),
     /*
      * builder là một hàm trả về một object, object này có các endpoints,
@@ -41,7 +42,10 @@ export const authApi = createApi({
             }),
         }),
         currentUser: builder.query<User, void>({
-            query: () => api.AUTH.CURRENT_USER,
+            query: () => ({
+                url: api.AUTH.CURRENT_USER,
+                credentials: 'include',
+            }),
         }),
         logout: builder.mutation<void, void>({
             query: () => ({

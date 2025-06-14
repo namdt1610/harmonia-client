@@ -12,7 +12,12 @@ import PlaylistsModal from '@/modules/playlists/components/PlaylistsModal'
 
 import { useRouter } from 'next/navigation'
 
-export default function Player() {
+// Add prop type
+interface PlayerProps {
+    onToggleQueue?: () => void
+}
+
+export default function Player({ onToggleQueue }: PlayerProps) {
     const {
         currentTrack,
         queue,
@@ -164,7 +169,7 @@ export default function Player() {
             .padStart(2, '0')}`
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-neutral-800 p-3 flex items-center">
+        <div className="z-1000 fixed bottom-0 left-0 right-0 bg-black border-t border-neutral-800 p-3 flex items-center">
             <audio
                 ref={audioStreamRef}
                 preload="auto"
@@ -263,7 +268,7 @@ export default function Player() {
                     variant="ghost"
                     size="icon"
                     className="text-neutral-400 hover:text-white"
-                    onClick={toggleQueueVisibility}
+                    onClick={onToggleQueue}
                     title="Show queue"
                 >
                     <ListMusic className="h-5 w-5" />

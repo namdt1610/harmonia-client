@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetUserActivityQuery } from '@/modules/activity/api'
 import { useGetPublicPlaylistsQuery } from '@/modules/playlists/api'
-import { useGetArtistByIdQuery } from '@/modules/artists/api'
+import { useGetArtistQuery } from '@/modules/artists/api'
 import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { setCurrentTrack } from '@/modules/player/slice'
 import { RootState } from '@/redux/store'
@@ -11,7 +11,7 @@ export const useHomePage = () => {
     const dispatch = useDispatch()
     const user = useSelector((state: RootState) => state.auth.user)
     const { currentTrack, addPlaylistToQueue } = usePlayerQueue()
-    const { data: artist } = useGetArtistByIdQuery(currentTrack?.artist)
+    const { data: artist } = useGetArtistQuery(currentTrack?.artist)
     const { data: userActivity } = useGetUserActivityQuery()
     const {
         data: playlists,

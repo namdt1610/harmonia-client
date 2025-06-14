@@ -28,11 +28,17 @@ export const useLogin = () => {
                 username_or_email,
                 password,
             }).unwrap()
+
+            // Store user info in Redux
             dispatch(
                 setCredentials({
                     user: result.user,
                 })
             )
+
+            // The access token will be automatically handled by the browser
+            // since it's set as an HTTP-only cookie by the backend
+
             return true
         } catch (error) {
             if (isFetchBaseQueryError(error)) {

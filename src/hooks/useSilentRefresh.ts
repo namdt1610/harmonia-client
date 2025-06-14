@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAppDispatch } from '@/redux/hooks'
 import { useRefreshTokenMutation } from '@/modules/auth/api'
 import { setCredentials, clearCredentials } from '@/modules/auth/slice'
@@ -10,31 +10,41 @@ import { useRouter } from 'next/navigation'
  ** Nếu token hết hạn, sẽ tự động refresh token và cập nhật lại credentials
  ** Nếu refresh token thất bại, sẽ clear credentials và redirect về trang login
  */
-export function useSilentRefresh() {
+export const useSilentRefresh = () => {
     const dispatch = useAppDispatch()
-    const [refresh, { isLoading }] = useRefreshTokenMutation()
     const router = useRouter()
-    useEffect(() => {
-        let isMounted = true
-        const run = async () => {
-            try {
-                const res:RefreshResponse = await refresh().unwrap()
-                if (isMounted && res?.user) {
-                    dispatch(setCredentials({ user: res.user }))
-                }
-            } catch (err) {
-                dispatch(clearCredentials())
-                // Nếu không có refreshToken hoặc bị lỗi (mất session)
-                // Có thể redirect về login ở đây nếu muốn
-                router.push('/login')
-            }
-        }
-        run()
-        return () => {
-            isMounted = false
-        }
-        // eslint-disable-next-line
-    }, [dispatch, refresh])
+    const [refresh] = useRefreshTokenMutation()
+    const isMounted = useRef(false)
 
-    return { isLoading }
+    useEffect(() => {
+        console.log('useSilentRefresh mounted')
+        isMounted.current = true
+        return () => {
+            console.log('useSilentRefresh unmounted')
+            isMounted.current = false
+        }
+    }, [])
+
+    const refreshToken = async () => {
+        console.log('Attempting to refresh token...')
+        try {
+            const res: RefreshResponse = await refresh().unwrap()
+            console.log('Token refresh successful:', res)
+            if (isMounted.current && res?.user) {
+                console.log('Setting credentials in Redux store:', res.user)
+                dispatch(setCredentials({ user: res.user }))
+            } else {
+                console.log(
+                    'Not setting credentials - component unmounted or no user data'
+                )
+            }
+        } catch (err) {
+            console.error('Token refresh failed:', err)
+            console.log('Clearing credentials and redirecting to login')
+            dispatch(clearCredentials())
+            router.push('/login')
+        }
+    }
+
+    return refreshToken
 }

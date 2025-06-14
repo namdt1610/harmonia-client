@@ -33,11 +33,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useLogout } from '@/hooks/useLogout'
 
-interface TopBarProps {
-    onSearchResults: (results: any) => void
-}
-
-export default function TopBar({ onSearchResults }: TopBarProps) {
+export default function TopBar() {
     const t = useTranslations('TopBar')
     const { isLoggedIn, user } = useSelector((state: RootState) => state.auth)
     const router = useRouter()
@@ -98,29 +94,29 @@ export default function TopBar({ onSearchResults }: TopBarProps) {
 
             {/* Center Section: Search */}
             <div className="flex-1 max-w-xl px-4">
-                <SearchBar onSearchResults={onSearchResults} />
+                <SearchBar />
             </div>
 
             {/* Right Section: User */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
                 {isLoggedIn ? (
                     <>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full text-xs font-semibold px-4 py-1 h-8 border-neutral-700 bg-transparent hover:bg-neutral-800 hover:border-neutral-600"
-                        >
-                            <ExternalLink size={12} className="mr-1.5" />
-                            {t('upgrade', { fallback: 'Upgrade' })}
-                        </Button>
-
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            className="rounded-full w-8 h-8 bg-black/60"
-                        >
-                            <BellRing size={16} />
-                        </Button>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="rounded-full w-8 h-8 bg-black/60"
+                                    >
+                                        <BellRing size={16} />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Notifications</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -140,28 +136,11 @@ export default function TopBar({ onSearchResults }: TopBarProps) {
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                                <DropdownMenuLabel className="font-normal">
-                                    <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium">
-                                            {user?.display_name}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground truncate">
-                                            {user?.email}
-                                        </p>
-                                    </div>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>
+                                    {user?.display_name || 'User'}
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                {user?.is_superuser && (
-                                    <>
-                                        <DropdownMenuItem>
-                                            <Link href="http://localhost:3030/admin/">
-                                                Admin Panel
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                    </>
-                                )}
                                 <DropdownMenuItem
                                     onClick={() =>
                                         router.push(`/${locale}/profile`)

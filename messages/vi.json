@@ -1,22 +1,4 @@
 {
-  "Error": {
-    "description": "<p>Chúng tôi đã gặp lỗi không mong muốn.</p><p>Bạn có thể thử <retry>tải lại trang</retry> mà bạn đang truy cập.</p>",
-    "title": "Đã xảy ra lỗi!"
-  },
-  "IndexPage": {
-    "description": "Đây là một ví dụ cơ bản minh họa cách sử dụng <code>next-intl</code> với Next.js App Router. Hãy thử thay đổi ngôn ngữ ở góc trên bên phải và xem nội dung thay đổi như thế nào.",
-    "title": "Ví dụ next-intl"
-  },
-  "LocaleLayout": {
-    "title": "Ví dụ next-intl"
-  },
-  "LocaleSwitcher": {
-    "label": "Thay đổi ngôn ngữ",
-    "locale": "{locale, select, de {🇩🇪 Tiếng Đức} en {🇺🇸 Tiếng Anh} vi {🇻🇳 Tiếng Việt} other {Không xác định}}"
-  },
-  "Manifest": {
-    "name": "Ví dụ next-intl"
-  },
   "Navigation": {
     "home": "Trang chủ",
     "pathnames": "Đường dẫn",
@@ -117,6 +99,13 @@
   },
   "TopBar": {
     "upgrade": "Nâng cấp"
+  },
+  "RightSidebar": {
+    "queue": "Hàng đợi phát",
+    "playQueue": "Phát hàng đợi",
+    "playNext": "Phát tiếp theo",
+    "playPrevious": "Phát trước"
+    
   },
   "Player": {
     "artistName": "Tên nghệ sĩ",

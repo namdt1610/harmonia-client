@@ -1,27 +1,31 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useSearch } from '@/modules/search/hooks/useSearch'
+import { useRouter, usePathname } from 'next/navigation'
+import { cn } from '@/lib/clsx'
 
-interface SearchBarProps {
-    onSearchResults: (results: any) => void
-}
-
-export default function SearchBar({ onSearchResults }: SearchBarProps) {
+export default function SearchBar() {
     const t = useTranslations('SearchBar')
     const [searchQuery, setSearchQuery] = useState('')
-    const { handleSearch, searchResults } = useSearch()
+    const router = useRouter()
+    const pathname = usePathname()
+    const locale = pathname?.split('/')[1] || 'en'
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value
-        setSearchQuery(newValue)
-        handleSearch(newValue)
-        onSearchResults(searchResults)
-    }
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery.trim()) {
+                router.push(
+                    `/${locale}/search?q=${encodeURIComponent(searchQuery.trim())}`
+                )
+            }
+        }, 300)
+
+        return () => clearTimeout(delayDebounceFn)
+    }, [searchQuery, router, locale])
 
     return (
-        <div className="relative ">
+        <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <Search size={20} className="text-neutral-400" />
             </div>
@@ -32,7 +36,7 @@ export default function SearchBar({ onSearchResults }: SearchBarProps) {
                     fallback: 'What do you want to listen to?',
                 })}
                 value={searchQuery}
-                onChange={onChange}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label={t('search', { fallback: 'Search' })}
             />
         </div>

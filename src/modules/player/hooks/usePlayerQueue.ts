@@ -1,14 +1,13 @@
 import { useDispatch } from 'react-redux'
 
-
 import { useGetTrackByIdQuery } from '@/modules/tracks/api'
 import {
     useGetCurrentTrackQuery,
     useGetQueueQuery,
     useSetCurrentTrackMutation,
     useClearQueueMutation,
-    useAddTrackMutation,
-    useAddPlaylistMutation,
+    useAddTrackToQueueMutation,
+    useAddPlaylistToQueueMutation,
 } from '@/modules/queue/api'
 import { useAddFavoriteTrackMutation } from '@/modules/favorites/api'
 import { toast } from 'sonner'
@@ -21,8 +20,8 @@ export function usePlayerQueue() {
     const { data: queueData, refetch: refetchQueue } = useGetQueueQuery()
     const [setCurrentTrackApi] = useSetCurrentTrackMutation()
     const [clearQueueApi] = useClearQueueMutation()
-    const [addTrackToQueueApi] = useAddTrackMutation()
-    const [addPlaylistToQueueApi] = useAddPlaylistMutation()
+    const [addTrackToQueueApi] = useAddTrackToQueueMutation()
+    const [addPlaylistToQueueApi] = useAddPlaylistToQueueMutation()
     const [addFavoriteTrackApi] = useAddFavoriteTrackMutation()
 
     const currentTrack = currentTrackData?.track

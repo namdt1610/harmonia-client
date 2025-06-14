@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLazyGlobalSearchQuery } from '@/modules/search/api'
 
 export function useSearch() {
@@ -8,10 +8,19 @@ export function useSearch() {
     const [globalSearch, { data: searchResults, isLoading }] =
         useLazyGlobalSearchQuery()
 
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery.trim()) {
+                handleSearch(searchQuery)
+            }
+        }, 500)
+
+        return () => clearTimeout(delayDebounceFn)
+    }, [searchQuery])
+
     const handleSearch = async (query: string) => {
         if (!query.trim()) return
 
-        setSearchQuery(query)
         setError(null)
 
         try {

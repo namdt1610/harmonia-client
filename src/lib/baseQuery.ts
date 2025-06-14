@@ -4,13 +4,29 @@ import { API_ROUTES as api, ROUTES as r } from '@/lib/routes'
 import { authApi } from '@/modules/auth/api'
 import type { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import { AppDispatch } from '@/redux/store'
+import { RootState } from '@/redux/store'
 
 /**
  ** Cấu hình base query với credentials: 'include' để đảm bảo cookies được gửi với mọi request
  */
-const baseQuery = fetchBaseQuery({
-    baseUrl: api.API_URL,
+export const baseQuery = fetchBaseQuery({
+    baseUrl: process.env.NEXT_PUBLIC_API_URL,
     credentials: 'include',
+    prepareHeaders: (headers, { getState }) => {
+        const token = (getState() as RootState).auth.token
+        console.log('Current token in state:', token)
+        console.log('Current cookies:', document.cookie)
+        if (token) {
+            headers.set('authorization', `Bearer ${token}`)
+            console.log(
+                'Authorization header set:',
+                headers.get('authorization')
+            )
+        } else {
+            console.log('No token in state, skipping authorization header')
+        }
+        return headers
+    },
 })
 
 /**
@@ -20,14 +36,18 @@ const baseQuery = fetchBaseQuery({
  */
 const refreshAuthToken = async (dispatch: AppDispatch) => {
     try {
+        console.log('Starting token refresh...')
         const refreshResult = await dispatch(
             authApi.endpoints.refreshToken.initiate()
         )
+        console.log('Refresh token result:', refreshResult)
 
         if (refreshResult.data) {
+            console.log('Token refresh successful')
             return true
         }
 
+        console.log('Token refresh failed - no data returned')
         return false
     } catch (error) {
         console.error('Error refreshing token:', error)
@@ -67,26 +87,26 @@ export const baseQueryWithReauth: MyBaseQuery = async (
     api,
     extraOptions
 ) => {
+    console.log('Base query with reauth called with args:', args)
     let result = await baseQuery(args, api, extraOptions)
-    if (result.error && result.error.status === 401) {
-        console.log('Trying to refresh token...')
-        const refreshResult = await refreshAuthToken(api.dispatch)
+    console.log('Base query result:', result)
 
-        if (refreshResult) {
-            console.log('Token refreshed successfully')
-            const currentUser = await getCurrentUser(api.dispatch)
-            if (currentUser) {
-                api.dispatch(setCredentials({ user: currentUser }))
-            }
-            //* Gọi lại endpoint đã gọi trước đó với access token mới, nếu thất bại, clear credentials
-            result = await baseQuery(args, api, extraOptions)
-        } else {
-            console.error('Failed to refresh token, logging out')
+    if (result.error && result.error.status === 401) {
+        console.log('Received 401, attempting to refresh token')
+        const refreshResult = await refreshAuthToken(api.dispatch)
+        console.log('Token refresh result:', refreshResult)
+
+        if (!refreshResult) {
+            console.log('Token refresh failed, redirecting to login')
             api.dispatch(clearCredentials())
             setTimeout(() => {
                 window.location.href = r.LOGIN
             }, 1000)
+            return result
         }
+
+        console.log('Token refreshed, retrying original request')
+        result = await baseQuery(args, api, extraOptions)
     }
 
     return result
