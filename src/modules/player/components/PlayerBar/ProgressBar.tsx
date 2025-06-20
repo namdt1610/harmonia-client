@@ -1,76 +1,83 @@
-import React, { useState } from 'react'
-import { Slider } from '@/components/ui/slider'
+import React, { useRef } from 'react'
+import { createLogger } from '@/lib/utils/debugLogger'
+
+// Create logger for progress bar
+const progressLogger = createLogger('PROGRESS')
 
 interface ProgressBarProps {
     currentTime: number
     duration: number
-    formatTime: (seconds: number) => string
     onSeek: (time: number) => void
+    bufferedPercentage?: number
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
+const ProgressBar: React.FC<ProgressBarProps> = ({
     currentTime,
     duration,
-    formatTime,
     onSeek,
+    bufferedPercentage = 0,
 }) => {
-    const [isDragging, setIsDragging] = useState(false)
-    const [dragValue, setDragValue] = useState(0)
+    const progressBarRef = useRef<HTMLDivElement>(null)
 
-    const progress = isDragging
-        ? [dragValue]
-        : duration > 0
-          ? [(currentTime / duration) * 100]
-          : [0]
+    const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0
 
-    const handleValueChange = (value: number[]) => {
-        setDragValue(value[0])
-        setIsDragging(true)
-    }
+    const handleDrag = (e: React.MouseEvent) => {
+        if (!progressBarRef.current || duration === 0) return
 
-    const handleValueCommitted = () => {
-        setIsDragging(false)
-        // Calculate the new time position based on the drag value
-        const newTime = (dragValue / 100) * duration
-        console.log('Seeking to:', newTime)
+        const rect = progressBarRef.current.getBoundingClientRect()
+        const clickX = e.clientX - rect.left
+        const percentage = Math.max(0, Math.min(1, clickX / rect.width))
+        const newTime = percentage * duration
+
+        progressLogger.logOnChange(
+            'progressSeek',
+            { from: currentTime, to: newTime, percentage },
+            'Seeking via progress bar'
+        )
+
         onSeek(newTime)
     }
 
-    // Immediate seek when clicking on the track
-    const handleSliderClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        const sliderRect = event.currentTarget.getBoundingClientRect()
-        const clickPosition = event.clientX - sliderRect.left
-        const percentage = (clickPosition / sliderRect.width) * 100
-        const newTime = (percentage / 100) * duration
-        console.log('Direct click seek to:', newTime)
+    const handleClick = (e: React.MouseEvent) => {
+        if (!progressBarRef.current || duration === 0) return
+
+        const rect = progressBarRef.current.getBoundingClientRect()
+        const clickX = e.clientX - rect.left
+        const percentage = Math.max(0, Math.min(1, clickX / rect.width))
+        const newTime = percentage * duration
+
+        progressLogger.log('Direct click seek to:', newTime)
         onSeek(newTime)
     }
 
     return (
-        <div className="flex items-center px-2 w-full">
-            {/* Current time */}
-            <div className="min-w-[40px] text-right text-xs text-[#a7a7a7] font-normal pr-2">
-                {formatTime(currentTime)}
-            </div>
-
-            <div className="w-full group" onClick={handleSliderClick}>
-                <Slider
-                    value={progress}
-                    max={100}
-                    step={0.1}
-                    onValueChange={handleValueChange}
-                    onValueCommit={handleValueCommitted}
-                    className="cursor-pointer"
-                    trackClassName="bg-[#5e5e5e] h-1"
-                    rangeClassName="bg-[#b3b3b3] group-hover:bg-[#1ed760]"
-                    thumbClassName="h-3 w-3 opacity-0 group-hover:opacity-100 border-0 bg-white"
+        <div className="w-full">
+            <div
+                ref={progressBarRef}
+                className="w-full h-1 bg-neutral-600 rounded-full cursor-pointer relative overflow-hidden"
+                onClick={handleClick}
+                onMouseDown={handleDrag}
+            >
+                {/* Buffered progress */}
+                <div
+                    className="absolute top-0 left-0 h-full bg-neutral-500 rounded-full transition-all duration-300"
+                    style={{ width: `${bufferedPercentage}%` }}
                 />
-            </div>
 
-            {/* Duration */}
-            <div className="min-w-[40px] text-xs text-[#a7a7a7] font-normal pl-2">
-                {formatTime(duration)}
+                {/* Current progress */}
+                <div
+                    className="absolute top-0 left-0 h-full bg-white rounded-full transition-all duration-100"
+                    style={{ width: `${progressPercentage}%` }}
+                />
+
+                {/* Progress handle */}
+                <div
+                    className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 hover:opacity-100 transition-opacity duration-200"
+                    style={{ left: `calc(${progressPercentage}% - 6px)` }}
+                />
             </div>
         </div>
     )
 }
+
+export default ProgressBar

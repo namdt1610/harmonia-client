@@ -10,14 +10,19 @@ import { RootState } from '@/redux/store'
 export const useHomePage = () => {
     const dispatch = useDispatch()
     const user = useSelector((state: RootState) => state.auth.user)
+    const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)
     const { currentTrack, addPlaylistToQueue } = usePlayerQueue()
-    const { data: artist } = useGetArtistQuery(currentTrack?.artist)
-    const { data: userActivity } = useGetUserActivityQuery()
+    const { data: artist } = useGetArtistQuery(currentTrack?.artist, {
+        skip: !isLoggedIn,
+    })
+    const { data: userActivity } = useGetUserActivityQuery(undefined, {
+        skip: !isLoggedIn,
+    })
     const {
         data: playlists,
         isLoading: isLoadingPlaylists,
         error: playlistsError,
-    } = useGetPublicPlaylistsQuery({ user: 'admin' })
+    } = useGetPublicPlaylistsQuery({ user: 'admin' }, { skip: !isLoggedIn })
 
     useEffect(() => {
         if (currentTrack) {

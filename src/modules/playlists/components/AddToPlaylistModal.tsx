@@ -7,6 +7,8 @@ import {
 import { useAddFavoriteTrackMutation } from '@/modules/user/api'
 import { Playlist } from '@/types'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
+import { logger } from '@/lib/utils/logger'
 
 interface AddToPlaylistModalProps {
     isOpen: boolean
@@ -14,7 +16,7 @@ interface AddToPlaylistModalProps {
     trackId: number
 }
 
-const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
+export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
     isOpen,
     onClose,
     trackId,
@@ -30,8 +32,10 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                 trackId,
             }).unwrap()
             onClose()
+            toast.success('Track added to playlist')
         } catch (error) {
-            console.error('Failed to add track to playlist:', error)
+            toast.error('Failed to add track to playlist')
+            logger.error('Failed to add track to playlist:', error)
         }
     }
 
@@ -70,7 +74,7 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                 </Button>
 
                 <div className="border-t pt-4 border-border">
-                    <h3 className="text-sm font-medium mb-2">Your Playlists</h3>
+                    <h3>Your Playlists</h3>
                     {isLoading ? (
                         <div className="text-center py-4">Loading...</div>
                     ) : playlistsData?.length === 0 ? (
@@ -78,7 +82,7 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                             No playlists found
                         </div>
                     ) : (
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                        <div className="space-y-2 max-h-60 custom-scrollbar">
                             {playlistsData?.map((playlist: Playlist) => (
                                 <Button
                                     key={playlist.id}
@@ -98,5 +102,3 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
         </Modal>
     )
 }
-
-export default AddToPlaylistModal

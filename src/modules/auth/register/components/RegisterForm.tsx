@@ -20,8 +20,9 @@ import {
     FormMessage,
 } from '@/components/ui/form'
 import GoogleIcon from '@/components/shared/GoogleIcon'
-import { Separator } from '../../../../components/ui/separator'
+import { Separator } from '@/components/ui/separator'
 import { useRegister } from '../hooks/useRegister'
+import { logger } from '@/lib/utils/logger'
 
 const FormSchema = z.object({
     username: z.string().min(2, {
@@ -30,8 +31,8 @@ const FormSchema = z.object({
     email: z.string().email({
         message: 'Invalid email address.',
     }),
-    password: z.string().min(6, {
-        message: 'Password must be at least 6 characters.',
+    password: z.string().min(8, {
+        message: 'Password must be at least 8 characters.',
     }),
 })
 
@@ -50,33 +51,21 @@ export default function RegisterForm() {
     const t = useTranslations('RegisterPage')
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast('You submitted the following values:', {
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">
-                        {JSON.stringify(data, null, 2)}
-                    </code>
-                </pre>
-            ),
-        })
-
+        logger.info('[auth/register] Submitting form', JSON.stringify(data))
+        logger.info('[auth/register] Calling handleRegister')
         handleRegister(data.username, data.email, data.password)
             .then((res) => {
                 if (res) {
-                    toast.success('Register successful!')
+                    toast.success(t('registerSuccess'))
                 }
             })
             .catch((err) => {
                 console.error(err)
-                toast.error('Register failed. Please try again.')
+                toast.error(t('registerFailed'))
             })
 
-        if (isError) {
-            toast.error('Register failed. Please try again.')
-        }
-
         if (isLoading) {
-            toast.loading('Registering...')
+            toast.loading(t('registerLoading'))
         }
     }
 
@@ -154,14 +143,18 @@ export default function RegisterForm() {
                         <Button className="w-full" onClick={() => null}>
                             {t('title')}
                         </Button>
-                        <p className='text-center'>Already have an account? </p>
-                        <Button
-                            variant="link"
-                            className="w-full text-center text-sm text-muted-foreground hover:underline"
-                            onClick={() => router.push('/login')}
-                        >
-                            {t('login')}
-                        </Button>
+                        <div className="flex items-center justify-center">
+                            <p className="text-center text-sm text-muted-foreground">
+                                {t('alreadyHaveAccount')}
+                            </p>
+                            <Button
+                                variant="link"
+                                className="text-center text-sm text-muted-foreground hover:underline"
+                                onClick={() => router.push('/login')}
+                            >
+                                {t('login')}
+                            </Button>
+                        </div>
                         <Separator />
                         <Button
                             variant="outline"

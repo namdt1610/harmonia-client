@@ -1,1 +1,1 @@
-export { default as SearchUI } from './SearchUI';
+export { default as SearchUI } from './SearchResults';

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import AvatarUpload from './AvatarUpload'
 import { useCurrentUser, useUploadUserAvatar } from '../hooks/useUsers'
@@ -66,7 +67,7 @@ export default function ProfileEditForm() {
     if (isLoading) return <div>Đang tải dữ liệu...</div>
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-sm mx-auto space-y-6">
+        <div onSubmit={handleSubmit} className="max-w-sm mx-auto space-y-6">
             <AvatarUpload
                 avatar={avatarPreview}
                 onChange={handleAvatarChange}
@@ -74,9 +75,9 @@ export default function ProfileEditForm() {
             />
 
             <div>
-                <label className="block mb-1 text-sm font-medium text-neutral-300">
+                <Label className="block mb-1 text-sm font-medium text-neutral-300">
                     Tên đăng nhập
-                </label>
+                </Label>
                 <Input
                     name="username"
                     value={form.username}
@@ -84,9 +85,9 @@ export default function ProfileEditForm() {
                 />
             </div>
             <div>
-                <label className="block mb-1 text-sm font-medium text-neutral-300">
+                <Label className="block mb-1 text-sm font-medium text-neutral-300">
                     Email
-                </label>
+                </Label>
                 <Input
                     type="email"
                     name="email"
@@ -95,9 +96,9 @@ export default function ProfileEditForm() {
                 />
             </div>
             <div>
-                <label className="block mb-1 text-sm font-medium text-neutral-300">
+                <Label className="block mb-1 text-sm font-medium text-neutral-300">
                     Tên hiển thị
-                </label>
+                </Label>
                 <Input
                     name="display_name"
                     value={form.display_name}
@@ -107,12 +108,13 @@ export default function ProfileEditForm() {
 
             <Button
                 type="submit"
+                onClick={handleSubmit}
                 disabled={updateState.isLoading || uploadState.isLoading}
             >
                 {updateState.isLoading || uploadState.isLoading
                     ? 'Đang lưu...'
                     : 'Lưu thay đổi'}
             </Button>
-        </form>
+        </div>
     )
 }

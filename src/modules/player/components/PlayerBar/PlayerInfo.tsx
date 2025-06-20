@@ -19,10 +19,10 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({
     if (isLoading) {
         return (
             <div className="flex items-center space-x-4">
-                <div className="w-[56px] h-[56px] bg-[#282828] rounded animate-pulse" />
+                <div className="w-[56px] h-[56px] bg-muted rounded animate-pulse" />
                 <div className="space-y-2">
-                    <div className="h-4 w-32 bg-[#282828] rounded animate-pulse" />
-                    <div className="h-3 w-24 bg-[#282828] rounded animate-pulse" />
+                    <div className="h-4 w-32 bg-muted rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-muted rounded animate-pulse" />
                 </div>
             </div>
         )
@@ -31,11 +31,13 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({
     if (isError) {
         return (
             <div className="flex items-center space-x-4">
-                <div className="w-[56px] h-[56px] bg-[#282828] rounded flex items-center justify-center">
-                    <span className="text-red-500 text-xl font-bold">!</span>
+                <div className="w-[56px] h-[56px] bg-muted rounded flex items-center justify-center">
+                    <span className="text-destructive text-xl font-bold">
+                        !
+                    </span>
                 </div>
                 <div>
-                    <p className="text-red-500 text-sm">
+                    <p className="text-destructive text-sm">
                         {error || 'Error playing track'}
                     </p>
                 </div>
@@ -61,7 +63,7 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({
                 <h3 className="text-sm text-white font-normal leading-tight truncate max-w-[240px] hover:underline cursor-pointer">
                     {song.title}
                 </h3>
-                <p className="text-[0.6875rem] text-[#b3b3b3] leading-tight hover:text-white hover:underline cursor-pointer">
+                <p className="text-[0.6875rem] text-muted-foreground leading-tight hover:text-white hover:underline cursor-pointer">
                     {song.artist.name}
                 </p>
             </div>

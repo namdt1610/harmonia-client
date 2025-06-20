@@ -6,7 +6,8 @@ import {
     useDownloadTrackVideoMutation,
 } from '@/modules/tracks/api'
 import { useParams } from 'next/navigation'
-import { usePlayTrack } from '@/modules/tracks/hooks/usePlayTrack'
+import { useTrackPlayer } from '@/modules/player/hooks/useTrackPlayer'
+import DefaultCover from '@/assets/images/default-cover.webp'
 
 export default function TrackDetails() {
     const params = useParams()
@@ -15,11 +16,11 @@ export default function TrackDetails() {
     const [downloadVideo] = useDownloadTrackVideoMutation()
     const [showVideo, setShowVideo] = useState(false)
     const [videoUrl, setVideoUrl] = useState<string | null>(null)
-    const { playTrack } = usePlayTrack()
+    const { handlePlay } = useTrackPlayer()
 
     const handlePlayTrack = () => {
         if (track) {
-            playTrack(track)
+            handlePlay(track)
         }
     }
 
@@ -43,28 +44,28 @@ export default function TrackDetails() {
         <div>
             <DetailHeader
                 title={track.title || 'Track'}
-                coverImage={track.cover || '/images/default-cover.webp'}
+                coverImage={track.image || ''}
                 type="track"
             />
 
             <div className="flex gap-4 mt-6 px-8">
                 <button
                     onClick={handlePlayTrack}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-full"
                 >
                     Play
                 </button>
 
                 <button
                     onClick={handleShowVideo}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full"
+                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-full"
                 >
                     Show Video
                 </button>
 
                 <button
                     onClick={() => downloadVideo(Number(id))}
-                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full"
+                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-full"
                 >
                     Download Video
                 </button>
@@ -80,7 +81,7 @@ export default function TrackDetails() {
                             className="w-[800px] max-w-full"
                         />
                         <button
-                            className="mt-2 px-4 py-2 bg-red-500 rounded text-white"
+                            className="mt-2 px-4 py-2 bg-destructive rounded text-destructive-foreground"
                             onClick={() => setShowVideo(false)}
                         >
                             Close

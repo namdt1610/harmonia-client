@@ -19,3 +19,7 @@ export type RegisterPayload = {
     email: string
     password: string
 }
+
+export type RefreshTokenResponse = {
+    access: string
+}

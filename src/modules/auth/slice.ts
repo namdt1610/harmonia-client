@@ -4,11 +4,13 @@ import { User } from '@/types'
 interface AuthState {
     isLoggedIn: boolean
     user: User | null
+    accessToken: string | null
 }
 
 const initialState: AuthState = {
     isLoggedIn: false,
     user: null,
+    accessToken: null,
 }
 
 const authSlice = createSlice({
@@ -18,12 +20,21 @@ const authSlice = createSlice({
         clearCredentials: (state) => {
             state.isLoggedIn = false
             state.user = null
+            state.accessToken = null
         },
         setCredentials: (
             state,
-            action: PayloadAction<{ user: User | null }>
+            action: PayloadAction<{
+                user?: User | null
+                accessToken?: string | null
+            }>
         ) => {
-            state.user = action.payload.user
+            if (action.payload.user !== undefined) {
+                state.user = action.payload.user
+            }
+            if (action.payload.accessToken !== undefined) {
+                state.accessToken = action.payload.accessToken
+            }
             state.isLoggedIn = true
         },
     },

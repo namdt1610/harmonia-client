@@ -19,32 +19,27 @@ export default function HomePage() {
     } = useHomePage()
 
     return (
-        <main className="flex-1 overflow-auto">
-            {/* Hero section with background gradient */}
-            <div className="relative">
-                <div className="absolute inset-0 z-0" />
-
-                <div className="relative z-10 pt-6 px-6 pb-2">
-                    <h1 className="text-3xl font-bold mb-2">
+        <main className="flex-1 custom-scrollbar mb-96">
+            <div className="max-w-7xl mx-auto p-6 space-y-8">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight">
                         {t(getGreeting(), { fallback: 'Good evening' })},{' '}
                         {user?.username || 'User'}
                     </h1>
-
-                    {/* Currently playing section */}
-                    <CurrentlyPlayingSection
-                        currentTrack={currentTrack}
-                        artistName={artist?.name}
-                    />
                 </div>
-            </div>
 
-            {/* Featured playlists section */}
-            <FeaturedPlaylistsSection
-                playlists={playlists || []}
-                isLoading={isLoadingPlaylists}
-                error={playlistsError}
-                onPlay={addPlaylistToQueue}
-            />
+                <CurrentlyPlayingSection
+                    currentTrack={currentTrack}
+                    artistName={artist?.name}
+                />
+
+                <FeaturedPlaylistsSection
+                    playlists={playlists || []}
+                    isLoading={isLoadingPlaylists}
+                    error={playlistsError}
+                    onPlay={addPlaylistToQueue}
+                />
+            </div>
         </main>
     )
 }

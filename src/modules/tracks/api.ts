@@ -18,9 +18,18 @@ export const trackApi = createApi({
             keepUnusedDataFor: 60,
         }),
 
-        getTracks: builder.query<Track[], { searchTerm?: string }>({
-            query: ({ searchTerm = '' } = {}) => ({
-                url: `${api.TRACKS.GET_ALL}?search=${encodeURIComponent(searchTerm)}`,
+        getTracks: builder.query<
+            Track[],
+            {
+                q?: string
+                page?: number
+                limit?: number
+                sortBy?: string
+                order?: string
+            }
+        >({
+            query: ({ q = '', page, limit, sortBy, order } = {}) => ({
+                url: `${api.TRACKS.GET_ALL}?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&sortBy=${sortBy}&order=${order}`,
             }),
             providesTags: (result) => {
                 if (result) {
@@ -38,7 +47,10 @@ export const trackApi = createApi({
         }),
 
         getTrackById: builder.query<Track, number>({
-            query: (id) => api.TRACKS.GET_BY_ID.replace(':id', id.toString()),
+            query: (id) => ({
+                url: api.TRACKS.GET_BY_ID.replace(':id', id.toString()),
+                credentials: 'include',
+            }),
             providesTags: (result) =>
                 result ? [{ type: 'Track' as const, id: result.id }] : [],
             keepUnusedDataFor: 300,
@@ -191,11 +203,21 @@ export const trackApi = createApi({
             }),
         }),
 
-        streamTrack: builder.query<Blob, number>({
-            query: (id) => ({
-                url: api.TRACKS.STREAM.replace(':id', id.toString()),
-                responseHandler: async (response: Response) => response.blob(),
-            }),
+        streamTrack: builder.query<string, number>({
+            query: (id) => {
+                const baseUrl =
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+                const fullUrl = `${baseUrl}/api/tracks/${id}/stream/`
+                return {
+                    url: fullUrl,
+                    responseHandler: (response) => {
+                        // Return the URL directly for streaming
+                        return response.url
+                    },
+                }
+            },
+            providesTags: (result, error, id) => [{ type: 'Track', id }],
+            keepUnusedDataFor: 300,
         }),
 
         streamVideo: builder.query<Blob, number>({
@@ -209,6 +231,26 @@ export const trackApi = createApi({
             query: (id) => ({
                 url: api.TRACKS.DOWNLOAD_VIDEO.replace(':id', id.toString()),
                 responseHandler: async (response: Response) => response.blob(),
+            }),
+        }),
+
+        downloadTrack: builder.mutation<void, number>({
+            query: (id) => ({
+                url:
+                    api.TRACKS.GET_BY_ID.replace(':id', id.toString()) +
+                    'download/',
+                method: 'GET',
+                responseHandler: async (response: Response) => {
+                    const blob = await response.blob()
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = ''
+                    document.body.appendChild(a)
+                    a.click()
+                    window.URL.revokeObjectURL(url)
+                    document.body.removeChild(a)
+                },
             }),
         }),
     }),
@@ -230,4 +272,5 @@ export const {
     useStreamTrackQuery,
     useStreamVideoQuery,
     useDownloadVideoQuery,
+    useDownloadTrackMutation,
 } = trackApi

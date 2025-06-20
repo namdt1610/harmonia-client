@@ -15,6 +15,7 @@ import { queueApi } from '@/modules/queue/api'
 
 import authReducer from '@/modules/auth/slice'
 import playerReducer from '@/modules/player/slice'
+import queueReducer from '@/modules/queue/slice'
 
 export const store = configureStore({
     reducer: {
@@ -31,6 +32,7 @@ export const store = configureStore({
         [queueApi.reducerPath]: queueApi.reducer,
         auth: authReducer,
         player: playerReducer,
+        queue: queueReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

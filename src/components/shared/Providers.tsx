@@ -12,7 +12,6 @@ export function Providers({
     locale: string
     messages: any
 }) {
-    console.log('Providers:', locale, messages)
     return (
         <SessionProvider>
             <NextIntlClientProvider messages={messages} locale={locale}>

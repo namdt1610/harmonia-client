@@ -9,18 +9,14 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { Album } from '@/types'
-
-
-import { useGetAlbumByIdQuery } from '@/modules/albums/api'
+import Link from 'next/link'
 import { toast } from 'sonner'
-import {
-    useAddAlbumMutation,
-    useSetCurrentTrackMutation,
-} from '@/modules/queue/api'
+import { useGetAlbumByIdQuery, useAddAlbumMutation } from '@/modules/albums/api'
+import { useTrackPlayer } from '@/modules/player/hooks/useTrackPlayer'
 
 interface AlbumItemProps {
     album: Album
-    onMoreOptions?: (id: number) => void
+    onMoreOptions?: (albumId: number) => void
 }
 
 export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
@@ -28,9 +24,9 @@ export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
         skip: false,
     })
     const [addAlbumToQueue] = useAddAlbumMutation()
-    const [setCurrentTrack] = useSetCurrentTrackMutation()
+    const { handlePlay } = useTrackPlayer()
 
-    const handlePlay = async (e: React.MouseEvent) => {
+    const handlePlayAlbum = async (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
 
@@ -40,7 +36,7 @@ export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
             await addAlbumToQueue(album.id).unwrap()
 
             if (albumTracks?.tracks?.length) {
-                await setCurrentTrack(albumTracks.tracks[0].id).unwrap()
+                handlePlay(albumTracks.tracks[0])
             }
 
             toast.dismiss()
@@ -67,8 +63,8 @@ export default function AlbumItem({ album, onMoreOptions }: AlbumItemProps) {
                     {/* Nút Play nổi lên khi hover */}
                     <Button
                         size="icon"
-                        className="absolute bottom-2 right-2 bg-green-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={handlePlay}
+                        className="absolute bottom-2 right-2 bg-primary text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={handlePlayAlbum}
                         aria-label="Play album"
                         disabled={isLoading}
                     >

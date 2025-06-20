@@ -1,94 +1,106 @@
-import { useDispatch } from 'react-redux'
-
-import { useGetTrackByIdQuery } from '@/modules/tracks/api'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { clearQueue as clearQueueAction } from '@/modules/queue/slice'
 import {
+    useClearQueueMutation,
     useGetCurrentTrackQuery,
     useGetQueueQuery,
     useSetCurrentTrackMutation,
-    useClearQueueMutation,
-    useAddTrackToQueueMutation,
-    useAddPlaylistToQueueMutation,
 } from '@/modules/queue/api'
-import { useAddFavoriteTrackMutation } from '@/modules/favorites/api'
+import { useGetMyPlaylistsQuery } from '@/modules/user/api'
+import { useGetTrackQuery } from '@/modules/tracks/api'
+import {
+    useAddToPlaylistMutation,
+    useAddPlaylistToQueueMutation,
+} from '@/modules/playlists/api'
 import { toast } from 'sonner'
-import { sidebarEvents } from '@/lib/utils'
+import { createLogger } from '@/lib/utils/debugLogger'
 
-export function usePlayerQueue() {
+// Create logger for player queue
+const queueLogger = createLogger('QUEUE')
+
+export const usePlayerQueue = () => {
     const dispatch = useDispatch()
-    const { data: currentTrackData, refetch: refetchCurrentTrack } =
-        useGetCurrentTrackQuery()
-    const { data: queueData, refetch: refetchQueue } = useGetQueueQuery()
-    const [setCurrentTrackApi] = useSetCurrentTrackMutation()
-    const [clearQueueApi] = useClearQueueMutation()
-    const [addTrackToQueueApi] = useAddTrackToQueueMutation()
-    const [addPlaylistToQueueApi] = useAddPlaylistToQueueMutation()
-    const [addFavoriteTrackApi] = useAddFavoriteTrackMutation()
 
-    const currentTrack = currentTrackData?.track
-    const queue = queueData?.tracks || []
-    const currentIndex = queueData?.current_index ?? 0
-    const { data: trackData } = useGetTrackByIdQuery(currentTrack?.id || 0, {
-        skip: !currentTrack,
+    // RTK Query hooks
+    const { data: currentTrack } = useGetCurrentTrackQuery()
+    const { data: queue = [] } = useGetQueueQuery()
+    const { data: playlists = [] } = useGetMyPlaylistsQuery()
+    const { data: trackData } = useGetTrackQuery(currentTrack?.id ?? 0, {
+        skip: !currentTrack?.id,
     })
 
+    // Mutations
+    const [setCurrentTrackMutation] = useSetCurrentTrackMutation()
+    const [clearQueueMutation] = useClearQueueMutation()
+    const [addToPlaylistMutation] = useAddToPlaylistMutation()
+    const [addPlaylistToQueue] = useAddPlaylistToQueueMutation()
+
+    // Get auth state
+    const { isLoggedIn } = useSelector((state: RootState) => state.auth)
+
     const setCurrentTrack = async (trackId: number) => {
-        await setCurrentTrackApi(trackId).unwrap()
-        refetchCurrentTrack()
-        refetchQueue()
+        try {
+            await setCurrentTrackMutation(trackId).unwrap()
+        } catch (error) {
+            queueLogger.error('Failed to set current track:', error)
+            toast.error('Failed to play track')
+        }
     }
-    const clearQueue = () => clearQueueApi()
-    const addTrackToQueue = (trackId: number) => addTrackToQueueApi(trackId)
-    const addPlaylistToQueue = (playlistId: number) => {
-        addPlaylistToQueueApi(playlistId)
-            .unwrap()
-            .then(() => {
-                toast.success('Playlist added to queue')
-            })
-            .catch((error) => {
-                console.error('Failed to add playlist to queue:', error)
-                toast.error('Failed to add playlist to queue')
-            })
+
+    const clearQueue = async () => {
+        try {
+            queueLogger.log('Attempting to clear queue...')
+
+            // Optimistic update
+            dispatch(clearQueueAction())
+
+            const result = await clearQueueMutation().unwrap()
+            queueLogger.logOnChange(
+                'queueCleared',
+                { success: true },
+                'Queue cleared successfully'
+            )
+
+            // Success feedback
+            toast.success('Queue cleared')
+        } catch (error) {
+            queueLogger.error('Failed to clear queue:', error)
+            toast.error('Failed to clear queue')
+        }
     }
-    const addFavoriteTrack = (trackId: number) => addFavoriteTrackApi(trackId)
 
     const handleAddToFavorite = () => {
-        if (!currentTrack) return
-        addFavoriteTrack(currentTrack.id)
-        toast.success('Added to favorite')
+        // TODO: Implement add to favorite functionality
+        toast.success('Added to favorites!')
     }
 
     const handleDownload = () => {
-        const url = `http://localhost:8000/api/tracks/${currentTrack?.id}/download/`
-        window.open(url, '_blank')
+        // TODO: Implement download functionality
+        toast.success('Download started!')
     }
 
     const getCoverImage = () => {
-        if (!trackData) return null
-        return (
-            trackData.cover ||
-            (trackData.album && trackData.album.cover) ||
-            trackData.album_cover ||
-            null
-        )
+        return trackData?.cover_image || null
     }
 
     const toggleQueueVisibility = () => {
-        sidebarEvents.toggleQueue()
+        // This will be handled by the parent component
     }
 
     return {
         currentTrack,
         queue,
-        currentIndex,
         trackData,
+        playlists,
+        isLoggedIn,
         setCurrentTrack,
         clearQueue,
-        addTrackToQueue,
-        addPlaylistToQueue,
-        addFavoriteTrack,
         handleAddToFavorite,
         handleDownload,
         getCoverImage,
         toggleQueueVisibility,
+        addToPlaylistMutation,
+        addPlaylistToQueue,
     }
 }

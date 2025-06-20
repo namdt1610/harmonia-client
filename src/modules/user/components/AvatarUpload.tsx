@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Image as ImageIcon, UploadCloud } from 'lucide-react'
 import Image from 'next/image'
 
@@ -31,7 +32,7 @@ export default function AvatarUpload({
                     </div>
                 )}
             </div>
-            <input
+            <Input
                 type="file"
                 accept="image/*"
                 ref={inputRef}

@@ -13,42 +13,45 @@ interface PlaylistItemProps {
 
 export function PlaylistItem({ playlist, onPlay }: PlaylistItemProps) {
     return (
-        <Link href={`/playlists/${playlist.id}`}>
-            <Card className="bg-neutral-800/50 border-none group overflow-hidden hover:bg-neutral-700/50 transition-colors">
-                <CardContent className="p-3">
-                    <div className="relative">
-                        <div className="aspect-square w-full overflow-hidden rounded-md mb-3">
-                            <Image
-                                src={playlist.cover || DefaultCover}
-                                alt={playlist.name}
-                                width={200}
-                                height={200}
-                                className="object-cover w-full h-full"
-                            />
+        <Card className="w-48">
+            <CardContent className="p-2">
+                <Link href={`/playlists/${playlist.id}`}>
+                    <div className="space-y-3">
+                        <div className="relative">
+                            <div className="aspect-square w-full overflow-hidden rounded-md">
+                                <Image
+                                    src={playlist.cover || DefaultCover}
+                                    alt={playlist.name}
+                                    width={200}
+                                    height={200}
+                                    className="object-cover w-full h-full transition-transform duration-200 group-hover:scale-105"
+                                />
+                            </div>
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <Button
                                     size="icon"
-                                    className="rounded-full w-12 h-12 bg-primary hover:bg-primary/90 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform opacity-0 group-hover:opacity-100"
+                                    className="rounded-full"
                                     onClick={(e) => {
                                         e.preventDefault()
                                         onPlay(playlist.id)
                                     }}
                                 >
-                                    <Play
-                                        size={20}
-                                        className="text-primary-foreground ml-0.5"
-                                    />
+                                    <Play className="h-4 w-4" />
                                 </Button>
                             </div>
                         </div>
-                        <h3 className="font-bold truncate">{playlist.name}</h3>
-                        <p className="text-sm text-neutral-400 truncate">
-                            {playlist.description ||
-                                `${playlist.tracks.length} tracks`}
-                        </p>
+                        <div className="space-y-1">
+                            <h3 className="font-medium leading-none">
+                                {playlist.name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                                {playlist.description ||
+                                    `${playlist.tracks} tracks`}
+                            </p>
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
-        </Link>
+                </Link>
+            </CardContent>
+        </Card>
     )
 }

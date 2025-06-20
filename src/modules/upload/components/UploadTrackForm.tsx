@@ -48,9 +48,11 @@ export default function UploadTrackForm() {
     const [duration, setDuration] = useState<number | null>(null)
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (!file) return
+        const files = event.target.files
+        if (!files || files.length === 0) return
 
+        // Only take the first file if multiple files are somehow selected
+        const file = files[0]
         const fileName = file.name.replace(/\.[^/.]+$/, '')
         setValue('title', fileName)
 
@@ -104,15 +106,19 @@ export default function UploadTrackForm() {
                     accept="audio/*"
                     {...register('file')}
                     onChange={handleFileChange}
-                    ref={fileInputRef}
+                    ref={(e) => {
+                        register('file').ref(e)
+                        fileInputRef.current = e
+                    }}
+                    multiple={false}
                 />
                 {errors.file && (
-                    <p className="text-red-500 text-sm">
+                    <p className="text-destructive text-sm">
                         {errors.file.message as string}
                     </p>
                 )}
                 {duration !== null && (
-                    <p className="text-green-500 text-sm">
+                    <p className="text-primary text-sm">
                         Thời lượng: {convertSecondsToMinutes(duration)}
                     </p>
                 )}
@@ -127,7 +133,7 @@ export default function UploadTrackForm() {
                     placeholder="Nhập tiêu đề"
                 />
                 {errors.title && (
-                    <p className="text-red-500 text-sm">
+                    <p className="text-destructive text-sm">
                         {errors.title.message}
                     </p>
                 )}

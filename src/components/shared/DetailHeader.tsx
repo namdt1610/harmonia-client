@@ -1,12 +1,17 @@
 'use client'
 
 import React from 'react'
-import { Play, Pause, Heart, MoreHorizontal } from 'lucide-react'
+import { Play, MoreHorizontal, Trash, Heart, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
-import { cn } from '@/lib/utils'
-import { Track } from '@/types'
+import { cn } from '@/lib/clsx'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 interface DetailHeaderProps {
     title: string
@@ -15,9 +20,9 @@ interface DetailHeaderProps {
     type: 'playlist' | 'album' | 'artist' | 'track'
     tracks?: Track[]
     onPlay?: () => void
-    onPause?: () => void
-    isPlaying?: boolean
-    onAddToFavorite?: () => void
+    onDelete?: () => void
+    onEdit?: () => void
+    onToggleFavorite?: () => void
     isFavorite?: boolean
 }
 
@@ -28,80 +33,84 @@ export default function DetailHeader({
     type,
     tracks = [],
     onPlay,
-    onPause,
-    isPlaying = false,
-    onAddToFavorite,
+    onDelete,
+    onEdit,
+    onToggleFavorite,
     isFavorite = false,
 }: DetailHeaderProps) {
-    const { setCurrentTrack } = usePlayerQueue()
-
-    const handlePlay = () => {
-        if (tracks.length > 0) {
-            setCurrentTrack(tracks[0].id)
-        }
-        onPlay?.()
-    }
-
     return (
-        <div className="relative">
-            {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/50 to-neutral-900" />
-
-            {/* Content */}
-            <div className="relative flex items-end gap-6 p-6">
-                {/* Cover Image */}
-                <div className="w-12 h-12 rounded-md overflow-hidden">
-                    <Image
-                        src={coverImage}
-                        alt={title}
-                        className="w-full h-full object-cover rounded-md shadow-2xl"
-                    />
-                </div>
-
-                {/* Info */}
-                <div className="flex-1">
-                    <div className="text-sm font-medium text-neutral-400 mb-2">
-                        {type.toUpperCase()}
-                    </div>
-                    <h1 className="text-4xl font-bold mb-2">{title}</h1>
-                    {subtitle && (
-                        <p className="text-neutral-400 mb-4">{subtitle}</p>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-4">
-                        <Button
-                            size="lg"
-                            className="rounded-full"
-                            onClick={isPlaying ? onPause : handlePlay}
-                        >
-                            {isPlaying ? (
-                                <Pause className="h-6 w-6" />
-                            ) : (
-                                <Play className="h-6 w-6" />
-                            )}
-                        </Button>
-
+        <div className="flex gap-4 mb-8">
+            <div className="w-32 h-32 flex-shrink-0">
+                <Image
+                    src={coverImage}
+                    alt={title}
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover"
+                />
+            </div>
+            <div className="flex flex-col justify-center">
+                <h1 className="text-2xl font-medium mb-1">{title}</h1>
+                <p className="text-sm text-neutral-500 mb-3">{subtitle}</p>
+                <div className="flex gap-2">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={tracks.length === 0}
+                        onClick={onPlay}
+                        className="px-3"
+                    >
+                        <Play size={14} className="mr-1" />
+                        Play
+                    </Button>
+                    {onToggleFavorite && (
                         <Button
                             variant="ghost"
-                            size="icon"
+                            size="sm"
+                            onClick={onToggleFavorite}
                             className={cn(
-                                'text-neutral-400 hover:text-white',
-                                isFavorite ? 'text-green-500' : ''
+                                'px-2',
+                                isFavorite
+                                    ? 'text-destructive hover:text-destructive/80'
+                                    : 'text-neutral-500 hover:text-destructive'
                             )}
-                            onClick={onAddToFavorite}
                         >
-                            <Heart className="h-6 w-6" />
+                            <Heart className="text-destructive" />
                         </Button>
-
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-neutral-400 hover:text-white"
-                        >
-                            <MoreHorizontal className="h-6 w-6" />
-                        </Button>
-                    </div>
+                    )}
+                    {(onDelete || onEdit) && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="px-2"
+                                >
+                                    <MoreHorizontal size={14} />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                                {onEdit && (
+                                    <DropdownMenuItem
+                                        onClick={onEdit}
+                                        className="text-blue-500"
+                                    >
+                                        <Edit size={14} className="mr-2" />
+                                        Edit {type}
+                                    </DropdownMenuItem>
+                                )}
+                                {onDelete && (
+                                    <DropdownMenuItem
+                                        onClick={onDelete}
+                                        className="text-red-500"
+                                    >
+                                        <Trash size={14} className="mr-2" />
+                                        Delete {type}
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
             </div>
         </div>

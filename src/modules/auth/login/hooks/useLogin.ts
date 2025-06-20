@@ -4,6 +4,7 @@ import { setCredentials } from '@/modules/auth/slice'
 import { useLoginMutation } from '@/modules/auth/api'
 import { isFetchBaseQueryError } from '@/lib/apiError'
 import { LoginResponse } from '../../types'
+import { logger } from '@/lib/utils/logger'
 
 export const useLogin = () => {
     const [login, { isLoading, isError, isSuccess }] = useLoginMutation()
@@ -24,17 +25,25 @@ export const useLogin = () => {
         password: string
     ): Promise<boolean> => {
         try {
+            logger.info('[auth/login] Calling API')
+            logger.info('[auth/login] Username or email:', username_or_email)
             const result: LoginResponse = await login({
                 username_or_email,
                 password,
             }).unwrap()
-
+            logger.info('[auth/login] Login successful')
             // Store user info in Redux
+            logger.info('[auth/login] Storing user info in Redux')
             dispatch(
                 setCredentials({
                     user: result.user,
+                    accessToken: result.access,
                 })
             )
+
+            // Reset isLoggedOut flag
+            logger.info('[auth/login] Resetting isLoggedOut flag')
+            localStorage.removeItem('isLoggedOut')
 
             // The access token will be automatically handled by the browser
             // since it's set as an HTTP-only cookie by the backend
@@ -42,9 +51,12 @@ export const useLogin = () => {
             return true
         } catch (error) {
             if (isFetchBaseQueryError(error)) {
-                console.error('Login failed:', error.data || error.status)
+                logger.error(
+                    '[auth/login] Login failed:',
+                    error.data || error.status
+                )
             } else {
-                console.error('Unexpected error:', error)
+                logger.error('[auth/login] Unexpected error:', error)
             }
             return false
         }
@@ -58,7 +70,9 @@ export const useLogin = () => {
      * Không cần phải await hay xử lý response sau signIn vì nó redirect luôn rồi
      */
     const handleGoogleLogin = (): void => {
-        signIn('google', { callbackUrl: '/' })
+        logger.info('[auth/google] Calling API')
+        logger.info('[auth/google] Redirecting to Google')
+        signIn('google', { callbackUrl: '/google-sync/' })
     }
 
     return {

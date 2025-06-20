@@ -72,8 +72,8 @@ export default function AppearanceSettings() {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="flex justify-end border-t border-[#282828] pt-4">
-                <Button className="bg-[#1DB954] hover:bg-[#1ed760] text-white">
+            <CardFooter className="flex justify-end border-t border-border pt-4">
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     {t('actions.save')}
                 </Button>
             </CardFooter>

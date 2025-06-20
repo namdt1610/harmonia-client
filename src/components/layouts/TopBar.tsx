@@ -1,13 +1,12 @@
 import {
     User,
+    Upload,
     Home,
+    LogOut,
     BellRing,
     Settings,
-    LogOut,
     ChevronLeft,
     ChevronRight,
-    ExternalLink,
-    Upload,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useSelector } from 'react-redux'
@@ -71,7 +70,7 @@ export default function TopBar() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
                                 className={cn(
                                     'rounded-full w-8 h-8 ml-2',

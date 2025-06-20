@@ -1,16 +1,19 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/clsx'
-import { Track } from '@/types'
-
-interface QueueItem {
-    track: Track
-}
+import QueuePanel from '@/modules/queue/components/QueuePanel'
+import { useIsMobile } from '@/components/ui/use-mobile'
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet'
+import { ListMusic } from 'lucide-react'
 
 interface RightSidebarProps {
     isOpen: boolean
@@ -19,7 +22,7 @@ interface RightSidebarProps {
 
 export default function RightSidebar({ isOpen, onClose }: RightSidebarProps) {
     const t = useTranslations('RightSidebar')
-    const { currentTrack, queue } = usePlayerQueue()
+    const isMobile = useIsMobile()
 
     // Default sidebar states and constraints
     const [width, setWidth] = useState(280) // Default width
@@ -33,9 +36,9 @@ export default function RightSidebar({ isOpen, onClose }: RightSidebarProps) {
     const startWidth = useRef(width)
     const sidebarRef = useRef<HTMLDivElement>(null)
 
-    // Resize handlers
+    // Resize handlers for desktop only
     const handleMouseDown = (event: React.MouseEvent) => {
-        if (isTransitioning) return // Prevent resizing during transitions
+        if (isTransitioning || isMobile) return // Prevent resizing during transitions or on mobile
         isDragging.current = true
         startX.current = event.clientX
         startWidth.current = width
@@ -82,76 +85,98 @@ export default function RightSidebar({ isOpen, onClose }: RightSidebarProps) {
 
     if (!isOpen) return null
 
+    // Mobile version using Sheet
+    if (isMobile) {
+        return (
+            <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+                <SheetContent
+                    side="right"
+                    className="w-full sm:w-[400px] max-w-full p-0 bg-black border-l border-neutral-800/50 shadow-2xl overflow-hidden"
+                >
+                    <SheetHeader className="p-4 border-b border-neutral-800/50 bg-neutral-950/50 flex-shrink-0">
+                        <div className="flex items-center justify-between min-w-0">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <div className="p-1.5 bg-primary/10 rounded-lg flex-shrink-0">
+                                    <ListMusic
+                                        size={16}
+                                        className="text-primary"
+                                    />
+                                </div>
+                                <SheetTitle className="text-base font-semibold text-white truncate">
+                                    {t('queue', { fallback: 'Queue' })}
+                                </SheetTitle>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={onClose}
+                                className="h-8 w-8 hover:bg-neutral-800 text-neutral-400 hover:text-white flex-shrink-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </SheetHeader>
+
+                    {/* Use the full-featured QueuePanel component */}
+                    <div className="flex-1 overflow-hidden w-full max-w-full">
+                        <QueuePanel showHeader={false} />
+                    </div>
+                </SheetContent>
+            </Sheet>
+        )
+    }
+
+    // Desktop version with resizable width
     return (
         <div
             className={cn(
-                'relative h-screen flex-shrink-0 transition-all',
+                'relative h-screen flex-shrink-0 transition-all hidden lg:block',
                 isTransitioning ? 'duration-300 ease-out' : 'duration-0'
             )}
-            style={{ width }}
+            style={{ width: `${width}px`, maxWidth: `${width}px` }}
         >
             <aside
                 ref={sidebarRef}
                 className={cn(
-                    'h-full flex flex-col bg-black border-l border-neutral-800/50 w-full',
+                    'h-full flex flex-col bg-black border-l border-neutral-800/50 w-full max-w-full shadow-xl overflow-hidden',
                     isTransitioning
                         ? 'transition-all duration-300 ease-out'
                         : ''
                 )}
             >
-                <div className="p-4 border-b">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">
-                            {t('queue', { fallback: 'Queue' })}
-                        </h2>
+                <div className="p-4 border-b border-neutral-800/50 bg-neutral-950/30 flex-shrink-0">
+                    <div className="flex items-center justify-between min-w-0">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="p-1.5 bg-primary/10 rounded-lg flex-shrink-0">
+                                <ListMusic size={16} className="text-primary" />
+                            </div>
+                            <h2 className="text-base font-semibold text-white truncate">
+                                {t('queue', { fallback: 'Queue' })}
+                            </h2>
+                        </div>
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={onClose}
-                            className="h-8 w-8"
+                            className="h-8 w-8 hover:bg-neutral-800 text-neutral-400 hover:text-white flex-shrink-0"
                         >
                             <X className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
 
-                {/* Queue content */}
-                <div className="flex-1 overflow-y-auto p-4">
-                    {queue.map((item: QueueItem, index: number) => (
-                        <div
-                            key={item.track.id}
-                            className={cn(
-                                'flex items-center gap-3 p-2 rounded-md hover:bg-neutral-800/50 cursor-pointer',
-                                currentTrack?.id === item.track.id &&
-                                    'bg-neutral-800/50'
-                            )}
-                        >
-                            <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0">
-                                <img
-                                    src={item.track.album_cover || ''}
-                                    alt={item.track.title}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">
-                                    {item.track.title}
-                                </p>
-                                <p className="text-xs text-neutral-400 truncate">
-                                    {item.track.artist?.name}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                {/* Use the full-featured QueuePanel component with width */}
+                <div className="flex-1 overflow-hidden w-full max-w-full">
+                    <QueuePanel showHeader={false} sidebarWidth={width} />
                 </div>
             </aside>
 
-            {/* Resize handle - positioned at the left edge of the sidebar container */}
+            {/* Resize handle - only on desktop */}
             <div
                 className={cn(
                     'absolute top-0 left-0 h-full w-3 cursor-ew-resize z-20',
-                    'hover:bg-primary/20 active:bg-primary/30',
-                    isDragging.current && 'bg-primary/30',
+                    'hover:bg-primary/10 active:bg-primary/20 transition-colors',
+                    isDragging.current && 'bg-primary/20',
                     isTransitioning && 'pointer-events-none' // Disable during transitions
                 )}
                 onMouseDown={handleMouseDown}

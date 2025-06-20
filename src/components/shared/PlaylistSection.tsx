@@ -3,6 +3,7 @@ import CreatePlaylistModal from '@/modules/playlists/components/CreatePlaylistMo
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/clsx'
 import {
     Tooltip,
@@ -15,14 +16,42 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useGetUserPlaylistsQuery } from '@/modules/playlists/api'
 import { Playlist } from '@/types'
+import React from 'react'
+
 interface PlaylistSectionProps {
     isCollapsed: boolean
 }
 
+// Create a forwarded button component for the modal trigger
+const CreatePlaylistButton = React.forwardRef<
+    HTMLButtonElement,
+    React.ButtonHTMLAttributes<HTMLButtonElement>
+>((props, ref) => (
+    <TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    ref={ref}
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-full hover:bg-neutral-800 text-neutral-400 hover:text-white border-neutral-700"
+                    {...props}
+                >
+                    <Plus className="h-4 w-4" />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+                <p>Create Playlist</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
+))
+
+CreatePlaylistButton.displayName = 'CreatePlaylistButton'
+
 export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
     const t = useTranslations('Playlists')
-    const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] =
-        useState(false)
+    const router = useRouter()
     const [filterText, setFilterText] = useState('')
 
     // Mock data for playlists - in a real app, this would come from API
@@ -32,11 +61,18 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
         playlist.name.toLowerCase().includes(filterText.toLowerCase())
     )
 
+    const handleLibraryClick = () => {
+        router.push('/playlists')
+    }
+
     return (
         <div className="flex flex-col h-full">
             {/* Library Header */}
             <div className="px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div
+                    onClick={handleLibraryClick}
+                    className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
+                >
                     <Library
                         className={cn(
                             'h-5 w-5 text-neutral-400',
@@ -44,32 +80,14 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
                         )}
                     />
                     {!isCollapsed && (
-                        <span className="font-semibold text-sm text-neutral-400">
+                        <span className="font-semibold text-sm text-neutral-400 hover:text-white transition-colors">
                             {t('yourLibrary', { fallback: 'Your Library' })}
                         </span>
                     )}
                 </div>
 
                 {!isCollapsed && (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full hover:bg-neutral-800"
-                                    onClick={() =>
-                                        setIsCreatePlaylistModalOpen(true)
-                                    }
-                                >
-                                    <Plus className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">
-                                <p>Create Playlist</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+                    <CreatePlaylistModal trigger={<CreatePlaylistButton />} />
                 )}
             </div>
 
@@ -96,7 +114,7 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
                         href="/favorites/tracks"
                         className="flex items-center p-2 rounded-md hover:bg-neutral-800/60 transition-colors"
                     >
-                        <div className="w-10 h-10 bg-gradient-to-br from-pink-600 to-purple-700 rounded-md flex items-center justify-center mr-3 flex-shrink-0">
+                        <div className="w-10 h-10 bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-md flex items-center justify-center mr-3 flex-shrink-0">
                             <Heart
                                 className={cn(
                                     'text-white',
@@ -115,28 +133,6 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
                             </div>
                         )}
                     </Link>
-
-                    <button
-                        className="w-full flex items-center p-2 rounded-md hover:bg-neutral-800/60 transition-colors"
-                        onClick={() => setIsCreatePlaylistModalOpen(true)}
-                    >
-                        <div className="w-10 h-10 bg-neutral-800 rounded-md flex items-center justify-center mr-3 flex-shrink-0">
-                            <Plus
-                                className={cn(
-                                    'text-white',
-                                    isCollapsed ? 'h-5 w-5' : 'h-4 w-4'
-                                )}
-                            />
-                        </div>
-                        {!isCollapsed && (
-                            <div>
-                                <p className="text-sm font-medium">
-                                    Create Playlist
-                                </p>
-                                <p className="text-xs text-neutral-400">New</p>
-                            </div>
-                        )}
-                    </button>
                 </div>
 
                 {/* Divider */}
@@ -175,11 +171,6 @@ export default function PlaylistSection({ isCollapsed }: PlaylistSectionProps) {
                     ))}
                 </div>
             </ScrollArea>
-
-            <CreatePlaylistModal
-                isOpen={isCreatePlaylistModalOpen}
-                onClose={() => setIsCreatePlaylistModalOpen(false)}
-            />
         </div>
     )
 }

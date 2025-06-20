@@ -4,6 +4,7 @@ import {
     LoginPayload,
     RegisterResponse,
     RegisterPayload,
+    RefreshTokenResponse,
 } from './types'
 import { User } from '@/types'
 import { API_ROUTES as api } from '@/lib/routes'
@@ -62,7 +63,7 @@ export const authApi = createApi({
             }),
         }),
         //* Backend đã xử lý trên cookie, nên truyền void
-        refreshToken: builder.mutation<void, void>({
+        refreshToken: builder.mutation<RefreshTokenResponse, void>({
             query: () => ({
                 url: api.AUTH.REFRESH,
                 method: 'POST',

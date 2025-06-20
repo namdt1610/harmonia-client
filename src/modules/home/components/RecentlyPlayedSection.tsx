@@ -5,6 +5,7 @@ import DefaultCover from '@/assets/images/default-logo.png'
 import { setCurrentTrack } from '@/modules/player/slice'
 import type { Track } from '@/types'
 import { useDispatch } from 'react-redux'
+import { Button } from '@/components/ui/button'
 
 interface RecentlyPlayedSectionProps {
     title: string
@@ -71,9 +72,10 @@ function RecentlyPlayedCard({ item }: RecentlyPlayedCardProps) {
                     {item.artist.name}
                 </p>
             </div>
-            <button
+            <Button
                 onClick={() => handlePlayTrack(item)}
-                className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-green-500 shadow-lg text-black flex items-center justify-center mr-2 sm:mr-3 md:mr-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                size="icon"
+                className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-primary shadow-lg text-primary-foreground flex items-center justify-center mr-2 sm:mr-3 md:mr-4 opacity-0 group-hover:opacity-100 transition-opacity"
             >
                 <Play size={16} className="sm:hidden" fill="currentColor" />
                 <Play
@@ -81,7 +83,7 @@ function RecentlyPlayedCard({ item }: RecentlyPlayedCardProps) {
                     className="hidden sm:block"
                     fill="currentColor"
                 />
-            </button>
+            </Button>
         </div>
     )
 }

@@ -5,7 +5,6 @@ import { ROUTES as r } from '@/lib/routes'
 import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { useCurrentLocale } from '@/lib/utils'
 import {
     Button,
     Card,
@@ -13,80 +12,116 @@ import {
     CardHeader,
     CardTitle,
     Form,
-    Separator,
+    Input,
 } from '@/components/ui/_index'
 import { toast } from 'sonner'
+import { logger } from '@/lib/utils/logger'
+import { useState } from 'react'
 
 const forgotPasswordSchema = z.object({
     email: z.string().email('Email không hợp lệ'),
 })
 
+type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>
+
 export const ForgotPasswordForm = () => {
     const router = useRouter()
-    const locale = useCurrentLocale()
     const t = useTranslations('ForgotPasswordPage')
-    const form = useForm<z.infer<typeof forgotPasswordSchema>>({
+    const [isLoading, setIsLoading] = useState(false)
+
+    const form = useForm<ForgotPasswordData>({
         resolver: zodResolver(forgotPasswordSchema),
         defaultValues: { email: '' },
     })
 
-    const onSubmit = async (data: z.infer<typeof forgotPasswordSchema>) => {
-        // TODO: Gửi request quên mật khẩu
-        toast.success(t('sent'))
-        // Có thể chuyển hướng về trang login hoặc thông báo thành công
+    const onSubmit = async (data: ForgotPasswordData) => {
+        setIsLoading(true)
+        try {
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+
+            if (response.ok) {
+                toast.success(t('sent'))
+                logger.info(
+                    '[auth/forgot-password] Password reset email sent successfully'
+                )
+                // Redirect to login page after successful request
+                setTimeout(() => {
+                    router.push(r.LOGIN)
+                }, 2000)
+            } else {
+                const errorData = await response.json()
+                toast.error(errorData.message || t('error'))
+                logger.error(
+                    '[auth/forgot-password] Failed to send reset email:',
+                    errorData
+                )
+            }
+        } catch (error) {
+            toast.error(t('networkError'))
+            logger.error('[auth/forgot-password] Network error:', error)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const goToLogin = () => {
+        logger.info('[auth/forgot-password] Redirecting to login')
         router.push(r.LOGIN)
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <Card
-                    className="shadow-lg transition-all duration-300 ease-in-out hover:scale-105"
-                    style={{ width: '500px' }}
-                >
-                    <CardHeader>
-                        <CardTitle className="text-center text-lg">
-                            {t('title')}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col space-y-4">
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="block text-sm mb-1"
+        <div className="flex min-h-screen items-center justify-center">
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle className="text-center">{t('title')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <Input
+                                    {...form.register('email')}
+                                    type="email"
+                                    placeholder={t('emailPlaceholder')}
+                                    disabled={isLoading}
+                                />
+                                {form.formState.errors.email && (
+                                    <p className="text-sm text-destructive mt-1">
+                                        {form.formState.errors.email.message}
+                                    </p>
+                                )}
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isLoading}
                             >
-                                {t('email')}
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                {...form.register('email')}
-                                className="w-full px-3 py-2 border rounded"
-                                autoComplete="email"
-                            />
-                        </div>
-                        <Button
-                            aria-label="Send"
-                            className="w-full"
-                            type="submit"
-                        >
-                            {t('send')}
-                        </Button>
-                        <Button
-                            aria-label="Back to login"
-                            type="button"
-                            variant="link"
-                            className="w-full text-center text-sm text-muted-foreground hover:underline"
-                            onClick={goToLogin}
-                        >
-                            {t('backToLogin')}
-                        </Button>
-                    </CardContent>
-                </Card>
-            </form>
-        </Form>
+                                {isLoading ? t('sending') : t('sendResetLink')}
+                            </Button>
+
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="w-full"
+                                onClick={goToLogin}
+                                disabled={isLoading}
+                            >
+                                {t('backToLogin')}
+                            </Button>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+        </div>
     )
 }

@@ -1,58 +1,82 @@
 import React, { useState } from 'react'
-import Modal from '../../../components/shared/Modal'
 import { useCreatePlaylistMutation } from '@/modules/playlists/api'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
-import {
-    PlusCircle,
-    Music,
-    Loader2,
-    ImagePlus,
-    Trash,
-    Globe,
-    Lock,
-} from 'lucide-react'
-import { cn } from '@/lib/clsx'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Loader2, Trash } from 'lucide-react'
 import Image from 'next/image'
+import Modal from '@/components/shared/Modal'
+import {
+    Form,
+    FormMessage,
+    FormDescription,
+    FormControl,
+    FormItem,
+    FormLabel,
+    FormField,
+} from '@/components/ui/form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { CreatePlaylistRequest } from '@/types'
 
 interface CreatePlaylistModalProps {
-    isOpen: boolean
-    onClose: () => void
+    trigger?: React.ReactNode
+    title?: string
+    description?: string
+    onPlaylistCreated?: (playlist: any) => void
 }
 
-const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
-    isOpen,
-    onClose,
-}) => {
-    const [name, setName] = useState('')
-    const [description, setDescription] = useState('')
-    const [isPublic, setIsPublic] = useState(true)
+export default function CreatePlaylistModal({
+    trigger,
+    title,
+    description,
+    onPlaylistCreated,
+}: CreatePlaylistModalProps) {
     const [coverImage, setCoverImage] = useState<string | null>(null)
     const [createPlaylist, { isLoading }] = useCreatePlaylistMutation()
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const formSchema = z.object({
+        name: z.string().min(1, 'Playlist name is required'),
+        description: z.string().optional(),
+        is_public: z.boolean().default(true),
+        cover: z.string().optional(),
+    })
+
+    type FormData = z.infer<typeof formSchema>
+
+    const form = useForm<FormData>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            name: '',
+            description: '',
+            is_public: true,
+            cover: '',
+        },
+    })
+
+    const onSubmit = async (data: FormData) => {
         try {
-            // In a real implementation, this would include description, privacy setting, and cover image
-            await createPlaylist(name).unwrap()
-            resetForm()
+            const playlistData: CreatePlaylistRequest = {
+                ...data,
+                cover: coverImage || data.cover,
+            }
+            const newPlaylist = await createPlaylist(playlistData).unwrap()
             toast.success('Playlist created successfully')
-            onClose()
+            form.reset()
+            setCoverImage(null)
+
+            // Call the callback if provided
+            if (onPlaylistCreated) {
+                onPlaylistCreated(newPlaylist)
+            }
         } catch (error) {
             console.error('Failed to create playlist:', error)
             toast.error('Failed to create playlist')
         }
-    }
-
-    const resetForm = () => {
-        setName('')
-        setDescription('')
-        setIsPublic(true)
-        setCoverImage(null)
     }
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +85,7 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
             const reader = new FileReader()
             reader.onload = (event) => {
                 setCoverImage(event.target?.result as string)
+                form.setValue('cover', event.target?.result as string)
             }
             reader.readAsDataURL(file)
         }
@@ -68,163 +93,159 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
 
     const removeImage = () => {
         setCoverImage(null)
+        form.setValue('cover', '')
     }
 
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Create New Playlist">
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Cover Image */}
-                    <div className="col-span-1">
-                        <div
-                            className={cn(
-                                'aspect-square w-full rounded-md overflow-hidden relative border border-dashed border-neutral-700 bg-neutral-800/50',
-                                coverImage
-                                    ? 'border-none'
-                                    : 'flex flex-col items-center justify-center'
-                            )}
-                        >
-                            {coverImage ? (
-                                <>
-                                    <div className="w-12 h-12 rounded-md overflow-hidden">
-                                        <Image
-                                            src={coverImage}
-                                            alt={name}
-                                            width={48}
-                                            height={48}
-                                            className="w-full h-full object-cover"
+    const modalContent = (
+        <ScrollArea className="max-h-[70vh] pr-4">
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                >
+                    <FormField
+                        control={form.control}
+                        name="cover"
+                        render={({ field: _field }) => (
+                            <FormItem>
+                                <FormLabel>Cover Image</FormLabel>
+                                <FormControl>
+                                    <div className="space-y-4">
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
                                         />
+                                        {coverImage && (
+                                            <div className="relative w-32 h-32">
+                                                <Image
+                                                    src={coverImage}
+                                                    alt="Cover Image"
+                                                    width={128}
+                                                    height={128}
+                                                    className="rounded-lg object-cover"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    className="absolute top-2 right-2"
+                                                    onClick={removeImage}
+                                                >
+                                                    <Trash className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
-                                    <Button
-                                        type="button"
-                                        size="icon"
-                                        variant="destructive"
-                                        className="absolute right-2 top-2 h-8 w-8 rounded-full opacity-90"
-                                        onClick={removeImage}
-                                    >
-                                        <Trash className="h-4 w-4" />
-                                    </Button>
-                                </>
-                            ) : (
-                                <>
-                                    <ImagePlus className="h-10 w-10 text-neutral-400 mb-2" />
-                                    <p className="text-sm text-neutral-400">
-                                        Upload cover image
-                                    </p>
-                                </>
-                            )}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                className={cn(
-                                    'absolute inset-0 opacity-0 cursor-pointer',
-                                    coverImage && 'pointer-events-none'
-                                )}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Form Fields */}
-                    <div className="col-span-1 md:col-span-2 space-y-4">
-                        {/* Playlist Name */}
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                <Music className="h-5 w-5 text-primary" />
-                                <Label
-                                    htmlFor="name"
-                                    className="text-base font-medium"
-                                >
-                                    Playlist Name
-                                </Label>
-                            </div>
-                            <Input
-                                id="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="h-10 bg-background/50 backdrop-blur-sm border-neutral-700 focus:border-primary"
-                                placeholder="Enter playlist name"
-                                required
-                            />
-                        </div>
-
-                        {/* Description */}
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="description"
-                                className="text-sm font-medium text-neutral-300"
-                            >
-                                Description
-                            </Label>
-                            <Textarea
-                                id="description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="resize-none h-24 bg-background/50 backdrop-blur-sm border-neutral-700 focus:border-primary"
-                                placeholder="Add an optional description"
-                            />
-                        </div>
-
-                        {/* Privacy Setting */}
-                        <div className="flex items-center justify-between pt-2">
-                            <div className="flex items-center gap-2">
-                                {isPublic ? (
-                                    <Globe className="h-4 w-4 text-green-500" />
-                                ) : (
-                                    <Lock className="h-4 w-4 text-amber-500" />
-                                )}
-                                <Label
-                                    htmlFor="public-switch"
-                                    className="text-sm cursor-pointer select-none"
-                                >
-                                    {isPublic
-                                        ? 'Public playlist'
-                                        : 'Private playlist'}
-                                </Label>
-                            </div>
-                            <Switch
-                                id="public-switch"
-                                checked={isPublic}
-                                onCheckedChange={setIsPublic}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center gap-3 pt-2 border-t border-neutral-800">
-                    <Button
-                        type="button"
-                        onClick={() => {
-                            resetForm()
-                            onClose()
-                        }}
-                        variant="ghost"
-                        className="text-neutral-400 hover:text-white"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={isLoading || !name.trim()}
-                        className="gap-2 px-6"
-                    >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Creating...
-                            </>
-                        ) : (
-                            <>
-                                <PlusCircle className="h-4 w-4" />
-                                Create Playlist
-                            </>
+                                </FormControl>
+                                <FormDescription>
+                                    Upload a cover image for your playlist
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
                         )}
-                    </Button>
-                </div>
-            </form>
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Playlist Name</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Enter playlist name"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Give your playlist a memorable name
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Describe your playlist (optional)"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Add a description to help others understand
+                                    your playlist
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="is_public"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="text-base">
+                                        Public Playlist
+                                    </FormLabel>
+                                    <FormDescription>
+                                        Make this playlist visible to other
+                                        users
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="flex justify-end space-x-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                form.reset()
+                                setCoverImage(null)
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Create Playlist
+                        </Button>
+                    </div>
+                </form>
+            </Form>
+        </ScrollArea>
+    )
+
+    return (
+        <Modal
+            trigger={trigger}
+            title={title || 'Create New Playlist'}
+            description={
+                description ||
+                'Create a new playlist to store your favorite songs'
+            }
+            showCloseButton={false}
+        >
+            {modalContent}
         </Modal>
     )
 }
-
-export default CreatePlaylistModal

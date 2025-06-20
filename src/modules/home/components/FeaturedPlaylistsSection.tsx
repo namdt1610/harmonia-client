@@ -1,10 +1,10 @@
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { PlaylistItem } from '@/modules/playlists/components/PlaylistItem'
 import { Playlist } from '@/types'
-import { AlertCircle, RefreshCw } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle, RefreshCw, Music } from 'lucide-react'
 
 interface FeaturedPlaylistsSectionProps {
     playlists: Playlist[]
@@ -26,12 +26,13 @@ export const FeaturedPlaylistsSection = ({
     const renderContent = () => {
         if (isLoading) {
             return (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                     {[...Array(6)].map((_, idx) => (
-                        <Skeleton
-                            key={idx}
-                            className="h-[250px] rounded-lg animate-pulse"
-                        />
+                        <div key={idx} className="space-y-3">
+                            <Skeleton className="aspect-square w-full" />
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                        </div>
                     ))}
                 </div>
             )
@@ -44,12 +45,7 @@ export const FeaturedPlaylistsSection = ({
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription className="flex items-center justify-between">
                         <span>Failed to load playlists</span>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={onRetry}
-                            className="h-8"
-                        >
+                        <Button variant="outline" size="sm" onClick={onRetry}>
                             <RefreshCw className="h-4 w-4 mr-2" />
                             Retry
                         </Button>
@@ -60,8 +56,14 @@ export const FeaturedPlaylistsSection = ({
 
         if (!playlists.length) {
             return (
-                <div className="text-center py-12">
-                    <p className="text-neutral-400 mb-4">No playlists found</p>
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <Music className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">
+                        No playlists found
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Check back later for new playlists
+                    </p>
                     <Button variant="outline" onClick={onRetry}>
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
@@ -71,7 +73,7 @@ export const FeaturedPlaylistsSection = ({
         }
 
         return (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                 {playlists.map((playlist) => (
                     <PlaylistItem
                         key={playlist.id}
@@ -84,17 +86,14 @@ export const FeaturedPlaylistsSection = ({
     }
 
     return (
-        <div className="px-6 pt-6 pb-96">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold tracking-tight">
                     {t('featuredPlaylists', {
                         fallback: 'Featured Playlists',
                     })}
                 </h2>
-                <Button
-                    variant="link"
-                    className="text-neutral-400 hover:text-white"
-                >
+                <Button variant="link" size="sm">
                     {t('seeAll', { fallback: 'See all' })}
                 </Button>
             </div>

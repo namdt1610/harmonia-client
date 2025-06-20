@@ -124,7 +124,7 @@ export default function Sidebar({ locale }: SidebarProps) {
     return (
         <div
             className={cn(
-                'relative h-screen flex-shrink-0 transition-all',
+                'relative h-full flex-shrink-0 transition-all',
                 isTransitioning ? 'duration-300 ease-out' : 'duration-0'
             )}
             style={{ width }}

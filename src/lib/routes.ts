@@ -77,9 +77,10 @@ export const API_ROUTES = {
         PUBLIC: '/playlists/public/',
         FEATURED: '/playlists/featured',
         ADD_TRACK: '/playlists/:id/add-track/:trackId/',
+        REMOVE_TRACK: '/playlists/:id/remove-track/:trackId/',
     },
     QUEUES: {
-        CURRENT: '/queue/current-queue/',
+        CURRENT: '/queue/',
         CURRENT_TRACK: '/queue/current-track/',
         ADD_TRACK: '/queue/add-track/:id/',
         ADD_PLAYLIST: '/queue/add-playlist/:id/',

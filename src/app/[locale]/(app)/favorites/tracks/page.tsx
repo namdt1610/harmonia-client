@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Heart, Play, MoreHorizontal, Trash2 } from 'lucide-react'
 import FetchWrapper from '@/components/shared/FetchWrapper'
-import { usePlayTrack } from '@/modules/tracks/hooks/usePlayTrack'
+import { useTrackPlayer } from '@/modules/player/hooks/useTrackPlayer'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,7 +25,7 @@ export default function FavoritesTracksPage() {
     } = useGetFavoriteTracksQuery()
     const [removeFavorite, { isLoading: isRemoving }] =
         useRemoveFavoriteTrackMutation()
-    const { playTrack } = usePlayTrack()
+    const { handlePlay } = useTrackPlayer()
 
     const handleRemoveFavorite = async (trackId: number) => {
         try {
@@ -39,7 +39,7 @@ export default function FavoritesTracksPage() {
 
     const handlePlayAll = () => {
         if (tracks && tracks.length > 0) {
-            playTrack(tracks[0])
+            handlePlay(tracks[0])
         }
     }
 
@@ -48,7 +48,7 @@ export default function FavoritesTracksPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center">
                         <Heart className="h-8 w-8 text-white" />
                     </div>
                     <div>
@@ -104,7 +104,9 @@ export default function FavoritesTracksPage() {
                                     >
                                         <div className="col-span-6 md:col-span-5 flex items-center gap-3">
                                             <button
-                                                onClick={() => playTrack(track)}
+                                                onClick={() =>
+                                                    handlePlay(track)
+                                                }
                                                 className="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 rounded-full bg-primary flex items-center justify-center"
                                             >
                                                 <Play className="h-4 w-4 text-primary-foreground" />

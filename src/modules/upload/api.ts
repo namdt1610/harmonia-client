@@ -13,6 +13,7 @@ export const uploadApi = createApi({
                 url: api.UPLOADS.TRACK,
                 method: 'POST',
                 body: formData,
+                credentials: 'include',
             }),
         }),
     }),

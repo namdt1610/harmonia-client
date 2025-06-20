@@ -23,7 +23,7 @@ export const PlayerVideo = ({ videoUrl }: { videoUrl: string }) => {
             <a
                 href={videoUrl}
                 download
-                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
             >
                 {t('download')}
             </a>
@@ -40,13 +40,13 @@ export const VideoPage = () => {
         return <div className="text-center text-white p-8">{t('loading')}</div>
     if (!track)
         return (
-            <div className="text-center text-red-400 p-8">
+            <div className="text-center text-destructive p-8">
                 {t('notFound')}
             </div>
         )
     if (!track.video)
         return (
-            <div className="text-center text-yellow-400 p-8">
+            <div className="text-center text-muted-foreground p-8">
                 {t('noVideo')}
             </div>
         )

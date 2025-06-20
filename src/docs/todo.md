@@ -42,3 +42,6 @@ ARTISTS:
 - view details
 (admin)
 - CRUD
+
+- Deploying on S3!
+- Master AWS (important!)

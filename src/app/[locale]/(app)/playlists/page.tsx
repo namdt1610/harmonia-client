@@ -1,63 +1,62 @@
 'use client'
-import { useGetUserPlaylistsQuery } from '@/modules/playlists/api'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/redux/store'
-import { Playlist } from '@/types'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
-import { PlaylistItem } from '@/modules/playlists/components/PlaylistItem'
-import CreatePlaylistModal from '@/modules/playlists/components/CreatePlaylistModal'
+
+import { useGetMyPlaylistsQuery } from '@/modules/user/api'
+import { useGetCurrentTrackQuery } from '@/modules/queue/api'
+import { PlaylistCard } from '@/modules/playlists/components/PlaylistCard'
+import { CreatePlaylistButton } from '@/modules/playlists/components/CreatePlaylistButton'
+import { CreatePlaylistModal } from '@/modules/playlists/components/CreatePlaylistModal'
 import { useState } from 'react'
-import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
+import { useTranslations } from 'next-intl'
 
 export default function PlaylistsPage() {
-    const { data: playlists, isLoading, error } = useGetUserPlaylistsQuery()
-    const userId = useSelector((state: RootState) => state.auth.user?.id)
-    console.log('Playlists of user Id: ', userId, playlists)
-    const [isOpen, setIsOpen] = useState(false)
-    const { addPlaylistToQueue } = usePlayerQueue()
-
+    const t = useTranslations('PlaylistsPage')
+    const { data: playlists = [], isLoading } = useGetMyPlaylistsQuery()
+    const { data: currentTrack } = useGetCurrentTrackQuery()
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
     if (isLoading) {
-        return <div>Loading...</div>
-    }
-
-    if (error) {
         return (
-            <div>
-                Error:{' '}
-                {String((error as any)?.message) || 'Something went wrong'}
+            <div className="flex items-center justify-center h-full">
+                <div className="text-neutral-400">Loading playlists...</div>
             </div>
         )
     }
 
     return (
-        <div className="p-4">
-            <CreatePlaylistModal
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-            />
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Playlists</h1>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setIsOpen(true)}
-                >
-                    <Plus />
-                </Button>
+        <div className="max-w-7xl mx-auto p-6 space-y-8">
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold tracking-tight">
+                    {t('title')}
+                </h1>
+                <CreatePlaylistButton
+                    onClick={() => setIsCreateModalOpen(true)}
+                />
             </div>
-            <div className="mt-4">
-                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {playlists?.map((playlist: Playlist) => (
-                        <PlaylistItem
-                            key={playlist.id}
-                            playlist={playlist}
-                            onPlay={addPlaylistToQueue}
-                        />
+
+            {playlists.length === 0 ? (
+                <div className="text-center py-16">
+                    <h3 className="text-xl font-semibold mb-2">
+                        {t('noPlaylists')}
+                    </h3>
+                    <p className="text-neutral-400 mb-4">
+                        {t('createFirstPlaylist')}
+                    </p>
+                    <CreatePlaylistButton
+                        onClick={() => setIsCreateModalOpen(true)}
+                    />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    {playlists.map((playlist) => (
+                        <PlaylistCard key={playlist.id} playlist={playlist} />
                     ))}
-                </ul>
-            </div>
+                </div>
+            )}
+
+            <CreatePlaylistModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+            />
         </div>
     )
 }

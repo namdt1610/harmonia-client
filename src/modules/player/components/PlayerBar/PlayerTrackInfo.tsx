@@ -1,6 +1,7 @@
 import React from 'react'
 import { Track } from '@/types'
 import Image from 'next/image'
+import DefaultCover from '@/assets/images/default-cover.webp'
 
 interface PlayerTrackInfoProps {
     trackData: Track | null
@@ -15,10 +16,10 @@ export function PlayerTrackInfo({
 }: PlayerTrackInfoProps) {
     if (!trackData) return null
     return (
-        <div className="w-1/4 flex items-center gap-3">
+        <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-md overflow-hidden">
                 <Image
-                    src={getCoverImage() || ''}
+                    src={getCoverImage() || DefaultCover}
                     alt={trackData.title}
                     width={48}
                     height={48}
@@ -33,7 +34,9 @@ export function PlayerTrackInfo({
                     {trackData.artist?.name}
                 </span>
                 {audioError && (
-                    <span className="text-red-500 text-xs">{audioError}</span>
+                    <span className="text-destructive text-xs">
+                        {audioError}
+                    </span>
                 )}
             </div>
         </div>

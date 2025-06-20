@@ -1,96 +1,103 @@
 'use client'
 
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
-import { useGetPlaylistByIdQuery } from '@/modules/playlists/api'
-import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
-import { Play, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useGetPlaylistQuery } from '@/modules/playlists/api'
 import { Skeleton } from '@/components/ui/skeleton'
-import TrackItem from '@/modules/tracks/components/TrackItem'
-import { Track } from '@/types'
+import DefaultCover from '@/components/shared/DefaultCover'
+import DetailHeader from '@/components/shared/DetailHeader'
+import PlaylistTracksList from '@/modules/playlists/components/PlaylistTracksList'
+import PlaylistModals from '@/modules/playlists/components/PlaylistModals'
+import { usePlaylistDetail } from '@/modules/playlists/hooks/usePlaylistDetail'
+
+// Loading component
+const PlaylistSkeleton = () => (
+    <div className="max-w-4xl mx-auto p-4">
+        <div className="flex gap-4 mb-8">
+            <Skeleton className="w-32 h-32" />
+            <div className="space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-24" />
+            </div>
+        </div>
+        <div className="space-y-1">
+            {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+            ))}
+        </div>
+    </div>
+)
+
+// Not found component
+const PlaylistNotFound = () => (
+    <div className="max-w-4xl mx-auto p-4">
+        <p className="text-neutral-500">Playlist not found</p>
+    </div>
+)
 
 export default function PlaylistDetailPage() {
     const t = useTranslations('PlaylistDetail')
     const params = useParams()
-    const { data: playlist, isLoading } = useGetPlaylistByIdQuery(
-        Number(params.id)
-    )
-    console.log('Playlist: ', playlist)
-    const { addPlaylistToQueue } = usePlayerQueue()
+    const playlistId = Number(params.id)
 
-    if (isLoading) {
-        return (
-            <div className="p-6">
-                <div className="flex flex-col md:flex-row gap-6 mb-8">
-                    <Skeleton className="w-48 h-48 rounded-md" />
-                    <div className="space-y-4">
-                        <Skeleton className="h-8 w-64" />
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-10 w-32" />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    {[...Array(5)].map((_, i) => (
-                        <Skeleton key={i} className="h-16 w-full" />
-                    ))}
-                </div>
-            </div>
-        )
-    }
+    const { data: playlist, isLoading } = useGetPlaylistQuery(playlistId)
 
-    if (!playlist) {
-        return <div>Playlist not found</div>
-    }
+    const {
+        // States
+        isDeletePlaylistDialogOpen,
+        isRemoveTrackDialogOpen,
+        isEditPlaylistDialogOpen,
+
+        // Actions
+        handlePlay,
+        handleEdit,
+        handleUpdatePlaylist,
+        handlePlaylistDelete,
+        handleRemoveTrackFromPlaylist,
+        openRemoveTrackDialog,
+        closeRemoveTrackDialog,
+        closeEditPlaylistDialog,
+        setIsDeletePlaylistDialogOpen,
+    } = usePlaylistDetail(playlistId)
+
+    // Early returns for loading and error states
+    if (isLoading) return <PlaylistSkeleton />
+    if (!playlist) return <PlaylistNotFound />
 
     return (
-        <div className="p-6">
+        <div className="max-w-4xl mx-auto p-4">
             {/* Playlist Header */}
-            <div className="flex flex-col md:flex-row gap-6 mb-8">
-                <div className="w-48 h-48 rounded-md overflow-hidden flex-shrink-0">
-                    <Image
-                        src={playlist.cover || '/images/default-cover.webp'}
-                        alt={playlist.name}
-                        width={192}
-                        height={192}
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-                <div className="flex flex-col justify-end">
-                    <h1 className="text-4xl font-bold mb-2">{playlist.name}</h1>
-                    <p className="text-neutral-400 mb-4">
-                        {playlist.description ||
-                            `${playlist.tracks.length} tracks`}
-                    </p>
-                    <Button
-                        className="w-fit rounded-full gap-2"
-                        onClick={() => addPlaylistToQueue(playlist.id)}
-                    >
-                        <Play size={18} className="ml-0.5" />
-                        {t('play', { fallback: 'Play' })}
-                    </Button>
-                </div>
-            </div>
+            <DetailHeader
+                title={playlist.name}
+                subtitle={`${playlist.tracks.length} tracks`}
+                coverImage={playlist.cover || DefaultCover}
+                type="playlist"
+                tracks={playlist.tracks}
+                onPlay={handlePlay}
+                onEdit={handleEdit}
+            />
 
             {/* Tracks List */}
-            <div className="space-y-2">
-                <div className="flex items-center gap-4 px-2 text-sm text-neutral-400 border-b border-neutral-800 pb-2">
-                    <div className="w-8">#</div>
-                    <div className="flex-grow">Title</div>
-                    <div className="w-24 flex justify-end">
-                        <Clock size={16} />
-                    </div>
-                </div>
-                {playlist.tracks.map((track: Track, index: number) => (
-                    <TrackItem
-                        key={track.id}
-                        track={track}
-                        index={index}
-                        tracks={playlist.tracks}
-                    />
-                ))}
-            </div>
+            <PlaylistTracksList
+                tracks={playlist.tracks}
+                onRemoveTrack={openRemoveTrackDialog}
+            />
+
+            {/* Modals */}
+            <PlaylistModals
+                isDeletePlaylistDialogOpen={isDeletePlaylistDialogOpen}
+                onDeletePlaylist={handlePlaylistDelete}
+                onCloseDeletePlaylistDialog={() =>
+                    setIsDeletePlaylistDialogOpen(false)
+                }
+                isRemoveTrackDialogOpen={isRemoveTrackDialogOpen}
+                onRemoveTrack={handleRemoveTrackFromPlaylist}
+                onCloseRemoveTrackDialog={closeRemoveTrackDialog}
+                isEditPlaylistDialogOpen={isEditPlaylistDialogOpen}
+                currentPlaylistName={playlist.name}
+                onUpdatePlaylist={handleUpdatePlaylist}
+                onCloseEditPlaylistDialog={closeEditPlaylistDialog}
+            />
         </div>
     )
 }

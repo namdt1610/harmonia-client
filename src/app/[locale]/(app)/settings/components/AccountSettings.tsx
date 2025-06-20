@@ -19,7 +19,7 @@ export default function AccountSettings() {
     const t = useTranslations('Settings')
 
     return (
-        <Card className="bg-[#181818] border-[#282828]">
+        <Card className="bg-card border-border">
             <CardHeader>
                 <CardTitle>{t('account.title')}</CardTitle>
                 <CardDescription>{t('account.description')}</CardDescription>
@@ -32,7 +32,7 @@ export default function AccountSettings() {
                             <Input
                                 id="email"
                                 type="email"
-                                className="bg-[#282828] border-0"
+                                className="bg-muted border-0"
                                 placeholder="your.email@example.com"
                             />
                         </div>
@@ -40,14 +40,14 @@ export default function AccountSettings() {
                             <Label htmlFor="phone">{t('account.phone')}</Label>
                             <Input
                                 id="phone"
-                                className="bg-[#282828] border-0"
+                                className="bg-muted border-0"
                                 placeholder="+1 (555) 000-0000"
                             />
                         </div>
                     </div>
                 </div>
 
-                <Separator className="bg-[#282828]" />
+                <Separator className="bg-border" />
 
                 <div>
                     <h3 className="text-lg font-semibold mb-4">
@@ -86,14 +86,14 @@ export default function AccountSettings() {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="flex justify-between border-t border-[#282828] pt-4">
+            <CardFooter className="flex justify-between border-t border-border pt-4">
                 <Button
                     variant="destructive"
-                    className="bg-red-600 hover:bg-red-700"
+                    className="bg-destructive hover:bg-destructive/90"
                 >
                     {t('account.deleteAccount')}
                 </Button>
-                <Button className="bg-[#1DB954] hover:bg-[#1ed760] text-white">
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     {t('actions.save')}
                 </Button>
             </CardFooter>

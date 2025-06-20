@@ -18,7 +18,7 @@ export interface Album {
     title: string
     artist: Artist
     release_date: string
-    cover: string
+    image: string
     tracks: Track[]
 }
 
@@ -28,8 +28,8 @@ export interface Track {
     album?: Album | null
     artist: Artist
     file: string
-    cover?: string
-    album_cover?: string
+    image?: string
+    album_image?: string
     lyrics?: string
     duration: number
     created_at: string
@@ -50,6 +50,14 @@ export interface Playlist {
     tracks_count?: number
     color?: string
     description?: string
+    is_public?: boolean
+}
+
+export interface CreatePlaylistRequest {
+    name: string
+    description?: string
+    is_public?: boolean
+    cover?: string
 }
 
 export interface User {

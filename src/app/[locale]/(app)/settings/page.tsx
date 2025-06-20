@@ -17,7 +17,7 @@ export default function SettingsPage() {
             <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
 
             <Tabs defaultValue="profile" className="w-full">
-                <TabsList className="mb-6 bg-[#282828]">
+                <TabsList className="mb-6 bg-muted">
                     <TabsTrigger value="profile">
                         {t('tabs.profile')}
                     </TabsTrigger>

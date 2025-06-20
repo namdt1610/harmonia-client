@@ -4,15 +4,15 @@ const withNextIntl = require('next-intl/plugin')()
 
 /** @type {import('next').NextConfig} */
 const config = {
-    async rewrites() {
-        return [
-            // Proxy API requests to the backend
-            {
-                source: '/api/:path*',
-                destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/:path*`,
-            },
-        ]
-    },
+    // async rewrites() {
+    //     // return [
+    //     //     // Proxy API requests to the backend
+    //     //     {
+    //     //         source: '/api/:path*',
+    //     //         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/:path*`,
+    //     //     },
+    //     // ]
+    // },
     images: {
         domains: [
             'localhost',

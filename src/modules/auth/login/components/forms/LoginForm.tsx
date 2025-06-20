@@ -26,7 +26,7 @@ import { toast } from 'sonner'
 import { UsernameField } from '../fields/UsernameField'
 import { PasswordField } from '../fields/PasswordField'
 import { RememberMeCheckbox } from '../fields/RememberMeCheckbox'
-
+import { logger } from '@/lib/utils/logger'
 export const LoginForm = () => {
     // Initial
     const router = useRouter()
@@ -68,10 +68,12 @@ export const LoginForm = () => {
     }
 
     const goToRegister = () => {
+        logger.info('[auth/login] Redirecting to register')
         router.push(r.REGISTER)
     }
 
     const goToForgotPassword = () => {
+        logger.info('[auth/login] Redirecting to forgot password')
         router.push(r.FORGOT_PASSWORD)
     }
 
@@ -83,7 +85,7 @@ export const LoginForm = () => {
                     style={{ width: '500px' }}
                 >
                     <CardHeader>
-                        <CardTitle className="text-center text-lg">
+                        <CardTitle className="text-center text-2xl">
                             {t('title')}
                         </CardTitle>
                     </CardHeader>
@@ -126,6 +128,7 @@ export const LoginForm = () => {
                         </Button>
                         <Separator />
                         <Button
+                            type="button"
                             aria-label="Google sign in"
                             variant="outline"
                             className="w-full"

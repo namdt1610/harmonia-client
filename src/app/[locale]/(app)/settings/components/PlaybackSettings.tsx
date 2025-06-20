@@ -18,7 +18,7 @@ export default function PlaybackSettings() {
     const t = useTranslations('Settings')
 
     return (
-        <Card className="bg-[#181818] border-[#282828]">
+        <Card className="bg-card border-border">
             <CardHeader>
                 <CardTitle>{t('playback.title')}</CardTitle>
                 <CardDescription>{t('playback.description')}</CardDescription>
@@ -30,19 +30,19 @@ export default function PlaybackSettings() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <Button
                                 variant="outline"
-                                className="justify-start bg-[#282828] border-[#1DB954] border-2"
+                                className="justify-start bg-muted border-primary border-2"
                             >
                                 {t('playback.normalQuality')}
                             </Button>
                             <Button
                                 variant="outline"
-                                className="justify-start bg-[#282828]"
+                                className="justify-start bg-muted"
                             >
                                 {t('playback.highQuality')}
                             </Button>
                             <Button
                                 variant="outline"
-                                className="justify-start bg-[#282828]"
+                                className="justify-start bg-muted"
                             >
                                 {t('playback.veryHighQuality')}
                             </Button>
@@ -52,7 +52,7 @@ export default function PlaybackSettings() {
                         </p>
                     </div>
 
-                    <Separator className="bg-[#282828]" />
+                    <Separator className="bg-border" />
 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
@@ -92,7 +92,7 @@ export default function PlaybackSettings() {
                         </div>
                     </div>
 
-                    <Separator className="bg-[#282828]" />
+                    <Separator className="bg-border" />
 
                     <div className="space-y-3">
                         <p className="font-medium">{t('playback.crossfade')}</p>
@@ -113,8 +113,8 @@ export default function PlaybackSettings() {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="flex justify-end border-t border-[#282828] pt-4">
-                <Button className="bg-[#1DB954] hover:bg-[#1ed760] text-white">
+            <CardFooter className="flex justify-end border-t border-border pt-4">
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     {t('actions.save')}
                 </Button>
             </CardFooter>

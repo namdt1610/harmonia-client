@@ -4,47 +4,145 @@ import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import { clearCredentials } from '@/modules/auth/slice'
 import { useLogoutMutation } from '@/modules/auth/api'
+import Cookies from 'js-cookie'
 
 export const useLogout = () => {
     const dispatch = useDispatch()
     const router = useRouter()
     const [logout, { isLoading }] = useLogoutMutation()
 
-    /*
-     * * Clear Redux store trước
-     * * Gọi API logout
-     * * Chuyển hướng về trang login
-     * * Reload trang để đảm bảo xóa hết cache và state
-     * * Nếu logout thất bại, vẫn xóa hết dữ liệu ở frontend
-     * * Force redirect to login page
-     */
+    const clearAllCookies = () => {
+        // Clear cookies with all possible combinations
+        const cookieNames = ['access_token', 'refresh_token']
+        const paths = ['/', '']
+        const domains = [undefined, 'localhost', '']
+        const sameSiteOptions = ['Lax', 'Strict', 'None'] as const
+
+        // First try using js-cookie
+        cookieNames.forEach((name) => {
+            paths.forEach((path) => {
+                domains.forEach((domain) => {
+                    sameSiteOptions.forEach((sameSite) => {
+                        // Try with secure true and false
+                        Cookies.remove(name, {
+                            path,
+                            domain,
+                            sameSite,
+                            secure: true,
+                        })
+                        Cookies.remove(name, {
+                            path,
+                            domain,
+                            sameSite,
+                            secure: false,
+                        })
+                    })
+                })
+            })
+        })
+
+        // Then try using document.cookie with all combinations
+        cookieNames.forEach((name) => {
+            paths.forEach((path) => {
+                domains.forEach((domain) => {
+                    const domainStr = domain ? `domain=${domain};` : ''
+                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; ${domainStr}`
+                })
+            })
+        })
+
+        // Finally, try to clear all cookies
+        document.cookie.split(';').forEach(function (c) {
+            document.cookie = c
+                .replace(/^ +/, '')
+                .replace(
+                    /=.*/,
+                    '=;expires=' + new Date().toUTCString() + ';path=/'
+                )
+        })
+    }
+
     const handleLogout = async () => {
-        /**
-         * TODO: Thêm toast xác nhận logout
-         * * Nếu người dùng không muốn logout, họ có thể bấm vào nút cancel
-         * Example:
-         * const confirmLogout = window.confirm("Bạn chắc chắn muốn đăng xuất?");
-         * if (!confirmLogout) return;
-         */
         try {
+            // Clear Redux store first
             dispatch(clearCredentials())
+
+            // Clear all cookies before API call
+            clearAllCookies()
+
+            // Clear localStorage and sessionStorage
+            localStorage.clear()
+            sessionStorage.clear()
+
+            // Call logout API
             await logout().unwrap()
-            router.push('/login')
+
+            // Clear cookies again after API call
+            clearAllCookies()
+
+            // Force clear localStorage and sessionStorage again
+            localStorage.clear()
+            sessionStorage.clear()
+
+            // Thêm đoạn xóa cookie bằng document.cookie với các option phổ biến
+            const cookieNames = ['access_token', 'refresh_token']
+            const paths = ['/', '']
+            const domains = [
+                undefined,
+                'localhost',
+                window.location.hostname,
+                '',
+            ]
+            cookieNames.forEach((name) => {
+                paths.forEach((path) => {
+                    domains.forEach((domain) => {
+                        let cookieStr = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`
+                        if (domain) cookieStr += ` domain=${domain};`
+                        document.cookie = cookieStr
+                    })
+                })
+            })
+
+            // Add a flag to prevent any refresh attempts
+            localStorage.setItem('isLoggedOut', 'true')
+
+            // Use window.location.href for redirect to ensure full page reload
             window.location.href = '/login'
         } catch (error) {
             console.error('Logout failed:', error)
+            // Even if server logout fails, clear all frontend data
             dispatch(clearCredentials())
-            /**
-             * TODO: Cần làm sạch pathname trước khi redirect, vì:
-             * * Đây là client-side routing → phụ thuộc vào JS engine, trạng thái của hydration, hook state v.v.
-             * * Nếu:
-             * * Component bị unmounted
-             * * App crash
-             * * JS chưa hydrate
-             * * Hoặc đang logout → store bị clear quá sớm
-             * * router.push() có thể không thực hiện được!
-             * * Vì vậy, chúng ta cần tạo hook làm sạch pathname trước khi redirect (useSafeRedirect)
-             */
+
+            // Force clear all cookies
+            clearAllCookies()
+
+            // Force clear localStorage and sessionStorage
+            localStorage.clear()
+            sessionStorage.clear()
+
+            // Thêm đoạn xóa cookie bằng document.cookie với các option phổ biến
+            const cookieNames = ['access_token', 'refresh_token']
+            const paths = ['/', '']
+            const domains = [
+                undefined,
+                'localhost',
+                window.location.hostname,
+                '',
+            ]
+            cookieNames.forEach((name) => {
+                paths.forEach((path) => {
+                    domains.forEach((domain) => {
+                        let cookieStr = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`
+                        if (domain) cookieStr += ` domain=${domain};`
+                        document.cookie = cookieStr
+                    })
+                })
+            })
+
+            // Add a flag to prevent any refresh attempts
+            localStorage.setItem('isLoggedOut', 'true')
+
+            // Force redirect to login page
             window.location.href = '/login'
         }
     }

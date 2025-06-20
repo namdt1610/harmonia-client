@@ -39,7 +39,7 @@ export default function FavoritesLayout({ children }: FavoritesLayoutProps) {
     return (
         <div className="container px-4 py-8">
             <div className="flex items-center gap-3 mb-6">
-                <Heart className="h-6 w-6 text-pink-500" />
+                <Heart className="h-6 w-6 text-neutral-400" />
                 <h1 className="text-2xl font-bold">Your Favorites</h1>
             </div>
 

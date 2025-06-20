@@ -1,8 +1,19 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { Heart, Download, ListMusic, Video, Plus } from 'lucide-react'
+import {
+    Heart,
+    Download,
+    ListMusic,
+    Video,
+    Plus,
+    Trash2,
+    MoreHorizontal,
+} from 'lucide-react'
 import { useAudioStream } from '../../hooks/useAudioStream'
 import { usePlayerQueue } from '../../hooks/usePlayerQueue'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { createLogger } from '@/lib/utils/debugLogger'
 
 import PlayerTrackInfo from './PlayerTrackInfo'
 import PlayerControls from './PlayerControls'
@@ -11,6 +22,15 @@ import PlayerProgressBar from './PlayerProgressBar'
 import PlaylistsModal from '@/modules/playlists/components/PlaylistsModal'
 
 import { useRouter } from 'next/navigation'
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from '@/components/ui/dropdown-menu'
+
+// Create logger for player
+const audioLogger = createLogger('PLAYER')
 
 // Add prop type
 interface PlayerProps {
@@ -23,6 +43,7 @@ export default function Player({ onToggleQueue }: PlayerProps) {
         queue,
         trackData,
         setCurrentTrack,
+        clearQueue,
         handleAddToFavorite,
         handleDownload,
         getCoverImage,
@@ -35,6 +56,11 @@ export default function Player({ onToggleQueue }: PlayerProps) {
     const [isShuffling, setIsShuffling] = useState(false)
     const [shuffledQueue, setShuffledQueue] = useState<any[]>([])
     const [isPlaylistsModalOpen, setIsPlaylistsModalOpen] = useState(false)
+
+    // Use refs to track previous values and prevent unnecessary updates
+    const previousQueueRef = useRef<any[]>([])
+    const previousIsShufflingRef = useRef(false)
+
     // Shuffle logic
     function shuffleArray(array: any[]) {
         const arr = [...array]
@@ -45,48 +71,97 @@ export default function Player({ onToggleQueue }: PlayerProps) {
         return arr
     }
 
+    // Update shuffled queue only when isShuffling or queue actually changes
     useEffect(() => {
-        if (isShuffling) {
-            setShuffledQueue(shuffleArray(queue))
-        } else {
-            setShuffledQueue([])
+        const queueChanged =
+            queue.length !== previousQueueRef.current.length ||
+            queue.some(
+                (item: any, index: number) =>
+                    item.track.id !== previousQueueRef.current[index]?.track?.id
+            )
+        const shufflingChanged = isShuffling !== previousIsShufflingRef.current
+
+        if (shufflingChanged || queueChanged) {
+            if (isShuffling && queue.length > 0) {
+                setShuffledQueue(shuffleArray(queue))
+            } else {
+                setShuffledQueue([])
+            }
+
+            previousQueueRef.current = queue
+            previousIsShufflingRef.current = isShuffling
         }
     }, [isShuffling, queue])
 
     // Xác định queue đang dùng
-    const activeQueue =
-        isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
-    const activeIndex = activeQueue.findIndex(
-        (t: any, idx: number) => t.track.id === currentTrack?.id
-    )
+    const activeQueue = useMemo(() => {
+        return isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+    }, [isShuffling, shuffledQueue, queue])
 
-    // Xử lý khi hết bài
-    const handleEnd = () => {
+    const activeIndex = useMemo(() => {
+        return activeQueue.findIndex(
+            (t: any) => t.track.id === currentTrack?.id
+        )
+    }, [activeQueue, currentTrack])
+
+    // Xử lý khi hết bài - stable callback
+    const handleEnd = useCallback(() => {
         if (isRepeatOne && currentTrack) {
             setCurrentTrack(currentTrack.id)
-        } else if (activeIndex < activeQueue.length - 1) {
-            setCurrentTrack(activeQueue[activeIndex + 1].track.id)
-        } else if (isRepeating && activeQueue.length > 0) {
-            setCurrentTrack(activeQueue[0].track.id)
+            return
         }
-        // Nếu không repeat và hết queue thì dừng lại
-    }
 
-    // Hàm phát bài trước đó
-    const handlePrev = () => {
-        if (activeIndex > 0) {
-            setCurrentTrack(activeQueue[activeIndex - 1].track.id)
-        } else if (isRepeating && activeQueue.length > 0) {
-            setCurrentTrack(activeQueue[activeQueue.length - 1].track.id)
+        const currentActiveQueue =
+            isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+        const currentActiveIndex = currentActiveQueue.findIndex(
+            (t: any) => t.track.id === currentTrack?.id
+        )
+
+        if (currentActiveIndex < currentActiveQueue.length - 1) {
+            setCurrentTrack(currentActiveQueue[currentActiveIndex + 1].track.id)
+        } else if (isRepeating && currentActiveQueue.length > 0) {
+            setCurrentTrack(currentActiveQueue[0].track.id)
         }
-    }
+    }, [
+        isRepeatOne,
+        currentTrack,
+        isShuffling,
+        shuffledQueue,
+        queue,
+        isRepeating,
+        setCurrentTrack,
+    ])
+
+    // Hàm phát bài trước đó - stable callback
+    const handlePrev = useCallback(() => {
+        const currentActiveQueue =
+            isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+        const currentActiveIndex = currentActiveQueue.findIndex(
+            (t: any) => t.track.id === currentTrack?.id
+        )
+
+        if (currentActiveIndex > 0) {
+            setCurrentTrack(currentActiveQueue[currentActiveIndex - 1].track.id)
+        } else if (isRepeating && currentActiveQueue.length > 0) {
+            setCurrentTrack(
+                currentActiveQueue[currentActiveQueue.length - 1].track.id
+            )
+        }
+    }, [
+        isShuffling,
+        shuffledQueue,
+        queue,
+        currentTrack,
+        isRepeating,
+        setCurrentTrack,
+    ])
 
     const router = useRouter()
-    const handlePlayVideo = () => {
+    const handlePlayVideo = useCallback(() => {
         if (currentTrack) {
             router.push(`/video/${currentTrack.id}`)
         }
-    }
+    }, [currentTrack, router])
 
     const {
         audioRef: audioStreamRef,
@@ -115,12 +190,20 @@ export default function Player({ onToggleQueue }: PlayerProps) {
     const [localDuration, setLocalDuration] = useState(0)
     const progressbarRef = useRef<HTMLDivElement>(null)
 
+    // Audio event listeners
     useEffect(() => {
         const audio = audioStreamRef.current
         if (!audio) return
 
+        audioLogger.log('Setting up event listeners for PlayerBar')
+
         const handleLoadedMetadata = () => {
             setLocalDuration(audio.duration)
+            audioLogger.logOnChange(
+                'playerMetadata',
+                { duration: audio.duration },
+                'PlayerBar: Audio metadata loaded'
+            )
         }
 
         const handleProgress = () => {
@@ -128,58 +211,95 @@ export default function Player({ onToggleQueue }: PlayerProps) {
                 const bufferedEnd = audio.buffered.end(
                     audio.buffered.length - 1
                 )
+                const bufferedPercentage = (bufferedEnd / audio.duration) * 100
                 setSeekableTo(bufferedEnd)
+                setProgressPercentage(bufferedPercentage)
             }
         }
 
         const handleTimeUpdate = () => {
-            if (audio.duration > 0) {
-                const percentage = (audio.currentTime / audio.duration) * 100
-                setProgressPercentage(percentage)
-            }
+            setProgressPercentage((audio.currentTime / audio.duration) * 100)
         }
+
+        const handlePlay = () => audioLogger.log('PlayerBar: Audio play event')
+        const handlePause = () =>
+            audioLogger.log('PlayerBar: Audio pause event')
 
         audio.addEventListener('loadedmetadata', handleLoadedMetadata)
         audio.addEventListener('progress', handleProgress)
         audio.addEventListener('timeupdate', handleTimeUpdate)
+        audio.addEventListener('play', handlePlay)
+        audio.addEventListener('pause', handlePause)
 
         return () => {
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
             audio.removeEventListener('progress', handleProgress)
             audio.removeEventListener('timeupdate', handleTimeUpdate)
+            audio.removeEventListener('play', handlePlay)
+            audio.removeEventListener('pause', handlePause)
         }
-    }, [audioStreamRef])
+    }, [currentTrack?.id])
 
-    const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!progressbarRef.current || !audioStreamRef.current) return
+    const handleProgressBarClick = useCallback(
+        (e: React.MouseEvent<HTMLDivElement>) => {
+            if (!progressbarRef.current || !audioStreamRef.current) return
 
-        const rect = progressbarRef.current.getBoundingClientRect()
-        const clickPosition = e.clientX - rect.left
-        const percentage = clickPosition / rect.width
-        const newTime = percentage * audioStreamDuration
+            const rect = progressbarRef.current.getBoundingClientRect()
+            const clickPosition = e.clientX - rect.left
+            const percentage = clickPosition / rect.width
+            const newTime = percentage * audioStreamDuration
 
-        audioStreamSeek(newTime)
-    }
+            audioStreamSeek(newTime)
+        },
+        [audioStreamRef, audioStreamDuration, audioStreamSeek]
+    )
 
-    const formatTime = (sec: number) =>
-        `${Math.floor(sec / 60)
-            .toString()
-            .padStart(2, '0')}:${Math.floor(sec % 60)
-            .toString()
-            .padStart(2, '0')}`
+    const formatTime = useCallback(
+        (sec: number) =>
+            `${Math.floor(sec / 60)
+                .toString()
+                .padStart(2, '0')}:${Math.floor(sec % 60)
+                .toString()
+                .padStart(2, '0')}`,
+        []
+    )
+
+    // Log current track info for debugging
+    useEffect(() => {
+        if (currentTrack && trackData) {
+            audioLogger.logOnChange(
+                'currentTrack',
+                {
+                    id: currentTrack,
+                    title: trackData.title,
+                    artist: trackData.artist?.name,
+                },
+                'Now playing'
+            )
+        }
+    }, [currentTrack, trackData])
+
+    const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)
+    if (!isLoggedIn) return null
 
     return (
         <div className="z-1000 fixed bottom-0 left-0 right-0 bg-black border-t border-neutral-800 p-3 flex items-center">
             <audio
                 ref={audioStreamRef}
-                preload="auto"
+                preload="metadata"
                 crossOrigin="anonymous"
             />
-            <PlayerTrackInfo
-                trackData={trackData ?? null}
-                getCoverImage={getCoverImage}
-                audioError={audioStreamError}
-            />
+
+            {/* Left section - Track info - Fixed width */}
+            <div className="flex-1 flex justify-start ">
+                <PlayerTrackInfo
+                    trackData={trackData ?? null}
+                    getCoverImage={getCoverImage}
+                    audioError={audioStreamError}
+                />
+            </div>
+
+            {/* Center section - Player controls and progress - Flex grow */}
             <div className="flex-1 flex flex-col items-center gap-1">
                 <PlayerControls
                     isPlaying={audioStreamIsPlaying}
@@ -226,53 +346,65 @@ export default function Player({ onToggleQueue }: PlayerProps) {
                     onProgressBarClick={handleProgressBarClick}
                 />
             </div>
-            <div className="w-1/4 flex justify-end items-center gap-2">
+
+            {/* Right section - Controls and volume - Fixed width */}
+            <div className="flex-1 flex justify-end items-center">
+                {/* Add to favorite */}
                 <Button
+                    title="Add to favorite"
                     variant="ghost"
                     size="icon"
-                    className="text-neutral-400 hover:text-white"
                     onClick={handleAddToFavorite}
                 >
                     <Heart className="h-5 w-5" />
                 </Button>
+
+                {/* Show queue */}
                 <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-neutral-400 hover:text-white"
-                    onClick={() => setIsPlaylistsModalOpen(true)}
-                >
-                    <Plus className="h-5 w-5" />
-                </Button>
-                <PlaylistsModal
-                    open={isPlaylistsModalOpen}
-                    onClose={() => setIsPlaylistsModalOpen(false)}
-                    trackId={currentTrack?.id}
-                />
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-neutral-400 hover:text-white"
-                    onClick={handlePlayVideo}
-                >
-                    <Video className="h-5 w-5" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-neutral-400 hover:text-white"
-                    onClick={handleDownload}
-                >
-                    <Download className="h-5 w-5" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-neutral-400 hover:text-white"
-                    onClick={onToggleQueue}
                     title="Show queue"
+                    variant="ghost"
+                    size="icon"
+                    onClick={onToggleQueue}
                 >
                     <ListMusic className="h-5 w-5" />
                 </Button>
+
+                {/* More Dropdown */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button title="More" variant="ghost" size="icon">
+                            <MoreHorizontal className="h-5 w-5" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem
+                            onClick={() => setIsPlaylistsModalOpen(true)}
+                        >
+                            <Plus className="h-5 w-5" />
+                            Add to playlist
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handlePlayVideo}>
+                            <Video className="h-5 w-5" />
+                            Watch video
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDownload}>
+                            <Download className="h-5 w-5" />
+                            Download
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={async () => {
+                                if (confirm('Clear entire queue?')) {
+                                    await clearQueue()
+                                }
+                            }}
+                        >
+                            <Trash2 className="h-5 w-5" />
+                            Clear queue
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Volume */}
                 <PlayerVolume
                     volume={audioStreamVolume * 100}
                     isMuted={audioStreamIsMuted}

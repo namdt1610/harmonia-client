@@ -9,13 +9,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Control } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
-
+import { useState } from 'react'
 interface Props {
     control: Control<any>
 }
 
 export const RememberMeCheckbox = ({ control }: Props) => {
     const t = useTranslations('LoginPage')
+    const [rememberMe, setRememberMe] = useState(true)
 
     return (
         <FormField
@@ -27,10 +28,11 @@ export const RememberMeCheckbox = ({ control }: Props) => {
                         <FormControl>
                             <Input
                                 type="checkbox"
-                                checked={field.value || false}
-                                onChange={(e) =>
+                                checked={field.value || rememberMe}
+                                onChange={(e) => {
                                     field.onChange(e.target.checked)
-                                }
+                                    setRememberMe(e.target.checked)
+                                }}
                                 onBlur={field.onBlur}
                                 name={field.name}
                                 ref={field.ref}

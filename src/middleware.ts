@@ -3,8 +3,16 @@ import { ROUTES as r } from '@/lib/routes'
 
 const LOCALES = ['vi', 'en'] as const
 const DEFAULT_LOCALE = 'vi'
-const PUBLIC_PAGES = ['login', 'register', 'about', 'contact']
+const PUBLIC_PAGES = [
+    'login',
+    'register',
+    'about',
+    'contact',
+    'forgot-password',
+    'google-sync',
+]
 const isPublicPage = (page: string) => PUBLIC_PAGES.includes(page)
+const isDev = process.env.NODE_ENV === 'development'
 
 /**
  ** middleware.ts: Chạy ở Edge Middleware (Next.js backend, trước SSR/CSR)
@@ -28,15 +36,23 @@ export async function middleware(request: NextRequest) {
         LOCALES.find((loc) => pathname.startsWith(`/${loc}`)) ?? DEFAULT_LOCALE
     const page = pathnameParts[2] || ''
 
-    console.log('Current pathname:', pathname)
-    console.log('Current page:', page)
+    if (isDev) {
+        console.log('[MIDDLEWARE] Current pathname:', pathname)
+        console.log('[MIDDLEWARE] Current page:', page)
+    }
 
     const token = request.cookies.get('access_token')?.value
-    console.log('Access token from cookie:', token)
+    if (isDev) {
+        console.log('[MIDDLEWARE] Access token from cookie:', !!token)
+    }
 
     // 1. Redirect nếu thiếu locale
     if (!LOCALES.some((l) => pathname.startsWith(`/${l}`))) {
-        console.log('Missing locale, redirecting to default locale')
+        if (isDev) {
+            console.log(
+                '[MIDDLEWARE] Missing locale, redirecting to default locale'
+            )
+        }
         return NextResponse.redirect(
             new URL(`/${DEFAULT_LOCALE}${pathname}${searchParams}`, request.url)
         )
@@ -44,7 +60,9 @@ export async function middleware(request: NextRequest) {
 
     // 2. Nếu đã login → mà vẫn vào /login, /register → redirect về trang chính
     if (token && ['login', 'register'].includes(page)) {
-        console.log('Already logged in, redirecting to home')
+        if (isDev) {
+            console.log('[MIDDLEWARE] Already logged in, redirecting to home')
+        }
         return NextResponse.redirect(
             new URL(`/${locale}${r.HOME}`, request.url)
         )
@@ -52,19 +70,25 @@ export async function middleware(request: NextRequest) {
 
     // 3. Trang public → next luôn
     if (isPublicPage(page)) {
-        console.log('Public page, allowing access')
+        if (isDev) {
+            console.log('[MIDDLEWARE] Public page, allowing access')
+        }
         return NextResponse.next()
     }
 
     // 4. Nếu chưa login → redirect về /login
     if (!token) {
-        console.log('No token, redirecting to login')
+        if (isDev) {
+            console.log('[MIDDLEWARE] No token, redirecting to login')
+        }
         return NextResponse.redirect(
             new URL(`/${locale}${r.LOGIN}`, request.url)
         )
     }
 
-    console.log('Access granted')
+    if (isDev) {
+        console.log('[MIDDLEWARE] Access granted')
+    }
     return NextResponse.next()
 }
 

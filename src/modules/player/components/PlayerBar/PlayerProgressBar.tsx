@@ -64,7 +64,7 @@ const PlayerProgressBar: React.FC<PlayerProgressBarProps> = ({
             {/* Pending seek indicator */}
             {pendingSeek !== null && (
                 <div
-                    className="absolute top-0 h-full w-1 bg-red-500"
+                    className="absolute top-0 h-full w-1 bg-muted"
                     style={{ left: `${(pendingSeek / localDuration) * 100}%` }}
                 />
             )}

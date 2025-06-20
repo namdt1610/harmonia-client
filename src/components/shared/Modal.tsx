@@ -1,59 +1,66 @@
 import React from 'react'
+import { Button } from '@/components/ui/button'
+import {
+    Dialog,
+    DialogClose,
+    DialogTitle,
+    DialogFooter,
+    DialogHeader,
+    DialogContent,
+    DialogTrigger,
+    DialogDescription,
+} from '@/components/ui/dialog'
 
 interface ModalProps {
-    isOpen: boolean
-    onClose: () => void
-    children: React.ReactNode
+    trigger: React.ReactNode
     title?: string
+    description?: string
+    children: React.ReactNode
+    showCloseButton?: boolean
+    open?: boolean
+    onOpenChange?: (open: boolean) => void
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
-    return (
-        <div
-            className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        >
-            {/* Overlay */}
-            <div
-                className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
-                onClick={onClose}
-            />
-
-            {/* Modal content */}
-            <div
-                className={`relative rounded-lg p-6 w-full max-w-md mx-4 bg-gray-900 text-popover-foreground transform transition-all duration-300 ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-            >
-                {/* Header */}
-                {title && (
-                    <div className="mb-4">
-                        <h2 className="text-xl font-semibold">{title}</h2>
-                    </div>
-                )}
-
-                {/* Close button */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
+    (
+        {
+            trigger,
+            children,
+            title,
+            description,
+            showCloseButton = true,
+            open,
+            onOpenChange,
+        },
+        ref
+    ) => {
+        return (
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogTrigger asChild>{trigger}</DialogTrigger>
+                <DialogContent
+                    ref={ref}
+                    className="sm:max-w-2xl max-h-[90vh] overflow-hidden"
                 >
-                    <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                        />
-                    </svg>
-                </button>
+                    <DialogHeader>
+                        <DialogTitle>{title}</DialogTitle>
+                        <DialogDescription>{description}</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-hidden">{children}</div>
+                    {showCloseButton && (
+                        <DialogFooter className="sm:justify-start">
+                            <DialogClose asChild>
+                                <Button type="button" variant="secondary">
+                                    Close
+                                </Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    )}
+                </DialogContent>
+            </Dialog>
+        )
+    }
+)
 
-                {/* Content */}
-                <div className="mt-2">{children}</div>
-            </div>
-        </div>
-    )
-}
+Modal.displayName = 'Modal'
 
 export default Modal

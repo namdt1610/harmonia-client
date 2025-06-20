@@ -44,6 +44,7 @@ export const UsernameField = ({ control }: Props) => {
                                     <X className="text-muted-foreground" />
                                 </Button>
                             )}
+                            
                         </div>
                     </FormControl>
                     <FormDescription>

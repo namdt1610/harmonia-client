@@ -9,10 +9,7 @@ import {
     useAddFavoriteTrackMutation,
     useRemoveFavoriteTrackMutation,
 } from '@/modules/user/api'
-import {
-    useSetCurrentTrackMutation,
-    useAddTrackMutation,
-} from '@/modules/queue/api'
+import { useAddTrackToQueueMutation } from '@/modules/queue/api'
 import { useDownloadTrackMutation } from '@/modules/tracks/api'
 
 // Types
@@ -40,10 +37,12 @@ import PlaylistsModal from '@/modules/playlists/components/PlaylistsModal'
 import VideoPlayer from '@/modules/player/components/VideoPlayer'
 
 // Redux
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '@/redux/store'
-import { setCurrentTrack, setIsPlaying, setQueue } from '@/modules/player/slice'
+import { useDispatch } from 'react-redux'
+import { setIsPlaying } from '@/modules/player/slice'
 import Link from 'next/link'
+
+// Custom hook
+import { useTrackPlayer } from '@/modules/player/hooks/useTrackPlayer'
 
 interface TrackItemProps {
     track: Track
@@ -51,6 +50,7 @@ interface TrackItemProps {
     tracks?: Track[] // Optional list of all tracks for playlist play
     showArtist?: boolean
     showAlbum?: boolean
+    titleComponent?: React.ReactNode
 }
 
 const TrackItem: React.FC<TrackItemProps> = ({
@@ -59,38 +59,25 @@ const TrackItem: React.FC<TrackItemProps> = ({
     tracks = [],
     showArtist = true,
     showAlbum = false,
+    titleComponent,
 }) => {
     const t = useTranslations('TrackItem')
-    const { currentTrack, isPlaying } = useSelector(
-        (state: RootState) => state.player
-    )
     const dispatch = useDispatch()
     const [openPlaylistsModal, setOpenPlaylistsModal] = useState(false)
     const [showVideo, setShowVideo] = useState(false)
 
+    // Use the custom hook
+    const { handlePlay, isCurrentTrack, isTrackPlaying } = useTrackPlayer()
+
     // Mutations
-    const [setCurrentTrackApi] = useSetCurrentTrackMutation()
-    const [addTrackToQueue] = useAddTrackMutation()
+    const [addTrackToQueue] = useAddTrackToQueueMutation()
     const [removeFromFavorite] = useRemoveFavoriteTrackMutation()
     const [addToFavorite] = useAddFavoriteTrackMutation()
     const [downloadTrack] = useDownloadTrackMutation()
 
-    // Determine if this track is currently selected
-    const isCurrentTrack = currentTrack === track.id
-
-    // Handle play/pause/select actions directly with Redux
-    const handlePlay = () => {
-        if (isCurrentTrack) {
-            // If this is the current track, just toggle play/pause
-            dispatch(setQueue([track]))
-            addTrackToQueue(track.id)
-            dispatch(setIsPlaying(!isPlaying))
-        } else {
-            // Play this track by setting it as current in queue
-            setCurrentTrackApi(track.id)
-            dispatch(setCurrentTrack(track.id))
-        }
-    }
+    // Check if this track is current
+    const isThisTrackCurrent = isCurrentTrack(track)
+    const isThisTrackPlaying = isTrackPlaying(track)
 
     const handleAddToFavorite = async () => {
         try {
@@ -114,9 +101,15 @@ const TrackItem: React.FC<TrackItemProps> = ({
         try {
             await downloadTrack(track.id).unwrap()
             toast.success('Downloading track')
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to download track:', error)
-            toast.error('Failed to download track')
+            if (error.status === 403) {
+                toast.error(
+                    'Your subscription does not allow downloading tracks. Please upgrade to a premium plan.'
+                )
+            } else {
+                toast.error('Failed to download track')
+            }
         }
     }
 
@@ -171,14 +164,23 @@ const TrackItem: React.FC<TrackItemProps> = ({
         <>
             <div
                 className={`flex items-center p-2 rounded-md ${
-                    isCurrentTrack ? 'bg-white/5' : ''
+                    isThisTrackCurrent ? 'bg-white/5' : ''
                 }`}
             >
                 <div
                     className="flex items-center w-8 mr-4"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {isCurrentTrack && isPlaying ? (
+                    <span
+                        className={`ml-3 ${
+                            isThisTrackCurrent
+                                ? 'text-[#1ed760]'
+                                : 'text-[#b3b3b3] group-hover:opacity-0'
+                        } ${isThisTrackPlaying ? 'opacity-0' : 'opacity-100'}`}
+                    >
+                        {index !== undefined ? index + 1 : ''}
+                    </span>
+                    {isThisTrackPlaying ? (
                         <Button
                             onClick={() => dispatch(setIsPlaying(false))}
                             variant="ghost"
@@ -188,26 +190,13 @@ const TrackItem: React.FC<TrackItemProps> = ({
                         </Button>
                     ) : (
                         <Button
-                            onClick={handlePlay}
+                            onClick={() => handlePlay(track)}
                             variant="ghost"
                             size="icon"
                         >
                             <Play size={16} />
                         </Button>
                     )}
-                    <span
-                        className={`ml-3 ${
-                            isCurrentTrack
-                                ? 'text-[#1ed760]'
-                                : 'text-[#b3b3b3] group-hover:opacity-0'
-                        } ${
-                            isCurrentTrack && isPlaying
-                                ? 'opacity-0'
-                                : 'opacity-100'
-                        }`}
-                    >
-                        {index !== undefined ? index + 1 : ''}
-                    </span>
                 </div>
 
                 <div className="flex-grow flex items-center w-full">
@@ -215,10 +204,12 @@ const TrackItem: React.FC<TrackItemProps> = ({
                         <Link
                             href={`/tracks/${track.id}`}
                             className={`text-sm font-medium hover:underline ${
-                                isCurrentTrack ? 'text-[#1ed760]' : 'text-white'
+                                isThisTrackCurrent
+                                    ? 'text-[#1ed760]'
+                                    : 'text-white'
                             }`}
                         >
-                            {track.title}
+                            {titleComponent || track.title}
                         </Link>
                         {showArtist && (
                             <span className="text-xs text-[#b3b3b3]">
