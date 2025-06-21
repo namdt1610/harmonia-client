@@ -23,24 +23,16 @@ import GoogleIcon from '@/components/shared/GoogleIcon'
 import { Separator } from '@/components/ui/separator'
 import { useRegister } from '../hooks/useRegister'
 import { logger } from '@/lib/utils/logger'
-
-const FormSchema = z.object({
-    username: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
-    }),
-    email: z.string().email({
-        message: 'Invalid email address.',
-    }),
-    password: z.string().min(8, {
-        message: 'Password must be at least 8 characters.',
-    }),
-})
+import { useSchema } from '../hooks/client/useSchema'
 
 export default function RegisterForm() {
+    const t = useTranslations('RegisterPage')
     const router = useRouter()
     const { handleRegister, isLoading, isError } = useRegister()
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const registerSchema = useSchema()
+
+    const form = useForm<z.infer<typeof registerSchema>>({
+        resolver: zodResolver(registerSchema),
         defaultValues: {
             username: '',
             email: '',
@@ -48,9 +40,7 @@ export default function RegisterForm() {
         },
     })
 
-    const t = useTranslations('RegisterPage')
-
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    function onSubmit(data: z.infer<typeof registerSchema>) {
         logger.info('[auth/register] Submitting form', JSON.stringify(data))
         logger.info('[auth/register] Calling handleRegister')
         handleRegister(data.username, data.email, data.password)

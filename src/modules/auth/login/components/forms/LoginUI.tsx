@@ -4,14 +4,11 @@ import { useForm } from 'react-hook-form'
 import { ROUTES as r } from '@/lib/routes'
 import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
-
 // Hooks
 import GoogleIcon from '@/components/shared/GoogleIcon'
-import { useLogin } from '@/modules/auth/login/hooks/useLogin'
-import { useRouter } from 'next/navigation'
-import { useLoginSchema } from '../../hooks/useLoginSchema'
-import { useCurrentLocale } from '@/lib/utils'
-
+import { useLoginSchema } from '../../hooks/client/useLoginSchema'
+import { useSubmit } from '../../hooks/client/useSubmit'
+import { logger } from '@/lib/utils/logger'
 // Components
 import {
     Button,
@@ -22,19 +19,30 @@ import {
     Form,
     Separator,
 } from '@/components/ui/_index'
-import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 import { UsernameField } from '../fields/UsernameField'
 import { PasswordField } from '../fields/PasswordField'
 import { RememberMeCheckbox } from '../fields/RememberMeCheckbox'
-import { logger } from '@/lib/utils/logger'
-export const LoginForm = () => {
+
+interface LoginUIProps {
+    handleLogin: (
+        username_or_email: string,
+        password: string
+    ) => Promise<boolean>
+    isLoading: boolean
+    handleGoogleLogin: () => Promise<void>
+}
+
+export const LoginUI = ({
+    handleLogin,
+    isLoading,
+    handleGoogleLogin,
+}: LoginUIProps) => {
     // Initial
     const router = useRouter()
-    const locale = useCurrentLocale()
     const t = useTranslations('LoginPage')
     const loginSchema = useLoginSchema()
-    const { handleLogin, isLoading, handleGoogleLogin } = useLogin()
-
+    const { onSubmit } = useSubmit(handleLogin)
     // Form
     /*
      * z.infer dùng để lấy ra kiểu TypeScript tương ứng từ một schema Zod.
@@ -48,24 +56,6 @@ export const LoginForm = () => {
             remember_me: false,
         },
     })
-
-    // Logic
-    /*
-     * .then là method của Promise, dùng để xử lý kết quả của hàm sau khi nó hoàn thành
-     * .then bắt từng lỗi cụ thể của promise, nếu không bắt được thì sẽ bị lỗi
-     * => dùng async/await, try/catch để tránh lỗi
-     * dùng arrow để tránh hoisting (dùng function declaration thì sẽ bị hoisting)
-     */
-    const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-        const success = await handleLogin(data.username_or_email, data.password)
-
-        if (success) {
-            toast.success(t('loginSuccess'))
-            router.replace(`/${locale}${r.HOME}`)
-        } else {
-            toast.error(t('loginFailed'))
-        }
-    }
 
     const goToRegister = () => {
         logger.info('[auth/login] Redirecting to register')

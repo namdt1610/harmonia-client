@@ -1,15 +1,13 @@
-import { signIn } from 'next-auth/react'
 import { useDispatch } from 'react-redux'
 import { setCredentials } from '@/modules/auth/slice'
 import { useLoginMutation } from '@/modules/auth/api'
 import { isFetchBaseQueryError } from '@/lib/apiError'
-import { LoginResponse } from '../../types'
+import { LoginResponse } from '../../../types'
 import { logger } from '@/lib/utils/logger'
 
 export const useLogin = () => {
     const [login, { isLoading, isError, isSuccess }] = useLoginMutation()
     const dispatch = useDispatch()
-
     /*
      * Hàm này đã try/catch, nên không cần try/catch ở component
      * Promise nghĩa là hàm này sẽ trả về một Promise, Promise là một object có 3 trạng thái: pending, fulfilled, rejected
@@ -62,22 +60,8 @@ export const useLogin = () => {
         }
     }
 
-    /*
-     * Chỉ cần gọi hàm signIn('google', { callbackUrl })
-     * Nó sẽ redirect người dùng qua Google để đăng nhập
-     * Sau khi thành công, Google sẽ redirect lại trang callback của bạn (mặc định là /api/auth/callback/google)
-     * NextAuth sẽ xử lý token, session, rồi redirect về callbackUrl (ví dụ /)
-     * Không cần phải await hay xử lý response sau signIn vì nó redirect luôn rồi
-     */
-    const handleGoogleLogin = (): void => {
-        logger.info('[auth/google] Calling API')
-        logger.info('[auth/google] Redirecting to Google')
-        signIn('google', { callbackUrl: '/google-sync/' })
-    }
-
     return {
         handleLogin,
-        handleGoogleLogin,
         isLoading,
         isError,
         isSuccess,

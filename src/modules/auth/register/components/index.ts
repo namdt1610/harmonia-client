@@ -1,1 +1,1 @@
-export { default as RegitserForm } from './RegisterForm';
+export { default as RegitserForm } from './RegisterUI';
