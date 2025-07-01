@@ -8,11 +8,9 @@ import {
     useSetCurrentTrackMutation,
 } from '@/modules/queue/api'
 import { useGetMyPlaylistsQuery } from '@/modules/user/api'
-import { useGetTrackQuery } from '@/modules/tracks/api'
-import {
-    useAddToPlaylistMutation,
-    useAddPlaylistToQueueMutation,
-} from '@/modules/playlists/api'
+import { useGetTrackByIdQuery } from '@/modules/tracks/api'
+import { useAddTrackToPlaylistMutation } from '@/modules/playlists/api'
+import { useAddPlaylistToQueueMutation } from '@/modules/queue/api'
 import { toast } from 'sonner'
 import { createLogger } from '@/lib/utils/debugLogger'
 
@@ -26,14 +24,14 @@ export const usePlayerQueue = () => {
     const { data: currentTrack } = useGetCurrentTrackQuery()
     const { data: queue = [] } = useGetQueueQuery()
     const { data: playlists = [] } = useGetMyPlaylistsQuery()
-    const { data: trackData } = useGetTrackQuery(currentTrack?.id ?? 0, {
+    const { data: trackData } = useGetTrackByIdQuery(currentTrack?.id ?? 0, {
         skip: !currentTrack?.id,
     })
 
     // Mutations
     const [setCurrentTrackMutation] = useSetCurrentTrackMutation()
     const [clearQueueMutation] = useClearQueueMutation()
-    const [addToPlaylistMutation] = useAddToPlaylistMutation()
+    const [addTrackToPlaylistMutation] = useAddTrackToPlaylistMutation()
     const [addPlaylistToQueue] = useAddPlaylistToQueueMutation()
 
     // Get auth state
@@ -100,7 +98,7 @@ export const usePlayerQueue = () => {
         handleDownload,
         getCoverImage,
         toggleQueueVisibility,
-        addToPlaylistMutation,
+        addTrackToPlaylistMutation,
         addPlaylistToQueue,
     }
 }

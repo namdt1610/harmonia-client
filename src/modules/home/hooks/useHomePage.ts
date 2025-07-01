@@ -7,7 +7,7 @@ import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { setCurrentTrack } from '@/modules/player/slice'
 import { RootState } from '@/redux/store'
 
-export const useHomePage = () => {
+export const useHomePage = (initialPlaylists?: any, initialUser?: any) => {
     const dispatch = useDispatch()
     const user = useSelector((state: RootState) => state.auth.user)
     const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)

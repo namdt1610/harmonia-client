@@ -1,4 +1,10 @@
 {
+    "common": {
+        "loading": "Đang tải...",
+        "loading_application": "Đang tải ứng dụng...",
+        "complete": "Hoàn thành",
+        "enterprise_grade_music_platform": "Nền tảng âm nhạc doanh nghiệp"
+    },
     "Navigation": {
         "home": "Trang chủ",
         "pathnames": "Đường dẫn",
@@ -71,6 +77,7 @@
     },
     "HomePage": {
         "title": "Trang chủ",
+        "welcome": "Chào mừng đến với Harmonia",
         "description": "Chào mừng bạn đến với trang chủ của chúng tôi. Đây là nơi bạn có thể tìm thấy thông tin mới nhất và các liên kết hữu ích.",
         "greeting": "Xin chào!",
         "seeAll": "Xem tất cả",

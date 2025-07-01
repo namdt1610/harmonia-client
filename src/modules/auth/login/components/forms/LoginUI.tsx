@@ -27,7 +27,14 @@ import { UsernameField } from '../fields/UsernameField'
 import { PasswordField } from '../fields/PasswordField'
 import { RememberMeCheckbox } from '../fields/RememberMeCheckbox'
 import { logger } from '@/lib/utils/logger'
-export const LoginForm = () => {
+
+interface LoginUIProps {
+    redirectUrl?: string
+    serverError?: string
+    // initialData?: any // Có thể thêm data từ SSR
+}
+
+export const LoginUI = ({ redirectUrl, serverError }: LoginUIProps) => {
     // Initial
     const router = useRouter()
     const locale = useCurrentLocale()
@@ -61,7 +68,9 @@ export const LoginForm = () => {
 
         if (success) {
             toast.success(t('loginSuccess'))
-            router.replace(`/${locale}${r.HOME}`)
+            // Sử dụng redirectUrl từ SSR nếu có
+            const destination = redirectUrl || `/${locale}${r.HOME}`
+            router.replace(destination)
         } else {
             toast.error(t('loginFailed'))
         }
@@ -82,7 +91,7 @@ export const LoginForm = () => {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <Card
                     className=" shadow-lg transition-all duration-300 ease-in-out hover:scale-105 "
-                    style={{ width: '500px' }}
+                    style={{ width: '400px' }}
                 >
                     <CardHeader>
                         <CardTitle className="text-center text-2xl">

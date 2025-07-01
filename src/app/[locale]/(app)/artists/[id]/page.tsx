@@ -1,76 +1,110 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
 
-import { ArtistDetails } from '@/modules/artists/components/ArtistDetails'
-import { useTranslations } from 'next-intl'
-import { Artist } from '@/types'
-import { useParams } from 'next/navigation'
-import { useGetArtistQuery } from '@/modules/artists/api'
-import { useGetTracksByArtistQuery } from '@/modules/tracks/api'
-import { useGetAlbumsByArtistQuery } from '@/modules/albums/api'
-import DetailHeader from '@/components/shared/DetailHeader'
+import { ArtistDetailsClient } from '@/modules/artists/components/ArtistDetailsClient'
+import { Artist, Album, Track } from '@/types'
+import { notFound } from 'next/navigation'
 
-export const metadata = {
-    title: 'Artist Details',
-    description: 'Artist details page',
+interface ArtistPageProps {
+    params: { id: string }
+    searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export const ArtistPage = () => {
-    const t = useTranslations('ArtistPage')
-    const params = useParams()
-    const id = params.id as string
-    const artistId = Number(id)
+export default async function ArtistPage({ params }: ArtistPageProps) {
+    const t = await getTranslations('ArtistPage')
+    const artistId = Number(params.id)
 
-    // Fetch artist data
-    const { data: artist, isLoading: artistLoading } =
-        useGetArtistQuery(artistId)
-
-    // Fetch top tracks for this artist
-    const { data: topTracks = [], isLoading: tracksLoading } =
-        useGetTracksByArtistQuery(artistId, { skip: !artistId })
-
-    // Fetch albums for this artist
-    const { data: albums = [], isLoading: albumsLoading } =
-        useGetAlbumsByArtistQuery(artistId, { skip: !artistId })
-
-    // TODO: Implement related artists API endpoint and hook
-    // const { data: relatedArtists = [], isLoading: relatedLoading } = useGetRelatedArtistsQuery(
-    //     artistId,
-    //     { skip: !artistId }
-    // )
-
-    const isLoading = artistLoading || tracksLoading || albumsLoading
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <div className="text-neutral-400">Loading artist...</div>
-            </div>
-        )
+    if (isNaN(artistId)) {
+        notFound()
     }
 
-    if (!artist) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <div className="text-neutral-400">Artist not found</div>
-            </div>
-        )
+    // SSR fetch artist data in parallel
+    const [artistData, tracksData, albumsData] = await Promise.allSettled([
+        fetch(`${env.NEXT_PUBLIC_API_URL}/artists/${artistId}`, {
+            headers: { 'Content-Type': 'application/json' },
+            cache: 'default',
+        }).then((res) => (res.ok ? res.json() : null)),
+
+        fetch(`${env.NEXT_PUBLIC_API_URL}/tracks?artist=${artistId}&limit=10`, {
+            headers: { 'Content-Type': 'application/json' },
+            cache: 'default',
+        }).then((res) => (res.ok ? res.json() : null)),
+
+        fetch(`${env.NEXT_PUBLIC_API_URL}/albums?artist=${artistId}`, {
+            headers: { 'Content-Type': 'application/json' },
+            cache: 'default',
+        }).then((res) => (res.ok ? res.json() : null)),
+    ])
+
+    const initialArtist =
+        artistData.status === 'fulfilled' ? artistData.value : null
+    const initialTopTracks =
+        tracksData.status === 'fulfilled' ? tracksData.value : null
+    const initialAlbums =
+        albumsData.status === 'fulfilled' ? albumsData.value : null
+
+    if (!initialArtist && artistData.status === 'fulfilled') {
+        notFound()
     }
 
     return (
-        <>
-            <DetailHeader
-                title={artist.name}
-                subtitle={t('artist')}
-                coverImage={artist.avatar || '/images/default-cover.webp'}
-                type="artist"
-                description={artist.bio}
-            />
-            <ArtistDetails
-                artist={artist as Artist}
-                topTracks={topTracks}
-                albums={albums}
-                // relatedArtists={relatedArtists}
-            />
-        </>
+        <ArtistDetailsClient
+            artistId={artistId}
+            initialArtist={initialArtist}
+            initialTopTracks={initialTopTracks}
+            initialAlbums={initialAlbums}
+            translations={{ artist: t('artist') }}
+        />
     )
+}
+
+export async function generateMetadata({ params }: ArtistPageProps) {
+    const artistId = Number(params.id)
+
+    if (isNaN(artistId)) {
+        return {
+            title: 'Artist Not Found',
+            description: 'The requested artist could not be found',
+        }
+    }
+
+    try {
+        const response = await fetch(
+            `${env.NEXT_PUBLIC_API_URL}/artists/${artistId}`,
+            {
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'default',
+            }
+        )
+
+        if (response.ok) {
+            const artist: Artist = await response.json()
+            return {
+                title: `${artist.name} - Artist`,
+                description:
+                    artist.bio ||
+                    `Listen to music by ${artist.name} on Harmonia`,
+                openGraph: {
+                    title: `${artist.name} - Artist`,
+                    description:
+                        artist.bio ||
+                        `Listen to music by ${artist.name} on Harmonia`,
+                    images: [
+                        {
+                            url: artist.avatar || '/images/default-cover.webp',
+                            width: 1200,
+                            height: 1200,
+                            alt: `${artist.name} photo`,
+                        },
+                    ],
+                },
+            }
+        }
+    } catch (error) {
+        console.error('Failed to generate metadata for artist:', error)
+    }
+
+    return {
+        title: 'Artist - Harmonia',
+        description: 'Discover amazing artists on Harmonia',
+    }
 }

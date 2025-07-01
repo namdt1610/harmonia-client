@@ -41,11 +41,6 @@ export async function middleware(request: NextRequest) {
         console.log('[MIDDLEWARE] Current page:', page)
     }
 
-    const token = request.cookies.get('access_token')?.value
-    if (isDev) {
-        console.log('[MIDDLEWARE] Access token from cookie:', !!token)
-    }
-
     // 1. Redirect nếu thiếu locale
     if (!LOCALES.some((l) => pathname.startsWith(`/${l}`))) {
         if (isDev) {
@@ -58,17 +53,7 @@ export async function middleware(request: NextRequest) {
         )
     }
 
-    // 2. Nếu đã login → mà vẫn vào /login, /register → redirect về trang chính
-    if (token && ['login', 'register'].includes(page)) {
-        if (isDev) {
-            console.log('[MIDDLEWARE] Already logged in, redirecting to home')
-        }
-        return NextResponse.redirect(
-            new URL(`/${locale}${r.HOME}`, request.url)
-        )
-    }
-
-    // 3. Trang public → next luôn
+    // 2. Trang public → next luôn (bao gồm login, register)
     if (isPublicPage(page)) {
         if (isDev) {
             console.log('[MIDDLEWARE] Public page, allowing access')
@@ -76,16 +61,14 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
-    // 4. Nếu chưa login → redirect về /login
+    // 3. Kiểm tra access_token
+    const token = request.cookies.get('access_token')?.value
     if (!token) {
-        if (isDev) {
-            console.log('[MIDDLEWARE] No token, redirecting to login')
-        }
-        return NextResponse.redirect(
-            new URL(`/${locale}${r.LOGIN}`, request.url)
-        )
+        // Nếu không có token, redirect về trang login đúng locale
+        return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
     }
 
+    // 4. Nếu có token, cho qua
     if (isDev) {
         console.log('[MIDDLEWARE] Access granted')
     }

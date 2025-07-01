@@ -1,4 +1,6 @@
+export { CurrentlyPlayingSection } from './CurrentlyPlayingSection'
 export { FeaturedPlaylistsSection } from './FeaturedPlaylistsSection'
+export { HomePageClient } from './HomePageClient'
 export { default as PlaylistCard } from './PlaylistCard'
 export { default as RecentTracksSection } from './RecentTracksSection'
 export { default as RecentTrackSection } from './RecentTracksSection'

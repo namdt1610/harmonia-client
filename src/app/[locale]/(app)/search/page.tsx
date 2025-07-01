@@ -1,87 +1,88 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
 
-import { useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { useSearch } from '@/modules/search/hooks/useSearch'
-import { toast } from 'sonner'
-import SearchResults from '@/modules/search/components/SearchResults'
+import { SearchPageClient } from '@/modules/search/components/SearchPageClient'
 
-export default function SearchPage() {
-    const searchParams = useSearchParams()
-    const {
-        error,
-        isLoading,
-        searchQuery,
-        sortOptions,
-        currentLimit,
-        searchResults,
-        setSearchQuery,
-        setSortOptions,
-        setCurrentLimit,
-        setCurrentPage,
-        handleSearch,
-        handleSortChange,
-        handlePageChange,
-        handleLimitChange,
-    } = useSearch()
+interface SearchPageProps {
+    searchParams: {
+        q?: string
+        sortBy?: string
+        order?: string
+        limit?: string
+        page?: string
+        [key: string]: string | string[] | undefined
+    }
+}
 
-    useEffect(() => {
-        const query = searchParams.get('q')
-        const sortBy = searchParams.get('sortBy')
-        const order = searchParams.get('order')
-        const limit = searchParams.get('limit')
-        const page = searchParams.get('page')
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+    const t = await getTranslations('SearchPage')
 
-        if (query) {
-            try {
-                // Set state first
-                setSearchQuery(query)
+    const query = (searchParams.q as string) || ''
+    const sortBy = searchParams.sortBy as string
+    const order = searchParams.order as string
+    const limit = (searchParams.limit as string) || '10'
+    const page = parseInt((searchParams.page as string) || '1', 10)
 
-                // Parse URL parameters with proper defaults
-                const initialSort =
-                    sortBy || order
-                        ? {
-                              sortBy: sortBy || undefined,
-                              order: order || undefined,
-                          }
-                        : undefined // Will use default relevance sort
+    // SSR search results if there's a query
+    let initialSearchData = null
+    if (query.trim()) {
+        try {
+            const searchUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/search`)
+            searchUrl.searchParams.set('q', query)
+            if (sortBy) searchUrl.searchParams.set('sortBy', sortBy)
+            if (order) searchUrl.searchParams.set('order', order)
+            searchUrl.searchParams.set('limit', limit)
+            searchUrl.searchParams.set('page', page.toString())
 
-                const initialLimit = limit || '10' // Default to 10 items per page
-                const initialPage = page ? parseInt(page) : 1 // Default to page 1
+            const response = await fetch(searchUrl.toString(), {
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'no-store', // Search results should be fresh
+            })
 
-                // Set all state
-                setSortOptions(
-                    initialSort || { sortBy: undefined, order: undefined }
-                )
-                setCurrentLimit(initialLimit)
-                setCurrentPage(initialPage)
-
-                // Trigger search
-                handleSearch(query, initialSort, initialPage, initialLimit)
-            } catch (err) {
-                toast.error('Please try again', {
-                    description:
-                        err instanceof Error
-                            ? err.message
-                            : 'An error occurred',
-                })
+            if (response.ok) {
+                initialSearchData = await response.json()
             }
+        } catch (error) {
+            console.error('Failed to fetch search results:', error)
         }
-    }, [searchParams]) // Only depend on searchParams
+    }
 
     return (
         <div className="m-auto">
-            <SearchResults
-                error={error}
-                isLoading={isLoading}
-                currentLimit={currentLimit}
-                currentSort={sortOptions}
-                searchQuery={searchQuery}
-                searchResults={searchResults}
-                onSortChange={handleSortChange}
-                onPageChange={handlePageChange}
-                onLimitChange={handleLimitChange}
+            <SearchPageClient
+                initialQuery={query}
+                initialSortBy={sortBy}
+                initialOrder={order}
+                initialLimit={limit}
+                initialPage={page}
+                initialSearchData={initialSearchData}
             />
         </div>
     )
+}
+
+export async function generateMetadata({ searchParams }: SearchPageProps) {
+    const t = await getTranslations('SearchPage')
+    const query = searchParams.q as string
+
+    if (query) {
+        return {
+            title: `"${query}" - Search - Harmonia`,
+            description: `Search results for "${query}" on Harmonia`,
+            openGraph: {
+                title: `"${query}" - Search - Harmonia`,
+                description: `Search results for "${query}" on Harmonia`,
+            },
+        }
+    }
+
+    return {
+        title: 'Search - Harmonia',
+        description:
+            'Search for your favorite music, artists, albums and playlists',
+        openGraph: {
+            title: 'Search - Harmonia',
+            description:
+                'Search for your favorite music, artists, albums and playlists',
+        },
+    }
 }

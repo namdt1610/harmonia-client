@@ -1,9 +1,9 @@
 import { getTranslations } from 'next-intl/server'
 
-import { ArtistsPageClient } from '@/modules/artists/components/ArtistsPageClient'
-import { Artist } from '@/types'
+import { AlbumsPageClient } from '@/modules/albums/components/AlbumsPageClient'
+import { Album } from '@/types'
 
-interface ArtistsPageProps {
+interface AlbumsPageProps {
     searchParams: {
         page?: string
         limit?: string
@@ -13,37 +13,37 @@ interface ArtistsPageProps {
     }
 }
 
-export default async function ArtistsPage({ searchParams }: ArtistsPageProps) {
-    const t = await getTranslations('ArtistsPage')
+export default async function AlbumsPage({ searchParams }: AlbumsPageProps) {
+    const t = await getTranslations('AlbumsPage')
 
     const page = parseInt((searchParams.page as string) || '1', 10)
     const limit = parseInt((searchParams.limit as string) || '20', 10)
-    const sort = (searchParams.sort as string) || 'name'
+    const sort = (searchParams.sort as string) || 'created_at'
     const genre = searchParams.genre as string
 
-    // SSR fetch artists
-    let initialArtists: Artist[] | null = null
+    // SSR fetch albums
+    let initialAlbums: Album[] | null = null
     let totalPages = 1
     try {
-        const artistsUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/artists`)
-        artistsUrl.searchParams.set('page', page.toString())
-        artistsUrl.searchParams.set('limit', limit.toString())
-        artistsUrl.searchParams.set('sort', sort)
-        if (genre) artistsUrl.searchParams.set('genre', genre)
+        const albumsUrl = new URL(`${env.NEXT_PUBLIC_API_URL}/albums`)
+        albumsUrl.searchParams.set('page', page.toString())
+        albumsUrl.searchParams.set('limit', limit.toString())
+        albumsUrl.searchParams.set('sort', sort)
+        if (genre) albumsUrl.searchParams.set('genre', genre)
 
-        const response = await fetch(artistsUrl.toString(), {
+        const response = await fetch(albumsUrl.toString(), {
             headers: { 'Content-Type': 'application/json' },
-            cache: 'default', // Cache artists for better performance
+            cache: 'default', // Cache albums for better performance
         })
 
         if (response.ok) {
             const data = await response.json()
-            initialArtists = Array.isArray(data) ? data : data.data || []
+            initialAlbums = Array.isArray(data) ? data : data.data || []
             totalPages = data.totalPages || 1
         }
     } catch (error) {
-        console.error('Failed to fetch artists:', error)
-        initialArtists = []
+        console.error('Failed to fetch albums:', error)
+        initialAlbums = []
     }
 
     return (
@@ -55,16 +55,16 @@ export default async function ArtistsPage({ searchParams }: ArtistsPageProps) {
                 <p className="text-neutral-400">{t('description')}</p>
             </div>
 
-            <ArtistsPageClient
-                initialArtists={initialArtists}
+            <AlbumsPageClient
+                initialAlbums={initialAlbums}
                 initialPage={page}
                 initialLimit={limit}
                 initialSort={sort}
                 initialGenre={genre}
                 initialTotalPages={totalPages}
                 translations={{
-                    noArtists: t('noArtists'),
-                    discoverArtists: t('discoverArtists'),
+                    noAlbums: t('noAlbums'),
+                    browseMusic: t('browseMusic'),
                 }}
             />
         </div>
@@ -72,17 +72,17 @@ export default async function ArtistsPage({ searchParams }: ArtistsPageProps) {
 }
 
 export async function generateMetadata() {
-    const t = await getTranslations('ArtistsPage')
+    const t = await getTranslations('AlbumsPage')
 
     return {
         title: `${t('title')} - Harmonia`,
         description: t('description', {
-            fallback: 'Discover amazing artists and musicians',
+            fallback: 'Discover amazing albums and collections',
         }),
         openGraph: {
             title: `${t('title')} - Harmonia`,
             description: t('description', {
-                fallback: 'Discover amazing artists and musicians',
+                fallback: 'Discover amazing albums and collections',
             }),
         },
     }

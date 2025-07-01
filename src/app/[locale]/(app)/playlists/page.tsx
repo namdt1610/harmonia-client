@@ -1,62 +1,64 @@
-'use client'
+import { getTranslations } from 'next-intl/server'
 
-import { useGetMyPlaylistsQuery } from '@/modules/user/api'
-import { useGetCurrentTrackQuery } from '@/modules/queue/api'
-import { PlaylistCard } from '@/modules/playlists/components/PlaylistCard'
-import { CreatePlaylistButton } from '@/modules/playlists/components/CreatePlaylistButton'
-import { CreatePlaylistModal } from '@/modules/playlists/components/CreatePlaylistModal'
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { PlaylistsPageClient } from '@/modules/playlists/components/PlaylistsPageClient'
+import { Playlist } from '@/types'
 
-export default function PlaylistsPage() {
-    const t = useTranslations('PlaylistsPage')
-    const { data: playlists = [], isLoading } = useGetMyPlaylistsQuery()
-    const { data: currentTrack } = useGetCurrentTrackQuery()
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+interface PlaylistsPageProps {
+    searchParams: { [key: string]: string | string[] | undefined }
+}
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <div className="text-neutral-400">Loading playlists...</div>
-            </div>
+export default async function PlaylistsPage({
+    searchParams,
+}: PlaylistsPageProps) {
+    const t = await getTranslations('PlaylistsPage')
+
+    // SSR fetch user's playlists
+    let initialPlaylists: Playlist[] | null = null
+    try {
+        const response = await fetch(
+            `${env.NEXT_PUBLIC_API_URL}/playlists/my`,
+            {
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'no-store', // User's playlists should be fresh
+            }
         )
+
+        if (response.ok) {
+            const data = await response.json()
+            initialPlaylists = Array.isArray(data) ? data : data.data || []
+        }
+    } catch (error) {
+        console.error('Failed to fetch playlists:', error)
+        initialPlaylists = []
     }
 
     return (
         <div className="max-w-7xl mx-auto p-6 space-y-8">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">
-                    {t('title')}
-                </h1>
-                <CreatePlaylistButton
-                    onClick={() => setIsCreateModalOpen(true)}
-                />
-            </div>
-
-            {playlists.length === 0 ? (
-                <div className="text-center py-16">
-                    <h3 className="text-xl font-semibold mb-2">
-                        {t('noPlaylists')}
-                    </h3>
-                    <p className="text-neutral-400 mb-4">
-                        {t('createFirstPlaylist')}
-                    </p>
-                    <CreatePlaylistButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                    />
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {playlists.map((playlist) => (
-                        <PlaylistCard key={playlist.id} playlist={playlist} />
-                    ))}
-                </div>
-            )}
-
-            <CreatePlaylistModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+            <PlaylistsPageClient
+                initialPlaylists={initialPlaylists}
+                translations={{
+                    title: t('title'),
+                    noPlaylists: t('noPlaylists'),
+                    createFirstPlaylist: t('createFirstPlaylist'),
+                }}
             />
         </div>
     )
+}
+
+export async function generateMetadata() {
+    const t = await getTranslations('PlaylistsPage')
+
+    return {
+        title: `${t('title')} - Harmonia`,
+        description: t('description', {
+            fallback: 'Manage and discover your music playlists',
+        }),
+        openGraph: {
+            title: `${t('title')} - Harmonia`,
+            description: t('description', {
+                fallback: 'Manage and discover your music playlists',
+            }),
+        },
+    }
 }

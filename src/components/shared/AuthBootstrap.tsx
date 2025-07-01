@@ -1,39 +1,37 @@
 'use client'
-import { useSilentRefresh } from '@/hooks/useSilentRefresh'
-import { useGlobalAuth } from '@/hooks/useGlobalAuth'
-import { resetLogoutState } from '@/lib/baseQuery'
+
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { createLogger } from '@/lib/utils/debugLogger'
 
-const authLogger = createLogger('AUTH')
+import { useSilentRefresh } from '@/hooks/useSilentRefresh'
+import { logger } from '@/lib/utils/logger'
 
-export function AuthBootstrap() {
+interface AuthBootstrapProps {
+    children?: React.ReactNode
+}
+
+export function AuthBootstrap({ children }: AuthBootstrapProps) {
     const pathname = usePathname()
 
-    // Determine if we're on an auth page (login, register, etc.)
-    const isAuthPage =
-        pathname?.includes('/login') ||
-        pathname?.includes('/register') ||
-        pathname?.includes('/forgot-password') ||
-        pathname?.includes('/reset-password') ||
-        pathname?.includes('/verify-email') ||
-        pathname?.includes('/google-sync')
+    // Determine if we're on a public page that doesn't require auth
+    const isPublicPage = [
+        '/login',
+        '/register',
+        '/forgot-password',
+        '/reset-password',
+        '/verify-email',
+        '/google-sync',
+        '/welcome',
+        '/',
+    ].some((route) => pathname?.startsWith(route))
 
-    authLogger.logOnChange(
-        'authBootstrapPage',
-        { pathname, isAuthPage },
-        'AuthBootstrap checking page:'
-    )
-
-    // Only run auth logic on non-auth pages
-    useGlobalAuth(isAuthPage)
-    useSilentRefresh(isAuthPage)
-
-    // Reset logout state when component mounts
+    // Log initialization
     useEffect(() => {
-        resetLogoutState()
-    }, [])
+        logger.info('AuthBootstrap initialized', { pathname, isPublicPage })
+    }, [pathname, isPublicPage])
 
-    return null
+    // Initialize auth hook
+    useSilentRefresh(isPublicPage) // skip on public pages
+
+    return <>{children}</>
 }

@@ -31,6 +31,6 @@
         ".next/types/**/*.ts",
         "next-intl.config.mjs",
         "public/**/*"
-    ],
+, "jest.config.js"    ],
     "exclude": ["node_modules"]
 }
