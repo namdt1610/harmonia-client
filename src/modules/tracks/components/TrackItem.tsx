@@ -190,7 +190,7 @@ const TrackItem: React.FC<TrackItemProps> = ({
                         </Button>
                     ) : (
                         <Button
-                            onClick={() => handlePlay(track)}
+                            onClick={() => handlePlay(track.id)}
                             variant="ghost"
                             size="icon"
                         >

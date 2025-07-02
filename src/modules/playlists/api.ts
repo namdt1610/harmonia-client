@@ -98,10 +98,6 @@ export const playlistApi = createApi({
                     body: { track_id: trackId },
                 }
             },
-            invalidatesTags: (result, error, { playlistId }) => [
-                { type: 'Playlist', id: playlistId },
-                { type: 'Playlist', id: 'LIST' },
-            ],
         }),
     }),
 })

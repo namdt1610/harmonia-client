@@ -26,16 +26,16 @@ export const useTrackPlayer = () => {
             'trackPlay',
             {
                 trackId,
-                currentTrackId: currentTrack?.id,
-                isCurrentTrack: currentTrack?.id === trackId,
+                currentTrackId: currentTrack,
+                isCurrentTrack: currentTrack === trackId,
             },
             'Play button clicked for track'
         )
 
-        if (currentTrack && currentTrack.id === trackId) {
+        if (currentTrack === trackId) {
             // Toggle play/pause for current track
             playerLogger.log('Toggling play/pause for current track')
-            // This would typically interact with the audio player
+            dispatch(setIsPlaying(!isPlaying))
             return
         }
 
@@ -46,6 +46,9 @@ export const useTrackPlayer = () => {
             playerLogger.log('Successfully set current track via API')
         } catch (error) {
             playerLogger.error('Failed to set current track:', error)
+            // Fallback: set track locally
+            dispatch(setCurrentTrack(trackId))
+            dispatch(setIsPlaying(true))
         }
     }
 

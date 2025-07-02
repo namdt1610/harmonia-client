@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 // Create logger for player
-const audioLogger = createLogger('PLAYER')
+const audioLogger = createLogger('API')
 
 // Add prop type
 interface PlayerProps {
@@ -73,34 +73,48 @@ export default function Player({ onToggleQueue }: PlayerProps) {
 
     // Update shuffled queue only when isShuffling or queue actually changes
     useEffect(() => {
+        // Ensure queue is always an array
+        const safeQueue = Array.isArray(queue) ? queue : []
+
         const queueChanged =
-            queue.length !== previousQueueRef.current.length ||
-            queue.some(
+            safeQueue.length !== previousQueueRef.current.length ||
+            safeQueue.some(
                 (item: any, index: number) =>
-                    item.track.id !== previousQueueRef.current[index]?.track?.id
+                    item.track?.id !==
+                    previousQueueRef.current[index]?.track?.id
             )
         const shufflingChanged = isShuffling !== previousIsShufflingRef.current
 
         if (shufflingChanged || queueChanged) {
-            if (isShuffling && queue.length > 0) {
-                setShuffledQueue(shuffleArray(queue))
+            if (isShuffling && safeQueue.length > 0) {
+                setShuffledQueue(shuffleArray(safeQueue))
             } else {
                 setShuffledQueue([])
             }
 
-            previousQueueRef.current = queue
+            previousQueueRef.current = safeQueue
             previousIsShufflingRef.current = isShuffling
         }
     }, [isShuffling, queue])
 
     // Xác định queue đang dùng
     const activeQueue = useMemo(() => {
-        return isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+        // Ensure queue is always an array
+        const safeQueue = Array.isArray(queue) ? queue : []
+        const safeShuffledQueue = Array.isArray(shuffledQueue)
+            ? shuffledQueue
+            : []
+
+        return isShuffling && safeShuffledQueue.length > 0
+            ? safeShuffledQueue
+            : safeQueue
     }, [isShuffling, shuffledQueue, queue])
 
     const activeIndex = useMemo(() => {
+        if (!Array.isArray(activeQueue)) return -1
+
         return activeQueue.findIndex(
-            (t: any) => t.track.id === currentTrack?.id
+            (t: any) => t.track?.id === currentTrack?.id
         )
     }, [activeQueue, currentTrack])
 
@@ -111,10 +125,17 @@ export default function Player({ onToggleQueue }: PlayerProps) {
             return
         }
 
+        const safeQueue = Array.isArray(queue) ? queue : []
+        const safeShuffledQueue = Array.isArray(shuffledQueue)
+            ? shuffledQueue
+            : []
         const currentActiveQueue =
-            isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+            isShuffling && safeShuffledQueue.length > 0
+                ? safeShuffledQueue
+                : safeQueue
+
         const currentActiveIndex = currentActiveQueue.findIndex(
-            (t: any) => t.track.id === currentTrack?.id
+            (t: any) => t.track?.id === currentTrack?.id
         )
 
         if (currentActiveIndex < currentActiveQueue.length - 1) {
@@ -134,10 +155,17 @@ export default function Player({ onToggleQueue }: PlayerProps) {
 
     // Hàm phát bài trước đó - stable callback
     const handlePrev = useCallback(() => {
+        const safeQueue = Array.isArray(queue) ? queue : []
+        const safeShuffledQueue = Array.isArray(shuffledQueue)
+            ? shuffledQueue
+            : []
         const currentActiveQueue =
-            isShuffling && shuffledQueue.length > 0 ? shuffledQueue : queue
+            isShuffling && safeShuffledQueue.length > 0
+                ? safeShuffledQueue
+                : safeQueue
+
         const currentActiveIndex = currentActiveQueue.findIndex(
-            (t: any) => t.track.id === currentTrack?.id
+            (t: any) => t.track?.id === currentTrack?.id
         )
 
         if (currentActiveIndex > 0) {
@@ -178,7 +206,7 @@ export default function Player({ onToggleQueue }: PlayerProps) {
         setVolume: audioStreamSetVolume,
         error: audioStreamError,
     } = useAudioStream({
-        track: currentTrack,
+        track: trackData,
         autoPlay: true,
         onError: (e: any) => {},
         onEnd: handleEnd,
@@ -309,11 +337,18 @@ export default function Player({ onToggleQueue }: PlayerProps) {
                             : audioStreamPlay()
                     }
                     onNext={() => {
-                        if (activeIndex < activeQueue.length - 1) {
+                        if (
+                            activeIndex < activeQueue.length - 1 &&
+                            Array.isArray(activeQueue)
+                        ) {
                             setCurrentTrack(
                                 activeQueue[activeIndex + 1].track.id
                             )
-                        } else if (isRepeating && activeQueue.length > 0) {
+                        } else if (
+                            isRepeating &&
+                            Array.isArray(activeQueue) &&
+                            activeQueue.length > 0
+                        ) {
                             setCurrentTrack(activeQueue[0].track.id)
                         }
                     }}
@@ -322,12 +357,17 @@ export default function Player({ onToggleQueue }: PlayerProps) {
                     onRepeat={() => setIsRepeating((v) => !v)}
                     onRepeatOne={() => setIsRepeatOne((v) => !v)}
                     canPrev={
-                        activeIndex > 0 ||
-                        (isRepeating && activeQueue.length > 0)
+                        (activeIndex > 0 && Array.isArray(activeQueue)) ||
+                        (isRepeating &&
+                            Array.isArray(activeQueue) &&
+                            activeQueue.length > 0)
                     }
                     canNext={
-                        activeIndex < activeQueue.length - 1 ||
-                        (isRepeating && activeQueue.length > 0)
+                        (activeIndex < activeQueue.length - 1 &&
+                            Array.isArray(activeQueue)) ||
+                        (isRepeating &&
+                            Array.isArray(activeQueue) &&
+                            activeQueue.length > 0)
                     }
                     isShuffling={isShuffling}
                     isRepeating={isRepeating}

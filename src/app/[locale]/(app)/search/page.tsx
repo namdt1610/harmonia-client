@@ -7,6 +7,8 @@ import { toast } from 'sonner'
 import SearchResults from '@/modules/search/components/SearchResults'
 
 export default function SearchPage() {
+    console.log('🏁 SearchPage component mounted')
+
     const searchParams = useSearchParams()
     const {
         error,
@@ -25,12 +27,27 @@ export default function SearchPage() {
         handleLimitChange,
     } = useSearch()
 
+    console.log('🎣 useSearch hook initialized:', {
+        searchQuery,
+        isLoading,
+        error,
+        hasResults: !!searchResults,
+    })
+
     useEffect(() => {
         const query = searchParams.get('q')
         const sortBy = searchParams.get('sortBy')
         const order = searchParams.get('order')
         const limit = searchParams.get('limit')
         const page = searchParams.get('page')
+
+        console.log('🔍 Search page URL params:', {
+            query,
+            sortBy,
+            order,
+            limit,
+            page,
+        })
 
         if (query) {
             try {
@@ -49,6 +66,13 @@ export default function SearchPage() {
                 const initialLimit = limit || '10' // Default to 10 items per page
                 const initialPage = page ? parseInt(page) : 1 // Default to page 1
 
+                console.log('🎯 Search params parsed:', {
+                    query,
+                    initialSort,
+                    initialPage,
+                    initialLimit,
+                })
+
                 // Set all state
                 setSortOptions(
                     initialSort || { sortBy: undefined, order: undefined }
@@ -57,8 +81,10 @@ export default function SearchPage() {
                 setCurrentPage(initialPage)
 
                 // Trigger search
+                console.log('🚀 Triggering search...')
                 handleSearch(query, initialSort, initialPage, initialLimit)
             } catch (err) {
+                console.error('❌ Search page error:', err)
                 toast.error('Please try again', {
                     description:
                         err instanceof Error
@@ -67,7 +93,18 @@ export default function SearchPage() {
                 })
             }
         }
-    }, [searchParams]) // Only depend on searchParams
+    }, [searchParams]) // Chỉ depend vào searchParams để tránh infinite loop
+
+    // Debug search results
+    useEffect(() => {
+        console.log('📊 Search page state:', {
+            searchQuery,
+            isLoading,
+            error,
+            searchResults,
+            hasResults: !!searchResults,
+        })
+    }, [searchQuery, isLoading, error, searchResults])
 
     return (
         <div className="m-auto">

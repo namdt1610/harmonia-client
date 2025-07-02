@@ -8,6 +8,7 @@ import { RootState } from '@/redux/store'
 import Cookies from 'js-cookie'
 import { createLogger } from '@/lib/utils/debugLogger'
 import { logger } from '@/lib/utils/logger'
+import { BaseQueryFn } from '@reduxjs/toolkit/query'
 
 // Tạo logger cho Auth module
 const authLogger = createLogger('AUTH')
@@ -16,7 +17,7 @@ const authLogger = createLogger('AUTH')
  ** Cấu hình base query với credentials: 'include' để đảm bảo cookies được gửi với mọi request
  */
 export const baseQuery = fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/`,
+    baseUrl: process.env.NEXT_PUBLIC_API_URL,
     credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
         const token = (getState() as RootState).auth.accessToken

@@ -69,6 +69,20 @@ export const queueApi = createApi({
                 method: 'POST',
             }),
             invalidatesTags: ['Queue'],
+            async onQueryStarted(trackId, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled
+                    // Update Redux player state after successful API call
+                    const { setCurrentTrack, setIsPlaying } = await import(
+                        '@/modules/player/slice'
+                    )
+                    dispatch(setCurrentTrack(trackId))
+                    dispatch(setIsPlaying(true))
+                } catch (error) {
+                    // API call failed, handle error if needed
+                    console.error('Failed to set current track:', error)
+                }
+            },
         }),
     }),
 })

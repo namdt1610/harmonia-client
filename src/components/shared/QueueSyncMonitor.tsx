@@ -8,7 +8,7 @@ import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { createLogger } from '@/lib/utils/debugLogger'
 
 // Create logger for queue sync monitor
-const syncLogger = createLogger('QUEUE_SYNC')
+const syncLogger = createLogger('WEBSOCKET')
 
 interface QueueSyncMonitorProps {
     className?: string
@@ -18,12 +18,27 @@ export default function QueueSyncMonitor({
     className = '',
 }: QueueSyncMonitorProps) {
     const { isConnected, requestSync, lastSyncTimestamp } = useQueueWebSocket()
-    const { data: queueData, isLoading, error, refetch } = useGetQueueQuery()
+    const { data: queueDataRaw, isLoading, error, refetch } = useGetQueueQuery()
     const { clearQueue } = usePlayerQueue()
     const [lastApiCall, setLastApiCall] = useState<string | null>(null)
     const [syncStatus, setSyncStatus] = useState<
         'synced' | 'out_of_sync' | 'unknown'
     >('unknown')
+
+    // Ensure queueData is always an array
+    const queueData = Array.isArray(queueDataRaw) ? queueDataRaw : []
+
+    // Log queue data structure for debugging
+    syncLogger.logOnChange(
+        'queueDataStructure',
+        {
+            queueDataRaw,
+            isArray: Array.isArray(queueDataRaw),
+            length: queueData.length,
+            type: typeof queueDataRaw,
+        },
+        'Queue data structure from API'
+    )
 
     useEffect(() => {
         if (queueData) {
@@ -54,7 +69,7 @@ export default function QueueSyncMonitor({
     const handleTestClearQueue = async () => {
         try {
             syncLogger.log('Testing clear queue...')
-            await clearQueue().unwrap()
+            await clearQueue()
             syncLogger.log('Clear queue test completed')
         } catch (error) {
             syncLogger.error('Clear queue test failed:', error)
@@ -84,20 +99,21 @@ export default function QueueSyncMonitor({
 
     useEffect(() => {
         const debugInfo = {
-            queue: queueData?.slice(0, 3).map((item) => ({
-                id: item.track.id,
-                title: item.track.title.substring(0, 20),
+            queue: queueData.slice(0, 3).map((item: any) => ({
+                id: item?.track?.id,
+                title: item?.track?.title?.substring(0, 20) || 'Unknown',
             })),
-            currentTrack: queueData?.find((item) => item.isCurrentTrack)
+            currentTrack: queueData.find((item: any) => item?.isCurrentTrack)
                 ? {
-                      id: queueData.find((item) => item.isCurrentTrack)?.track
-                          .id,
-                      title: queueData
-                          .find((item) => item.isCurrentTrack)
-                          ?.track.title.substring(0, 20),
+                      id: queueData.find((item: any) => item?.isCurrentTrack)
+                          ?.track?.id,
+                      title:
+                          queueData
+                              .find((item: any) => item?.isCurrentTrack)
+                              ?.track?.title?.substring(0, 20) || 'Unknown',
                   }
                 : null,
-            queueLength: queueData?.length || 0,
+            queueLength: queueData.length || 0,
             lastSync: Date.now(),
         }
 
