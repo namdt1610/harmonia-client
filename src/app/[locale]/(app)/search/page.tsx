@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import SearchResults from '@/modules/search/components/SearchResults'
 
 export default function SearchPage() {
-    console.log('🏁 SearchPage component mounted')
+    console.log('MOUNT SearchPage component mounted')
 
     const searchParams = useSearchParams()
     const {
@@ -27,7 +27,7 @@ export default function SearchPage() {
         handleLimitChange,
     } = useSearch()
 
-    console.log('🎣 useSearch hook initialized:', {
+    console.log('HOOK useSearch hook initialized:', {
         searchQuery,
         isLoading,
         error,
@@ -41,7 +41,7 @@ export default function SearchPage() {
         const limit = searchParams.get('limit')
         const page = searchParams.get('page')
 
-        console.log('🔍 Search page URL params:', {
+        console.log('SEARCH Search page URL params:', {
             query,
             sortBy,
             order,
@@ -66,7 +66,7 @@ export default function SearchPage() {
                 const initialLimit = limit || '10' // Default to 10 items per page
                 const initialPage = page ? parseInt(page) : 1 // Default to page 1
 
-                console.log('🎯 Search params parsed:', {
+                console.log('PARSE Search params parsed:', {
                     query,
                     initialSort,
                     initialPage,
@@ -81,10 +81,10 @@ export default function SearchPage() {
                 setCurrentPage(initialPage)
 
                 // Trigger search
-                console.log('🚀 Triggering search...')
+                console.log('TRIGGER Triggering search...')
                 handleSearch(query, initialSort, initialPage, initialLimit)
             } catch (err) {
-                console.error('❌ Search page error:', err)
+                console.error('ERROR Search page error:', err)
                 toast.error('Please try again', {
                     description:
                         err instanceof Error
@@ -97,7 +97,7 @@ export default function SearchPage() {
 
     // Debug search results
     useEffect(() => {
-        console.log('📊 Search page state:', {
+        console.log('STATE Search page state:', {
             searchQuery,
             isLoading,
             error,

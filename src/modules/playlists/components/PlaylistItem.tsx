@@ -1,8 +1,6 @@
-import { Play } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import DefaultCover from '@/assets/images/default-cover.webp'
 import { Playlist } from '@/types'
 
@@ -27,18 +25,6 @@ export function PlaylistItem({ playlist, onPlay }: PlaylistItemProps) {
                                     className="object-cover w-full h-full transition-transform duration-200 group-hover:scale-105"
                                 />
                             </div>
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Button
-                                    size="icon"
-                                    className="rounded-full"
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        onPlay(playlist.id)
-                                    }}
-                                >
-                                    <Play className="h-4 w-4" />
-                                </Button>
-                            </div>
                         </div>
                         <div className="space-y-1">
                             <h3 className="font-medium leading-none">
@@ -46,7 +32,8 @@ export function PlaylistItem({ playlist, onPlay }: PlaylistItemProps) {
                             </h3>
                             <p className="text-sm text-muted-foreground">
                                 {playlist.description ||
-                                    `${playlist.tracks} tracks`}
+                                    `${playlist.tracks?.length} tracks` ||
+                                    'No description'}
                             </p>
                         </div>
                     </div>

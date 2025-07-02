@@ -73,13 +73,23 @@ export const FeaturedPlaylistsSection = ({
         }
 
         return (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div
+                className="grid gap-4"
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                }}
+            >
                 {playlists.map((playlist) => (
-                    <PlaylistItem
+                    <div
                         key={playlist.id}
-                        playlist={playlist}
-                        onPlay={() => onPlay(playlist.id)}
-                    />
+                        className="transition-transform hover:scale-105"
+                    >
+                        <PlaylistItem
+                            playlist={playlist}
+                            onPlay={() => onPlay(playlist.id)}
+                        />
+                    </div>
                 ))}
             </div>
         )
@@ -87,7 +97,7 @@ export const FeaturedPlaylistsSection = ({
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <h2 className="text-2xl font-semibold tracking-tight">
                     {t('featuredPlaylists', {
                         fallback: 'Featured Playlists',

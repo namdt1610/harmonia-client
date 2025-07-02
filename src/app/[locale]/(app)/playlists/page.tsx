@@ -1,18 +1,16 @@
 'use client'
 
 import { useGetMyPlaylistsQuery } from '@/modules/user/api'
-import { useGetCurrentTrackQuery } from '@/modules/queue/api'
-import { PlaylistCard } from '@/modules/playlists/components/PlaylistCard'
-import { CreatePlaylistButton } from '@/modules/playlists/components/CreatePlaylistButton'
-import { CreatePlaylistModal } from '@/modules/playlists/components/CreatePlaylistModal'
-import { useState } from 'react'
+import {
+    PlaylistCard,
+    CreatePlaylistButton,
+    CreatePlaylistModal,
+} from '@/modules/playlists/components'
 import { useTranslations } from 'next-intl'
 
 export default function PlaylistsPage() {
     const t = useTranslations('PlaylistsPage')
     const { data: playlists = [], isLoading } = useGetMyPlaylistsQuery()
-    const { data: currentTrack } = useGetCurrentTrackQuery()
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
     if (isLoading) {
         return (
@@ -28,9 +26,7 @@ export default function PlaylistsPage() {
                 <h1 className="text-3xl font-bold tracking-tight">
                     {t('title')}
                 </h1>
-                <CreatePlaylistButton
-                    onClick={() => setIsCreateModalOpen(true)}
-                />
+                <CreatePlaylistModal trigger={<CreatePlaylistButton />} />
             </div>
 
             {playlists.length === 0 ? (
@@ -41,9 +37,7 @@ export default function PlaylistsPage() {
                     <p className="text-neutral-400 mb-4">
                         {t('createFirstPlaylist')}
                     </p>
-                    <CreatePlaylistButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                    />
+                    <CreatePlaylistModal trigger={<CreatePlaylistButton />} />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -52,11 +46,6 @@ export default function PlaylistsPage() {
                     ))}
                 </div>
             )}
-
-            <CreatePlaylistModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-            />
         </div>
     )
 }

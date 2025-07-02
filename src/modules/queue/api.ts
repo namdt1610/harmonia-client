@@ -1,6 +1,7 @@
 import { BaseQueryFn, createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryWithReauth } from '@/lib/baseQuery'
 import { API_ROUTES as api } from '@/lib/routes'
+import { isValidTrackId } from '@/lib/invalidTrackHandler'
 
 export const queueApi = createApi({
     reducerPath: 'queueApi',
@@ -64,12 +65,29 @@ export const queueApi = createApi({
             invalidatesTags: ['Queue'],
         }),
         setCurrentTrack: builder.mutation<void, number>({
-            query: (id) => ({
-                url: api.QUEUES.SET_CURRENT.replace(':id', id.toString()),
-                method: 'POST',
-            }),
+            query: (id) => {
+                // Validate track ID before making API call
+                if (!isValidTrackId(id)) {
+                    throw new Error(
+                        `Invalid track ID ${id} - cannot set as current`
+                    )
+                }
+
+                return {
+                    url: api.QUEUES.SET_CURRENT.replace(':id', id.toString()),
+                    method: 'POST',
+                }
+            },
             invalidatesTags: ['Queue'],
             async onQueryStarted(trackId, { dispatch, queryFulfilled }) {
+                // Additional validation before updating Redux
+                if (!isValidTrackId(trackId)) {
+                    console.error(
+                        `Invalid track ID ${trackId} - skipping Redux update`
+                    )
+                    return
+                }
+
                 try {
                     await queryFulfilled
                     // Update Redux player state after successful API call
@@ -84,6 +102,20 @@ export const queueApi = createApi({
                 }
             },
         }),
+        nextTrack: builder.mutation<any, void>({
+            query: () => ({
+                url: api.QUEUES.NEXT,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Queue'],
+        }),
+        previousTrack: builder.mutation<any, void>({
+            query: () => ({
+                url: api.QUEUES.PREVIOUS,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Queue'],
+        }),
     }),
 })
 
@@ -97,4 +129,6 @@ export const {
     useRemoveTrackFromQueueMutation,
     useClearQueueMutation,
     useSetCurrentTrackMutation,
+    useNextTrackMutation,
+    usePreviousTrackMutation,
 } = queueApi

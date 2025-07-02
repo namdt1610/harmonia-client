@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { setCredentials, clearCredentials } from '@/modules/auth/slice'
+import { clearCredentials } from '@/modules/auth/slice'
 import { API_ROUTES as api, ROUTES as r } from '@/lib/routes'
 import { authApi } from '@/modules/auth/api'
 import type { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query'
@@ -146,9 +146,10 @@ export const baseQueryWithReauth: MyBaseQuery = async (
         )
     }
 
-    // Get current auth state
+    // Get current auth state from both Redux and localStorage
     const state = api.getState() as RootState
     const isLoggedIn = state.auth.isLoggedIn
+    const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true'
 
     // Check for token revoked error
     if (result.error?.status === 401) {
@@ -157,6 +158,7 @@ export const baseQueryWithReauth: MyBaseQuery = async (
         )
         isLoggedOut = true
         localStorage.setItem('isLoggedOut', 'true')
+        localStorage.removeItem('userLoggedIn')
         api.dispatch(clearCredentials())
         // Clear all cookies
         Cookies.remove('access_token', { path: '/' })
@@ -166,7 +168,7 @@ export const baseQueryWithReauth: MyBaseQuery = async (
     }
 
     // Skip refresh if we're logging out
-    if (args.url?.includes('/logout')) {
+    if (typeof args === 'object' && args.url?.includes('/logout')) {
         authLogger.log('Logout request detected, skipping refresh')
         return result
     }
@@ -175,7 +177,7 @@ export const baseQueryWithReauth: MyBaseQuery = async (
         result.error &&
         result.error.status === 401 &&
         !isLoggedOut &&
-        isLoggedIn
+        (isLoggedIn || userLoggedIn)
     ) {
         // Check if tokens exist before attempting refresh
         const accessToken = Cookies.get('access_token')
@@ -185,6 +187,7 @@ export const baseQueryWithReauth: MyBaseQuery = async (
             authLogger.warn('No tokens found, skipping refresh')
             isLoggedOut = true
             localStorage.setItem('isLoggedOut', 'true')
+            localStorage.removeItem('userLoggedIn')
             api.dispatch(clearCredentials())
             window.location.replace(r.LOGIN)
             return result
@@ -201,6 +204,7 @@ export const baseQueryWithReauth: MyBaseQuery = async (
             // If refresh failed, clear credentials and redirect to login
             isLoggedOut = true
             localStorage.setItem('isLoggedOut', 'true')
+            localStorage.removeItem('userLoggedIn')
             api.dispatch(clearCredentials())
             // Clear all cookies
             Cookies.remove('access_token', { path: '/' })

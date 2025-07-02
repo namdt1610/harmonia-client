@@ -54,6 +54,30 @@ export const trackApi = createApi({
             providesTags: (result) =>
                 result ? [{ type: 'Track' as const, id: result.id }] : [],
             keepUnusedDataFor: 300,
+            transformErrorResponse: (response: any, meta, arg) => {
+                if (response.status === 404) {
+                    console.warn(
+                        `🚫 Invalid track request: Track ID ${arg} not found`
+                    )
+
+                    if (arg > 1000) {
+                        console.error(
+                            `❌ Suspicious track ID ${arg} - likely from stale cache. Consider clearing cache.`
+                        )
+
+                        return {
+                            status: 404,
+                            data: {
+                                error: 'Track not found',
+                                trackId: arg,
+                                suggestion:
+                                    'This track may have been removed. Try refreshing the page.',
+                            },
+                        }
+                    }
+                }
+                return response
+            },
         }),
 
         createTrack: builder.mutation<Track, Track>({
@@ -207,13 +231,14 @@ export const trackApi = createApi({
             query: (id) => {
                 const baseUrl =
                     process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-                const fullUrl = `${baseUrl}/api/tracks/${id}/stream/`
+                const fullUrl = `${baseUrl}/tracks/${id}/stream/`
                 return {
                     url: fullUrl,
-                    responseHandler: (response) => {
+                    responseHandler: (response: Response) => {
                         // Return the URL directly for streaming
                         return response.url
                     },
+                    credentials: 'include',
                 }
             },
             providesTags: (result, error, id) => [{ type: 'Track', id }],
@@ -236,16 +261,51 @@ export const trackApi = createApi({
 
         downloadTrack: builder.mutation<void, number>({
             query: (id) => ({
-                url:
-                    api.TRACKS.GET_BY_ID.replace(':id', id.toString()) +
-                    'download/',
+                url: api.TRACKS.DOWNLOAD.replace(':id', id.toString()),
                 method: 'GET',
                 responseHandler: async (response: Response) => {
+                    if (!response.ok) {
+                        // Handle different error types
+                        if (response.status === 403) {
+                            const errorData = await response
+                                .json()
+                                .catch(() => ({
+                                    message: 'Download not allowed',
+                                }))
+                            throw new Error(
+                                errorData.message ||
+                                    'Your subscription does not allow downloading tracks'
+                            )
+                        } else if (response.status === 404) {
+                            throw new Error(
+                                'Track not found or file unavailable'
+                            )
+                        } else {
+                            throw new Error(
+                                `Download failed: ${response.status} ${response.statusText}`
+                            )
+                        }
+                    }
+
+                    const contentDisposition = response.headers.get(
+                        'Content-Disposition'
+                    )
+                    let filename = `track_${id}.mp3`
+
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(
+                            /filename="?([^";]+)"?/
+                        )
+                        if (filenameMatch) {
+                            filename = filenameMatch[1]
+                        }
+                    }
+
                     const blob = await response.blob()
                     const url = window.URL.createObjectURL(blob)
                     const a = document.createElement('a')
                     a.href = url
-                    a.download = ''
+                    a.download = filename
                     document.body.appendChild(a)
                     a.click()
                     window.URL.revokeObjectURL(url)

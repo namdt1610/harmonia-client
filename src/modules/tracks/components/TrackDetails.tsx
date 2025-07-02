@@ -1,6 +1,6 @@
 'use client'
 import DetailHeader from '@/components/shared/DetailHeader'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     useGetTrackByIdQuery,
     useDownloadTrackVideoMutation,
@@ -8,23 +8,43 @@ import {
 import { useParams } from 'next/navigation'
 import { useTrackPlayer } from '@/modules/player/hooks/useTrackPlayer'
 import DefaultCover from '@/assets/images/default-cover.webp'
+import { isValidTrackId } from '@/lib/invalidTrackHandler'
+import { toast } from 'sonner'
 
 export default function TrackDetails() {
     const params = useParams()
     const id = params.id as string
-    const { data: track, isLoading } = useGetTrackByIdQuery(Number(id))
+    const trackId = Number(id)
+
+    // Validate track ID from URL
+    const isValidId = isValidTrackId(trackId)
+
+    const { data: track, isLoading } = useGetTrackByIdQuery(trackId, {
+        skip: !isValidId, // Skip API call if ID is invalid
+    })
     const [downloadVideo] = useDownloadTrackVideoMutation()
     const [showVideo, setShowVideo] = useState(false)
     const [videoUrl, setVideoUrl] = useState<string | null>(null)
     const { handlePlay } = useTrackPlayer()
 
+    // Show error for invalid ID
+    useEffect(() => {
+        if (!isValidId && trackId) {
+            toast.error(
+                `Invalid track ID ${trackId}. This track may have been removed.`
+            )
+        }
+    }, [isValidId, trackId])
+
     const handlePlayTrack = () => {
-        if (track) {
-            handlePlay(track)
+        if (track && isValidTrackId(track.id)) {
+            handlePlay(track.id)
         }
     }
 
     const handleShowVideo = async () => {
+        if (!isValidId) return
+
         try {
             const res = await fetch(`/api/tracks/${id}/video/`)
             const data = await res.json()
@@ -35,6 +55,14 @@ export default function TrackDetails() {
         } catch (error) {
             console.error('Error fetching video:', error)
         }
+    }
+
+    if (!isValidId && trackId) {
+        return (
+            <div className="p-8 text-center text-destructive">
+                Invalid track ID {trackId}. This track may have been removed.
+            </div>
+        )
     }
 
     if (isLoading) return <div className="p-8">Loading...</div>
@@ -96,7 +124,7 @@ export default function TrackDetails() {
                     <div>
                         <p>
                             <span className="font-semibold">Artist:</span>{' '}
-                            {track.artist?.name || 'Unknown'}
+                            {track.artist.name || 'Unknown'}
                         </p>
                         <p>
                             <span className="font-semibold">Album:</span>{' '}

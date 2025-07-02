@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Wifi, WifiOff, RefreshCw, AlertTriangle, Trash2 } from 'lucide-react'
@@ -6,6 +6,7 @@ import { useQueueWebSocket } from '@/lib/websocket'
 import { useGetQueueQuery } from '@/modules/queue/api'
 import { usePlayerQueue } from '@/modules/player/hooks/usePlayerQueue'
 import { createLogger } from '@/lib/utils/debugLogger'
+import { isValidTrackId } from '@/lib/invalidTrackHandler'
 
 // Create logger for queue sync monitor
 const syncLogger = createLogger('WEBSOCKET')
@@ -24,6 +25,7 @@ export default function QueueSyncMonitor({
     const [syncStatus, setSyncStatus] = useState<
         'synced' | 'out_of_sync' | 'unknown'
     >('unknown')
+    const prevQueueDataRef = useRef<any[]>([])
 
     // Ensure queueData is always an array
     const queueData = Array.isArray(queueDataRaw) ? queueDataRaw : []
@@ -41,8 +43,17 @@ export default function QueueSyncMonitor({
     )
 
     useEffect(() => {
-        if (queueData) {
+        // Only update lastApiCall if queueData actually changed (by shallow compare of IDs)
+        const prevQueue = prevQueueDataRef.current
+        const queueChanged =
+            queueData.length !== prevQueue.length ||
+            queueData.some(
+                (item: any, idx: number) =>
+                    item?.track?.id !== prevQueue[idx]?.track?.id
+            )
+        if (queueChanged) {
             setLastApiCall(new Date().toISOString())
+            prevQueueDataRef.current = queueData
         }
     }, [queueData])
 
@@ -73,6 +84,27 @@ export default function QueueSyncMonitor({
             syncLogger.log('Clear queue test completed')
         } catch (error) {
             syncLogger.error('Clear queue test failed:', error)
+        }
+    }
+
+    const handleCleanInvalidTracks = () => {
+        const invalidTracks = queueData
+            .filter(
+                (item: any) => item?.track?.id && !isValidTrackId(item.track.id)
+            )
+            .map((item: any) => ({
+                id: item.track.id,
+                title: item.track.title || 'Unknown',
+            }))
+
+        if (invalidTracks.length > 0) {
+            console.log('CLEAN Found invalid tracks to clean:', invalidTracks)
+            alert(
+                `Found ${invalidTracks.length} invalid tracks:\n${invalidTracks.map((t) => `- ID ${t.id}: ${t.title}`).join('\n')}\n\nPlease clear the queue to remove them.`
+            )
+        } else {
+            console.log('VALID No invalid tracks found in queue')
+            alert('No invalid tracks found in queue')
         }
     }
 
@@ -122,6 +154,27 @@ export default function QueueSyncMonitor({
             debugInfo,
             'Queue Sync Debug Info'
         )
+
+        // Log invalid track IDs in queue
+        const invalidTracks = queueData
+            .filter(
+                (item: any) => item?.track?.id && !isValidTrackId(item.track.id)
+            )
+            .map((item: any) => ({
+                id: item.track.id,
+                title: item.track.title || 'Unknown',
+            }))
+
+        if (invalidTracks.length > 0) {
+            console.warn(
+                'INVALID Invalid tracks found in queue:',
+                invalidTracks
+            )
+            syncLogger.error('Invalid tracks in queue', {
+                count: invalidTracks.length,
+                tracks: invalidTracks,
+            })
+        }
     }, [queueData])
 
     return (
@@ -205,6 +258,14 @@ export default function QueueSyncMonitor({
                 <Button
                     variant="outline"
                     size="sm"
+                    onClick={handleCleanInvalidTracks}
+                    className="text-xs min-w-0 sm:w-auto"
+                >
+                    <span className="truncate">Clean Invalid Tracks</span>
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => {
                         console.log('Queue Sync Debug Info:', {
                             isConnected: isConnected(),
@@ -223,7 +284,7 @@ export default function QueueSyncMonitor({
 
             {syncStatus === 'out_of_sync' && (
                 <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
-                    ⚠️ Queue may be out of sync. Try force sync or check
+                    WARNING Queue may be out of sync. Try force sync or check
                     connection.
                 </div>
             )}

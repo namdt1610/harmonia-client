@@ -3,6 +3,9 @@
 import { useParams } from 'next/navigation'
 import { useGetTrackByIdQuery } from '@/modules/tracks/api'
 import { useTranslations } from 'next-intl'
+import { isValidTrackId } from '@/lib/invalidTrackHandler'
+import { toast } from 'sonner'
+import { useEffect } from 'react'
 
 export const metadata = {
     title: 'Video',
@@ -31,10 +34,34 @@ export const PlayerVideo = ({ videoUrl }: { videoUrl: string }) => {
     )
 }
 
-export const VideoPage = () => {
+const VideoPage = () => {
     const t = useTranslations('VideoPage')
     const params = useParams() as { id: string }
-    const { data: track, isLoading } = useGetTrackByIdQuery(Number(params.id))
+    const trackId = Number(params.id)
+
+    // Validate track ID from URL
+    const isValidId = isValidTrackId(trackId)
+
+    const { data: track, isLoading } = useGetTrackByIdQuery(trackId, {
+        skip: !isValidId, // Skip API call if ID is invalid
+    })
+
+    // Show error for invalid ID
+    useEffect(() => {
+        if (!isValidId && trackId) {
+            toast.error(
+                `Invalid track ID ${trackId}. This track may have been removed.`
+            )
+        }
+    }, [isValidId, trackId])
+
+    if (!isValidId && trackId) {
+        return (
+            <div className="text-center text-destructive p-8">
+                Invalid track ID {trackId}. This track may have been removed.
+            </div>
+        )
+    }
 
     if (isLoading)
         return <div className="text-center text-white p-8">{t('loading')}</div>
@@ -53,3 +80,6 @@ export const VideoPage = () => {
 
     return <PlayerVideo videoUrl={track.video} />
 }
+
+// Add default export
+export default VideoPage

@@ -88,6 +88,8 @@ export const API_ROUTES = {
         REMOVE_TRACK: '/queue/remove-track/:id/',
         CLEAR: '/queue/clear/',
         SET_CURRENT: '/queue/set-current/:id/',
+        NEXT: '/stream-queue/next/',
+        PREVIOUS: '/stream-queue/previous/',
     },
     SEARCH: {
         GLOBAL: '/search/global_search/',
@@ -101,6 +103,7 @@ export const API_ROUTES = {
         BY_GENRE: '/tracks/by_genre/:id',
         STREAM: '/tracks/:id/stream/',
         VIDEO: '/tracks/:id/video/',
+        DOWNLOAD: '/tracks/:id/download/',
         DOWNLOAD_VIDEO: '/tracks/:id/download_video/',
         PLAY: '/tracks/:id/play/',
     },

@@ -57,7 +57,7 @@ export const userApi = createApi({
         }),
 
         getMyPlaylists: builder.query<Playlist[], void>({
-            query: () => api.USERS.PLAYLISTS,
+            query: () => api.PLAYLISTS.GET_BY_ID,
             providesTags: (result) =>
                 result
                     ? [

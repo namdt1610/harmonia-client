@@ -213,9 +213,12 @@ const TrackItem: React.FC<TrackItemProps> = ({
                         </Link>
                         {showArtist && (
                             <span className="text-xs text-[#b3b3b3]">
-                                {track.artist?.name}
+                                {track.artist.name}
                             </span>
                         )}
+                        <span className="text-xs text-[#b3b3b3]">
+                            ID: {track.id}
+                        </span>
                     </div>
                 </div>
 

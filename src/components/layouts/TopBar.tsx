@@ -39,7 +39,7 @@ export default function TopBar() {
     const router = useRouter()
     const pathname = usePathname()
     const locale = pathname?.split('/')[1] || 'en'
-    const { logout, isLoggingOut } = useLogout()
+    const { handleLogout, isLoading } = useLogout()
 
     return (
         <header className="h-16 bg-black/80 backdrop-filter backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 border-b border-neutral-800/50">
@@ -168,12 +168,12 @@ export default function TopBar() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     className="text-destructive"
-                                    onClick={logout}
-                                    disabled={isLoggingOut}
+                                    onClick={handleLogout}
+                                    disabled={isLoading}
                                 >
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <span>
-                                        {isLoggingOut
+                                        {isLoading
                                             ? 'Logging out...'
                                             : 'Log out'}
                                     </span>

@@ -3,6 +3,14 @@ import { ReactNode } from 'react'
 import { ReduxProvider } from '@/contexts/Provider'
 import { Metadata } from 'next'
 
+// Import debug utilities in development
+if (process.env.NODE_ENV === 'development') {
+    import('@/utils/debugInvalidTracks')
+}
+
+// Import global track error handler
+import('@/lib/invalidTrackHandler')
+
 type Props = {
     children: ReactNode
 }

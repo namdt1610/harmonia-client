@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import { useRefreshTokenMutation } from '@/modules/auth/api'
-import { setCredentials, clearCredentials } from '@/modules/auth/slice'
+import { setAccessToken, clearCredentials } from '@/modules/auth/slice'
 import { useRouter } from 'next/navigation'
 import { createLogger } from '@/lib/utils/debugLogger'
 
@@ -21,7 +21,7 @@ export const useSilentRefresh = (skip = false) => {
     const [refresh] = useRefreshTokenMutation()
     const isMounted = useRef(false)
     const isLoggedOut = useRef(false)
-    const refreshTimeout = useRef<NodeJS.Timeout>()
+    const refreshTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
     const { isLoggedIn, accessToken } = useAppSelector((state) => state.auth)
 
     useEffect(() => {
@@ -32,8 +32,9 @@ export const useSilentRefresh = (skip = false) => {
 
         authLogger.log('useSilentRefresh mounted')
         isMounted.current = true
-        // Reset logout state when component mounts
-        isLoggedOut.current = false
+        // Reset logout state when component mounts, but check localStorage
+        const wasLoggedOut = localStorage.getItem('isLoggedOut') === 'true'
+        isLoggedOut.current = wasLoggedOut
         return () => {
             authLogger.log('useSilentRefresh unmounted')
             isMounted.current = false
@@ -50,12 +51,12 @@ export const useSilentRefresh = (skip = false) => {
             return
         }
 
-        // Check if we're logged out
-        if (
-            isLoggedOut.current ||
-            localStorage.getItem('isLoggedOut') === 'true'
-        ) {
-            authLogger.log('Skipping refresh - user is logged out')
+        // Check if user is logged out based on persistent state
+        const wasLoggedOut = localStorage.getItem('isLoggedOut') === 'true'
+        const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true'
+
+        if (wasLoggedOut || !userLoggedIn) {
+            authLogger.log('Skipping refresh - user is not logged in')
             return
         }
 
@@ -76,7 +77,7 @@ export const useSilentRefresh = (skip = false) => {
             const result = await refresh().unwrap()
             if (result && result.access) {
                 authLogger.log('Token refresh successful, updating Redux state')
-                dispatch(setCredentials({ accessToken: result.access }))
+                dispatch(setAccessToken(result.access))
             } else {
                 authLogger.warn('Token refresh returned empty result')
             }
@@ -92,6 +93,7 @@ export const useSilentRefresh = (skip = false) => {
                 isLoggedOut.current = true
                 dispatch(clearCredentials())
                 localStorage.setItem('isLoggedOut', 'true')
+                localStorage.removeItem('userLoggedIn')
                 router.push('/login')
             } else {
                 authLogger.log(
@@ -101,15 +103,23 @@ export const useSilentRefresh = (skip = false) => {
         }
     }
 
-    // Schedule periodic token refresh only if we're logged in and not on auth page
+    // Schedule periodic token refresh based on persistent login state
     useEffect(() => {
         if (skip) return
 
-        if (isLoggedIn && !isLoggedOut.current && !refreshTimeout.current) {
+        const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true'
+        const wasLoggedOut = localStorage.getItem('isLoggedOut') === 'true'
+
+        if (userLoggedIn && !wasLoggedOut && !refreshTimeout.current) {
             // Set up periodic refresh every 50 minutes (tokens typically expire in 60 minutes)
             refreshTimeout.current = setInterval(
                 () => {
-                    if (isLoggedIn && !isLoggedOut.current) {
+                    const stillLoggedIn =
+                        localStorage.getItem('userLoggedIn') === 'true'
+                    const stillNotLoggedOut =
+                        localStorage.getItem('isLoggedOut') !== 'true'
+
+                    if (stillLoggedIn && stillNotLoggedOut) {
                         refreshToken()
                     }
                 },
@@ -123,7 +133,7 @@ export const useSilentRefresh = (skip = false) => {
                 refreshTimeout.current = undefined
             }
         }
-    }, [isLoggedIn, skip, refreshToken])
+    }, [skip, refreshToken])
 
     return refreshToken
 }

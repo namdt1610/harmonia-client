@@ -5,7 +5,7 @@ import { useStreamTrackQuery } from '@/modules/tracks/api'
 import { createLogger } from '@/lib/utils/debugLogger'
 
 // Create logger for audio stream
-const audioLogger = createLogger('AUDIO')
+const audioLogger = createLogger('API')
 
 // Track user interaction for autoplay policy
 let hasUserInteracted = false
@@ -130,28 +130,33 @@ export function useAudioStream({
                     seekableRanges: audio.seekable.length,
                     networkState: audio.networkState,
                     readyState: audio.readyState,
+                    trackId: track?.id,
+                    hasUserInteracted,
                 },
                 'Audio metadata loaded'
             )
             setDuration(audio.duration)
             setIsLoaded(true)
 
-            // Handle autoPlay - only if user has interacted with the page
-            if (autoPlay && audio.duration > 0 && hasUserInteracted) {
-                audio.play().catch((error) => {
-                    audioLogger.error(
-                        'Error playing audio:',
-                        error,
-                        audio.error
-                    )
-                    setError('Failed to play audio')
-                    onError && onError(error)
+            // Handle autoPlay - attempt play if autoplay is enabled
+            if (autoPlay && audio.duration > 0) {
+                audioLogger.log(`Attempting autoplay for track ${track?.id}`, {
+                    hasUserInteracted,
+                    duration: audio.duration,
                 })
-            } else if (autoPlay && audio.duration > 0 && !hasUserInteracted) {
-                audioLogger.log(
-                    'Autoplay blocked - waiting for user interaction'
-                )
-                // The audio will be ready to play when user clicks play button
+
+                audio.play().catch((error) => {
+                    // Autoplay failed - this is normal behavior
+                    audioLogger.log(
+                        'Autoplay blocked by browser - waiting for user interaction',
+                        { error: error.message }
+                    )
+                    // Don't set error state for autoplay blocks
+                    if (!error.message.includes('interact')) {
+                        setError('Failed to play audio')
+                        onError && onError(error)
+                    }
+                })
             } else if (audio.duration === 0) {
                 setError('Audio duration is 0, cannot play')
                 audioLogger.error('Audio loaded but duration is 0')

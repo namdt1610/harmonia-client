@@ -11,9 +11,11 @@ import {
 } from 'lucide-react'
 import { useAudioStream } from '../../hooks/useAudioStream'
 import { usePlayerQueue } from '../../hooks/usePlayerQueue'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/redux/store'
 import { createLogger } from '@/lib/utils/debugLogger'
+import { setIsPlaying } from '@/modules/player/slice'
+import { toast } from 'sonner'
 
 import PlayerTrackInfo from './PlayerTrackInfo'
 import PlayerControls from './PlayerControls'
@@ -28,6 +30,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
+import { useGetQueueQuery } from '@/modules/queue/api'
 
 // Create logger for player
 const audioLogger = createLogger('API')
@@ -39,7 +42,8 @@ interface PlayerProps {
 
 export default function Player({ onToggleQueue }: PlayerProps) {
     const {
-        currentTrack,
+        currentTrackResponse,
+        currentTrackId,
         queue,
         trackData,
         setCurrentTrack,
@@ -48,148 +52,119 @@ export default function Player({ onToggleQueue }: PlayerProps) {
         handleDownload,
         getCoverImage,
         toggleQueueVisibility,
+        nextTrackMutation,
+        previousTrackMutation,
     } = usePlayerQueue()
+
+    // Get Redux isPlaying state
+    const { isPlaying: reduxIsPlaying } = useSelector(
+        (state: RootState) => state.player
+    )
 
     // State cho repeat, repeat one, shuffle
     const [isRepeating, setIsRepeating] = useState(false)
     const [isRepeatOne, setIsRepeatOne] = useState(false)
     const [isShuffling, setIsShuffling] = useState(false)
-    const [shuffledQueue, setShuffledQueue] = useState<any[]>([])
     const [isPlaylistsModalOpen, setIsPlaylistsModalOpen] = useState(false)
 
-    // Use refs to track previous values and prevent unnecessary updates
-    const previousQueueRef = useRef<any[]>([])
-    const previousIsShufflingRef = useRef(false)
+    // Get queue data with currentIndex from API
+    const { data: queueApiData } = useGetQueueQuery()
 
-    // Shuffle logic
-    function shuffleArray(array: any[]) {
-        const arr = [...array]
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1))
-            ;[arr[i], arr[j]] = [arr[j], arr[i]]
-        }
-        return arr
-    }
+    // Extract currentIndex from queue API response
+    const currentIndex = queueApiData?.currentIndex ?? -1
+    const queueTracks = Array.isArray(queueApiData?.tracks)
+        ? queueApiData.tracks
+        : []
 
-    // Update shuffled queue only when isShuffling or queue actually changes
+    // Calculate navigation capabilities based on current position in queue
+    // More permissive logic for previous - allow if we have tracks and currentIndex is valid
+    const canPrev =
+        queueTracks.length > 0 &&
+        // Standard case: currentIndex > 0
+        (currentIndex > 0 ||
+            // Fallback: if currentIndex is invalid but we have tracks, assume we can go back
+            (currentIndex === -1 && queueTracks.length > 1) ||
+            // Edge case: if currentIndex is 0 but we have multiple tracks, still allow previous
+            (currentIndex === 0 && queueTracks.length > 1))
+
+    const canNext =
+        queueTracks.length > 0 &&
+        // Standard case: not at the end
+        (currentIndex < queueTracks.length - 1 ||
+            // Fallback: if currentIndex is invalid but we have tracks
+            (currentIndex === -1 && queueTracks.length > 0))
+
+    // Debug logging for queue navigation
     useEffect(() => {
-        // Ensure queue is always an array
-        const safeQueue = Array.isArray(queue) ? queue : []
+        console.log('QUEUE QUEUE NAVIGATION DEBUG:', {
+            queueApiData,
+            currentIndex,
+            queueTracksLength: queueTracks.length,
+            canPrev,
+            canNext,
+            hasQueueApiData: !!queueApiData,
+            queueApiCurrentIndex: queueApiData?.currentIndex,
+            queueApiTracksLength: queueApiData?.tracks?.length,
+            currentIndexType: typeof currentIndex,
+            isCurrentIndexValid: currentIndex >= 0,
+            calculation: {
+                hasTracksForPrev: queueTracks.length > 0,
+                indexGreaterThanZero: currentIndex > 0,
+                hasTracksForNext: queueTracks.length > 0,
+                indexLessThanLength: currentIndex < queueTracks.length - 1,
+            },
+        })
 
-        const queueChanged =
-            safeQueue.length !== previousQueueRef.current.length ||
-            safeQueue.some(
-                (item: any, index: number) =>
-                    item.track?.id !==
-                    previousQueueRef.current[index]?.track?.id
-            )
-        const shufflingChanged = isShuffling !== previousIsShufflingRef.current
-
-        if (shufflingChanged || queueChanged) {
-            if (isShuffling && safeQueue.length > 0) {
-                setShuffledQueue(shuffleArray(safeQueue))
-            } else {
-                setShuffledQueue([])
-            }
-
-            previousQueueRef.current = safeQueue
-            previousIsShufflingRef.current = isShuffling
-        }
-    }, [isShuffling, queue])
-
-    // Xác định queue đang dùng
-    const activeQueue = useMemo(() => {
-        // Ensure queue is always an array
-        const safeQueue = Array.isArray(queue) ? queue : []
-        const safeShuffledQueue = Array.isArray(shuffledQueue)
-            ? shuffledQueue
-            : []
-
-        return isShuffling && safeShuffledQueue.length > 0
-            ? safeShuffledQueue
-            : safeQueue
-    }, [isShuffling, shuffledQueue, queue])
-
-    const activeIndex = useMemo(() => {
-        if (!Array.isArray(activeQueue)) return -1
-
-        return activeQueue.findIndex(
-            (t: any) => t.track?.id === currentTrack?.id
+        audioLogger.logOnChange(
+            'queueNavigation',
+            {
+                currentIndex,
+                queueLength: queueTracks.length,
+                canPrev,
+                canNext,
+                hasQueueApiData: !!queueApiData,
+                queueApiCurrentIndex: queueApiData?.currentIndex,
+                queueApiTracksLength: queueApiData?.tracks?.length,
+            },
+            'Queue navigation state updated'
         )
-    }, [activeQueue, currentTrack])
+    }, [currentIndex, queueTracks.length, canPrev, canNext, queueApiData])
 
-    // Xử lý khi hết bài - stable callback
-    const handleEnd = useCallback(() => {
-        if (isRepeatOne && currentTrack) {
-            setCurrentTrack(currentTrack.id)
-            return
+    // Xử lý khi hết bài - use server-side next track logic
+    const handleEnd = useCallback(async () => {
+        try {
+            await nextTrackMutation().unwrap()
+        } catch (error) {
+            audioLogger.error('Failed to auto-play next track:', error)
         }
-
-        const safeQueue = Array.isArray(queue) ? queue : []
-        const safeShuffledQueue = Array.isArray(shuffledQueue)
-            ? shuffledQueue
-            : []
-        const currentActiveQueue =
-            isShuffling && safeShuffledQueue.length > 0
-                ? safeShuffledQueue
-                : safeQueue
-
-        const currentActiveIndex = currentActiveQueue.findIndex(
-            (t: any) => t.track?.id === currentTrack?.id
-        )
-
-        if (currentActiveIndex < currentActiveQueue.length - 1) {
-            setCurrentTrack(currentActiveQueue[currentActiveIndex + 1].track.id)
-        } else if (isRepeating && currentActiveQueue.length > 0) {
-            setCurrentTrack(currentActiveQueue[0].track.id)
-        }
-    }, [
-        isRepeatOne,
-        currentTrack,
-        isShuffling,
-        shuffledQueue,
-        queue,
-        isRepeating,
-        setCurrentTrack,
-    ])
+    }, [nextTrackMutation])
 
     // Hàm phát bài trước đó - stable callback
-    const handlePrev = useCallback(() => {
-        const safeQueue = Array.isArray(queue) ? queue : []
-        const safeShuffledQueue = Array.isArray(shuffledQueue)
-            ? shuffledQueue
-            : []
-        const currentActiveQueue =
-            isShuffling && safeShuffledQueue.length > 0
-                ? safeShuffledQueue
-                : safeQueue
-
-        const currentActiveIndex = currentActiveQueue.findIndex(
-            (t: any) => t.track?.id === currentTrack?.id
-        )
-
-        if (currentActiveIndex > 0) {
-            setCurrentTrack(currentActiveQueue[currentActiveIndex - 1].track.id)
-        } else if (isRepeating && currentActiveQueue.length > 0) {
-            setCurrentTrack(
-                currentActiveQueue[currentActiveQueue.length - 1].track.id
-            )
+    const handlePrev = useCallback(async () => {
+        try {
+            await previousTrackMutation().unwrap()
+        } catch (error) {
+            audioLogger.error('Failed to go to previous track:', error)
+            toast.error('Failed to go to previous track')
         }
-    }, [
-        isShuffling,
-        shuffledQueue,
-        queue,
-        currentTrack,
-        isRepeating,
-        setCurrentTrack,
-    ])
+    }, [previousTrackMutation])
+
+    // Hàm phát bài tiếp theo - stable callback
+    const handleNext = useCallback(async () => {
+        try {
+            await nextTrackMutation().unwrap()
+        } catch (error) {
+            audioLogger.error('Failed to go to next track:', error)
+            toast.error('Failed to go to next track')
+        }
+    }, [nextTrackMutation])
 
     const router = useRouter()
     const handlePlayVideo = useCallback(() => {
-        if (currentTrack) {
-            router.push(`/video/${currentTrack.id}`)
+        if (currentTrackId) {
+            router.push(`/video/${currentTrackId}`)
         }
-    }, [currentTrack, router])
+    }, [currentTrackId, router])
 
     const {
         audioRef: audioStreamRef,
@@ -206,7 +181,7 @@ export default function Player({ onToggleQueue }: PlayerProps) {
         setVolume: audioStreamSetVolume,
         error: audioStreamError,
     } = useAudioStream({
-        track: trackData,
+        track: trackData ?? null,
         autoPlay: true,
         onError: (e: any) => {},
         onEnd: handleEnd,
@@ -217,6 +192,8 @@ export default function Player({ onToggleQueue }: PlayerProps) {
     const [pendingSeek, setPendingSeek] = useState<number | null>(null)
     const [localDuration, setLocalDuration] = useState(0)
     const progressbarRef = useRef<HTMLDivElement>(null)
+
+    const dispatch = useDispatch()
 
     // Audio event listeners
     useEffect(() => {
@@ -266,7 +243,7 @@ export default function Player({ onToggleQueue }: PlayerProps) {
             audio.removeEventListener('play', handlePlay)
             audio.removeEventListener('pause', handlePause)
         }
-    }, [currentTrack?.id])
+    }, [currentTrackId])
 
     const handleProgressBarClick = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
@@ -294,18 +271,42 @@ export default function Player({ onToggleQueue }: PlayerProps) {
 
     // Log current track info for debugging
     useEffect(() => {
-        if (currentTrack && trackData) {
+        if (currentTrackId && trackData) {
             audioLogger.logOnChange(
                 'currentTrack',
                 {
-                    id: currentTrack,
+                    id: currentTrackId,
                     title: trackData.title,
                     artist: trackData.artist?.name,
                 },
                 'Now playing'
             )
         }
-    }, [currentTrack, trackData])
+    }, [currentTrackId, trackData])
+
+    // Sync Redux isPlaying state with audio element
+    useEffect(() => {
+        const audio = audioStreamRef.current
+        if (!audio || !audioStreamIsLoaded) return
+
+        audioLogger.logOnChange(
+            'playingStateSync',
+            {
+                reduxIsPlaying,
+                audioIsPlaying: !audio.paused,
+                audioReady: audio.readyState >= 3,
+            },
+            'Syncing playing state between Redux and audio element'
+        )
+
+        if (reduxIsPlaying && audio.paused && audio.readyState >= 3) {
+            // Redux says play but audio is paused - start playing
+            audioStreamPlay()
+        } else if (!reduxIsPlaying && !audio.paused) {
+            // Redux says pause but audio is playing - pause it
+            audioStreamPause()
+        }
+    }, [reduxIsPlaying, audioStreamIsLoaded, audioStreamPlay, audioStreamPause])
 
     const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)
     if (!isLoggedIn) return null
@@ -330,45 +331,17 @@ export default function Player({ onToggleQueue }: PlayerProps) {
             {/* Center section - Player controls and progress - Flex grow */}
             <div className="flex-1 flex flex-col items-center gap-1">
                 <PlayerControls
-                    isPlaying={audioStreamIsPlaying}
-                    onPlayPause={() =>
-                        audioStreamIsPlaying
-                            ? audioStreamPause()
-                            : audioStreamPlay()
-                    }
-                    onNext={() => {
-                        if (
-                            activeIndex < activeQueue.length - 1 &&
-                            Array.isArray(activeQueue)
-                        ) {
-                            setCurrentTrack(
-                                activeQueue[activeIndex + 1].track.id
-                            )
-                        } else if (
-                            isRepeating &&
-                            Array.isArray(activeQueue) &&
-                            activeQueue.length > 0
-                        ) {
-                            setCurrentTrack(activeQueue[0].track.id)
-                        }
+                    isPlaying={reduxIsPlaying}
+                    onPlayPause={() => {
+                        dispatch(setIsPlaying(!reduxIsPlaying))
                     }}
+                    onNext={handleNext}
                     onPrev={handlePrev}
                     onShuffle={() => setIsShuffling((v) => !v)}
                     onRepeat={() => setIsRepeating((v) => !v)}
                     onRepeatOne={() => setIsRepeatOne((v) => !v)}
-                    canPrev={
-                        (activeIndex > 0 && Array.isArray(activeQueue)) ||
-                        (isRepeating &&
-                            Array.isArray(activeQueue) &&
-                            activeQueue.length > 0)
-                    }
-                    canNext={
-                        (activeIndex < activeQueue.length - 1 &&
-                            Array.isArray(activeQueue)) ||
-                        (isRepeating &&
-                            Array.isArray(activeQueue) &&
-                            activeQueue.length > 0)
-                    }
+                    canPrev={canPrev}
+                    canNext={canNext}
                     isShuffling={isShuffling}
                     isRepeating={isRepeating}
                     isRepeatOne={isRepeatOne}
@@ -454,6 +427,12 @@ export default function Player({ onToggleQueue }: PlayerProps) {
                     }
                 />
             </div>
+
+            <PlaylistsModal
+                open={isPlaylistsModalOpen}
+                onClose={() => setIsPlaylistsModalOpen(false)}
+                trackId={currentTrackId}
+            />
         </div>
     )
 }

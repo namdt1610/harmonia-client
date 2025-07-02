@@ -1,20 +1,20 @@
 // Clear Browser Cache và RTK Query Cache
 // Chạy script này trong DevTools Console của browser
 
-console.log('🧹 Starting cache cleanup...')
+console.log('Starting cache cleanup...')
 
 // 1. Clear localStorage
 if (localStorage) {
     const beforeCount = localStorage.length
     localStorage.clear()
-    console.log(`✅ localStorage cleared (${beforeCount} items removed)`)
+    console.log(`localStorage cleared (${beforeCount} items removed)`)
 }
 
 // 2. Clear sessionStorage
 if (sessionStorage) {
     const beforeCount = sessionStorage.length
     sessionStorage.clear()
-    console.log(`✅ sessionStorage cleared (${beforeCount} items removed)`)
+    console.log(`sessionStorage cleared (${beforeCount} items removed)`)
 }
 
 // 3. Clear IndexedDB (cho RTK Query persist)
@@ -24,7 +24,7 @@ if ('indexedDB' in window) {
         .then((databases) => {
             databases.forEach((db) => {
                 indexedDB.deleteDatabase(db.name)
-                console.log(`✅ IndexedDB database deleted: ${db.name}`)
+                console.log(`IndexedDB database deleted: ${db.name}`)
             })
         })
         .catch((e) => console.warn('IndexedDB cleanup failed:', e))
@@ -37,13 +37,13 @@ if ('serviceWorker' in navigator && 'caches' in window) {
         .then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    console.log(`✅ Deleting cache: ${cacheName}`)
+                    console.log(`Deleting cache: ${cacheName}`)
                     return caches.delete(cacheName)
                 })
             )
         })
         .then(() => {
-            console.log('✅ Service Worker caches cleared')
+            console.log('Service Worker caches cleared')
         })
         .catch((e) => console.warn('Service Worker cache cleanup failed:', e))
 }
@@ -62,7 +62,7 @@ document.cookie.split(';').forEach((cookie) => {
         '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.' +
         window.location.hostname
 })
-console.log('✅ Cookies cleared')
+console.log('Cookies cleared')
 
 // 6. Clear Redux store nếu có Redux DevTools
 if (window.__REDUX_DEVTOOLS_EXTENSION__) {
@@ -71,7 +71,7 @@ if (window.__REDUX_DEVTOOLS_EXTENSION__) {
         if (window.store && window.store.dispatch) {
             // Clear RTK Query cache
             window.store.dispatch({ type: 'api/resetApiState' })
-            console.log('✅ Redux store reset')
+            console.log('Redux store reset')
         }
     } catch (e) {
         console.warn('Redux store reset failed:', e)
@@ -79,21 +79,22 @@ if (window.__REDUX_DEVTOOLS_EXTENSION__) {
 }
 
 // 7. Force reload page
-console.log('🔄 Reloading page in 2 seconds...')
+console.log('Reloading page in 2 seconds...')
 setTimeout(() => {
     window.location.reload(true) // Hard reload
 }, 2000)
 
 console.log(`
-🎉 Cache cleanup completed!
+
+Cache cleanup completed!
 
 What was cleared:
-- ✅ localStorage
-- ✅ sessionStorage  
-- ✅ IndexedDB
-- ✅ Service Worker caches
-- ✅ Cookies
-- ✅ Redux/RTK Query cache
+- localStorage
+- sessionStorage  
+- IndexedDB
+- Service Worker caches
+- Cookies
+- Redux/RTK Query cache
 
 The page will reload automatically to ensure all changes take effect.
 

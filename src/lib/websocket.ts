@@ -5,6 +5,7 @@ import { queueApi } from '@/modules/queue/api'
 import { RootState } from '@/redux/store'
 import { useAppSelector } from '@/redux/hooks'
 import { createLogger } from '@/lib/utils/debugLogger'
+import { isValidTrackId } from '@/lib/invalidTrackHandler'
 
 // Tạo logger cho WebSocket
 const wsLogger = createLogger('WEBSOCKET')
@@ -208,10 +209,47 @@ export const useQueueWebSocket = () => {
                     dispatch(setQueue(tracks))
 
                     if (tracks[current_index]) {
-                        dispatch(setCurrentTrack(tracks[current_index].track))
+                        const trackToSet = tracks[current_index].track
+
+                        // Validate track ID before setting
+                        if (
+                            trackToSet &&
+                            trackToSet.id &&
+                            isValidTrackId(trackToSet.id)
+                        ) {
+                            dispatch(setCurrentTrack(trackToSet))
+                        } else {
+                            wsLogger.warn(
+                                `Invalid track ID ${trackToSet?.id} received from WebSocket, skipping`
+                            )
+                            // Try to find a valid track in the queue
+                            const validTrack = tracks.find(
+                                (t) => t.track && isValidTrackId(t.track.id)
+                            )
+                            if (validTrack) {
+                                dispatch(setCurrentTrack(validTrack.track))
+                                wsLogger.log(
+                                    `Set valid track ${validTrack.track.id} instead`
+                                )
+                            } else {
+                                dispatch(setCurrentTrack(null))
+                                wsLogger.warn('No valid tracks found in queue')
+                            }
+                        }
                     } else if (tracks.length > 0) {
-                        // If current_index is invalid, set first track
-                        dispatch(setCurrentTrack(tracks[0].track))
+                        // If current_index is invalid, set first valid track
+                        const validTrack = tracks.find(
+                            (t) => t.track && isValidTrackId(t.track.id)
+                        )
+                        if (validTrack) {
+                            dispatch(setCurrentTrack(validTrack.track))
+                            wsLogger.log(
+                                `Set first valid track ${validTrack.track.id}`
+                            )
+                        } else {
+                            dispatch(setCurrentTrack(null))
+                            wsLogger.warn('No valid tracks found in queue')
+                        }
                     } else {
                         // No tracks in queue
                         dispatch(setCurrentTrack(null))

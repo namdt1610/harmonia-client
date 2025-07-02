@@ -157,7 +157,8 @@
     },
     "SearchBar": {
         "search": "Tìm kiếm",
-        "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album hoặc danh sách phát"
+        "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album hoặc danh sách phát",
+        "searchButton": "Tìm kiếm"
     },
     "TrackItem": {
         "addToQueue": "Thêm vào hàng đợi",
@@ -199,7 +200,11 @@
     },
     "Search": {
         "noResults": "Không tìm thấy kết quả",
-        "noResultsDescription": "Vui lòng thử lại với từ khóa khác."
+        "noResultsDescription": "Vui lòng thử lại với từ khóa khác.",
+        "searchPlaceholder": "Tìm theo tên bài hát, nghệ sĩ hoặc album...",
+        "search": "Tìm kiếm",
+        "searchButton": "Tìm kiếm",
+        "default": "mặc định"
     },
     "GoogleSignInPage": {
         "syncing": "Đang đồng bộ Google...",
@@ -215,6 +220,65 @@
         "tracks": "Bài hát",
         "artists": "Nghệ sĩ",
         "albums": "Album",
-        "playlists": "Danh sách phát"
+        "playlists": "Danh sách phát",
+        "discoverMusic": "Khám phá âm nhạc",
+        "defaultSort": "Sắp xếp theo độ liên quan (mặc định)"
+    },
+    "PlaylistsPage": {
+        "title": "Danh sách phát",
+        "noPlaylists": "Chưa có danh sách phát",
+        "createFirstPlaylist": "Tạo danh sách phát đầu tiên của bạn"
+    },
+    "PlaylistDetail": {
+        "notFound": "Không tìm thấy danh sách phát"
+    },
+    "Settings": {
+        "title": "Cài đặt",
+        "tabs": {
+            "profile": "Hồ sơ",
+            "account": "Tài khoản",
+            "appearance": "Giao diện",
+            "playback": "Phát nhạc",
+            "notifications": "Thông báo"
+        },
+        "profile": {
+            "title": "Hồ sơ",
+            "description": "Quản lý thông tin hồ sơ của bạn",
+            "displayName": "Tên hiển thị",
+            "username": "Tên người dùng",
+            "bio": "Tiểu sử",
+            "bioPlaceholder": "Viết một ít về bản thân..."
+        },
+        "playback": {
+            "title": "Cài đặt phát nhạc",
+            "description": "Tùy chỉnh trải nghiệm phát nhạc của bạn",
+            "quality": "Chất lượng âm thanh",
+            "normalQuality": "Bình thường",
+            "highQuality": "Cao",
+            "veryHighQuality": "Rất cao",
+            "qualityNote": "Chất lượng cao hơn sẽ sử dụng nhiều dữ liệu hơn",
+            "automix": "Trộn tự động",
+            "automixDescription": "Trộn nhạc một cách mượt mà giữa các bài",
+            "autoplay": "Tự động phát",
+            "autoplayDescription": "Tự động phát nhạc tương tự khi kết thúc",
+            "normalization": "Cân bằng âm lượng",
+            "normalizationDescription": "Cân bằng âm lượng giữa các bài hát",
+            "crossfade": "Chuyển đổi mượt",
+            "off": "Tắt"
+        },
+        "notifications": {
+            "title": "Thông báo",
+            "description": "Quản lý cài đặt thông báo của bạn",
+            "emailPreferences": "Tùy chọn email",
+            "newMusic": "Nhạc mới",
+            "newMusicDescription": "Nhận thông báo về nhạc mới từ nghệ sĩ yêu thích",
+            "playlists": "Danh sách phát",
+            "playlistsDescription": "Nhận thông báo về danh sách phát mới"
+        },
+        "actions": {
+            "save": "Lưu",
+            "saving": "Đang lưu...",
+            "cancel": "Hủy"
+        }
     }
 }

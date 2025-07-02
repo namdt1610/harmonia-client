@@ -9,7 +9,7 @@ import { Button } from '../ui/button'
 import { useLazyGlobalSearchQuery } from '@/modules/search/api'
 
 export default function SearchBar() {
-    console.log('🔍 SearchBar component rendered')
+    console.log('SEARCH SearchBar component rendered')
 
     const t = useTranslations('SearchBar')
     const locale = useLocale()
@@ -22,85 +22,85 @@ export default function SearchBar() {
 
     // Debug current locale
     useEffect(() => {
-        console.log('🌍 SearchBar locale:', locale)
-        console.log('🌍 SearchBar router:', !!router)
+        console.log('LOCALE SearchBar locale:', locale)
+        console.log('ROUTER SearchBar router:', !!router)
     }, [locale, router])
 
     // Debug search API results
     useEffect(() => {
         // Debug API URL
-        console.log('🌐 API URL:', process.env.NEXT_PUBLIC_API_URL)
+        console.log('API API URL:', process.env.NEXT_PUBLIC_API_URL)
         console.log(
-            '🔗 Search endpoint:',
+            'ENDPOINT Search endpoint:',
             `${process.env.NEXT_PUBLIC_API_URL}/search/global_search/`
         )
 
         if (searchResults) {
-            console.log('✅ API Response received:', searchResults)
+            console.log('RESPONSE API Response received:', searchResults)
         }
         if (error) {
-            console.error('❌ API Error:', error)
+            console.error('ERROR API Error:', error)
         }
         if (isLoading) {
-            console.log('⏳ API Loading...')
+            console.log('LOADING API Loading...')
         }
     }, [searchResults, error, isLoading])
 
     const performSearch = async (query: string) => {
         const trimmedQuery = query.trim()
         if (trimmedQuery.length >= 1) {
-            console.log('🔍 Performing search for:', trimmedQuery)
+            console.log('PERFORM Performing search for:', trimmedQuery)
 
             // Test API call trực tiếp
             try {
-                console.log('🚀 Testing direct API call...')
+                console.log('TEST Testing direct API call...')
                 const apiResult = await triggerSearch({
                     q: trimmedQuery,
                     page: 1,
                     page_size: 10,
                 }).unwrap()
-                console.log('✅ Direct API call successful:', apiResult)
+                console.log('SUCCESS Direct API call successful:', apiResult)
             } catch (apiError) {
-                console.error('❌ Direct API call failed:', apiError)
+                console.error('FAIL Direct API call failed:', apiError)
             }
 
             // Navigation như bình thường
             const searchUrl = `/${locale}/search?q=${encodeURIComponent(trimmedQuery)}`
-            console.log('🌐 Search URL:', searchUrl)
-            console.log('🌐 Current URL:', window.location.href)
+            console.log('URL Search URL:', searchUrl)
+            console.log('CURRENT Current URL:', window.location.href)
 
             try {
-                console.log('🚀 Using router.push...')
+                console.log('ROUTER Using router.push...')
                 router.push(searchUrl)
-                console.log('✅ router.push initiated')
+                console.log('PUSH router.push initiated')
 
                 // Check navigation sau 500ms
                 setTimeout(() => {
                     console.log(
-                        '🌐 URL after router.push:',
+                        'AFTER URL after router.push:',
                         window.location.href
                     )
                     if (!window.location.href.includes('/search')) {
                         console.log(
-                            '🔄 router.push failed, trying window.location...'
+                            'FALLBACK router.push failed, trying window.location...'
                         )
                         window.location.href = searchUrl
                     }
                 }, 500)
             } catch (error) {
-                console.error('❌ Navigation failed:', error)
-                console.log('🔄 Fallback to window.location...')
+                console.error('NAV Navigation failed:', error)
+                console.log('WINDOW Fallback to window.location...')
                 window.location.href = searchUrl
             }
         } else {
-            console.log('⚠️ Query too short:', trimmedQuery)
+            console.log('SHORT Query too short:', trimmedQuery)
         }
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
         setSearchQuery(value)
-        console.log('⌨️ Input changed:', value)
+        console.log('INPUT Input changed:', value)
 
         // Clear previous timeout
         if (timeoutRef.current) {
@@ -109,22 +109,22 @@ export default function SearchBar() {
 
         // Set new timeout for auto-search (chỉ khi gõ >= 2 ký tự)
         if (value.trim().length >= 2) {
-            console.log('⏰ Setting auto-search timeout for:', value)
+            console.log('TIMEOUT Setting auto-search timeout for:', value)
             timeoutRef.current = setTimeout(() => {
-                console.log('🚀 Auto-search triggered for:', value)
+                console.log('AUTO Auto-search triggered for:', value)
                 performSearch(value)
             }, 500) // Tăng timeout lên 500ms để tránh gọi API quá nhiều
         }
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        console.log('🎹 Key pressed:', e.key)
+        console.log('KEY Key pressed:', e.key)
         if (e.key === 'Enter') {
-            console.log('🎯 Enter key detected, performing search')
+            console.log('ENTER Enter key detected, performing search')
             // Clear timeout để tránh double search
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current)
-                console.log('⏰ Cleared auto-search timeout')
+                console.log('CLEAR Cleared auto-search timeout')
             }
             performSearch(searchQuery)
         }
@@ -163,7 +163,7 @@ export default function SearchBar() {
                 size="icon"
                 className="bg-neutral-700 hover:bg-neutral-600 text-white rounded-l-none rounded-r-full h-[42px] px-4 border-l-0"
                 onClick={() => {
-                    console.log('🖱️ Search button clicked')
+                    console.log('CLICK Search button clicked')
                     performSearch(searchQuery)
                 }}
                 aria-label={t('searchButton', { fallback: 'Search' })}

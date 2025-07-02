@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { setCredentials } from '@/modules/auth/slice'
+import { setLoggedIn, setUser, setAccessToken } from '@/modules/auth/slice'
 import { useLoginMutation } from '@/modules/auth/api'
 import { isFetchBaseQueryError } from '@/lib/apiError'
 import { LoginResponse } from '../../../types'
@@ -30,17 +30,16 @@ export const useLogin = () => {
                 password,
             }).unwrap()
             logger.info('[auth/login] Login successful')
-            // Store user info in Redux
-            logger.info('[auth/login] Storing user info in Redux')
-            dispatch(
-                setCredentials({
-                    user: result.user,
-                    accessToken: result.access,
-                })
-            )
 
-            // Reset isLoggedOut flag
-            logger.info('[auth/login] Resetting isLoggedOut flag')
+            // Store user info and tokens in Redux using new actions
+            logger.info('[auth/login] Storing user info in Redux')
+            dispatch(setUser(result.user))
+            dispatch(setAccessToken(result.access))
+            dispatch(setLoggedIn(true))
+
+            // Persist login state to localStorage
+            logger.info('[auth/login] Persisting login state')
+            localStorage.setItem('userLoggedIn', 'true')
             localStorage.removeItem('isLoggedOut')
 
             // The access token will be automatically handled by the browser

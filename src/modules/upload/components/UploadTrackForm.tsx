@@ -96,7 +96,7 @@ export default function UploadTrackForm() {
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 bg-white p-4 rounded-md shadow-md text-black"
+            className="space-y-4 bg-card p-4 rounded-md shadow-md text-card-foreground"
         >
             {/* File Upload */}
             <div>
@@ -118,7 +118,7 @@ export default function UploadTrackForm() {
                     </p>
                 )}
                 {duration !== null && (
-                    <p className="text-primary text-sm">
+                    <p className="text-foreground text-sm">
                         Thời lượng: {convertSecondsToMinutes(duration)}
                     </p>
                 )}

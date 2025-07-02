@@ -15,19 +15,11 @@ const isPublicPage = (page: string) => PUBLIC_PAGES.includes(page)
 const isDev = process.env.NODE_ENV === 'development'
 
 /**
- ** middleware.ts: Chạy ở Edge Middleware (Next.js backend, trước SSR/CSR)
- ** Middleware để xử lý locale và redirect
- ** Nếu không có locale, redirect sang locale mặc định
- ** Nếu là /vi/login hay /en/register, v.v. thì cho phép public
- ** Các trang khác thì kiểm tra token
- ** @request.nextUrl: là đặc sản của Next.js middleware
- ** nó tích sẵn url, giúp bạn phân tích URL một cách tiện lợi, thay vì phải parse string thủ công như ngày xưa.
- ** @pathname: là phần path của URL
- ** @searchParams: là phần query của URL, ví dụ: /?page=1&limit=10
- ** @pathnameParts: là phần path của URL được tách thành một mảng
- ** @locale: là locale của URL
- ** @page: là phần path của URL
- ** @token: là token của user
+ ** middleware.ts: Simplified middleware for hybrid auth system
+ ** - Basic route protection using cookies (no strict validation)
+ ** - Client-side Redux handles detailed auth state management
+ ** - Prevents logout inconsistency by letting client handle auth details
+ ** - Server-side logout endpoint clears HTTP-only cookies properly
  */
 export async function middleware(request: NextRequest) {
     const { pathname, searchParams } = request.nextUrl
@@ -41,12 +33,7 @@ export async function middleware(request: NextRequest) {
         console.log('[MIDDLEWARE] Current page:', page)
     }
 
-    const token = request.cookies.get('access_token')?.value
-    if (isDev) {
-        console.log('[MIDDLEWARE] Access token from cookie:', !!token)
-    }
-
-    // 1. Redirect nếu thiếu locale
+    // 1. Redirect if missing locale
     if (!LOCALES.some((l) => pathname.startsWith(`/${l}`))) {
         if (isDev) {
             console.log(
@@ -58,17 +45,7 @@ export async function middleware(request: NextRequest) {
         )
     }
 
-    // 2. Nếu đã login → mà vẫn vào /login, /register → redirect về trang chính
-    if (token && ['login', 'register'].includes(page)) {
-        if (isDev) {
-            console.log('[MIDDLEWARE] Already logged in, redirecting to home')
-        }
-        return NextResponse.redirect(
-            new URL(`/${locale}${r.HOME}`, request.url)
-        )
-    }
-
-    // 3. Trang public → next luôn
+    // 2. Public pages → allow access regardless of auth status
     if (isPublicPage(page)) {
         if (isDev) {
             console.log('[MIDDLEWARE] Public page, allowing access')
@@ -76,18 +53,48 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
-    // 4. Nếu chưa login → redirect về /login
-    if (!token) {
+    // 3. Check for basic token presence (simple route protection)
+    const accessToken = request.cookies.get('access_token')?.value
+    const refreshToken = request.cookies.get('refresh_token')?.value
+    const hasAnyToken = !!(accessToken || refreshToken)
+
+    // 4. For auth pages (login/register) - redirect if has tokens
+    if (['login', 'register'].includes(page)) {
+        if (hasAnyToken) {
+            if (isDev) {
+                console.log(
+                    '[MIDDLEWARE] Has tokens but on auth page, redirecting to home'
+                )
+            }
+            return NextResponse.redirect(
+                new URL(`/${locale}${r.HOME}`, request.url)
+            )
+        }
+
         if (isDev) {
-            console.log('[MIDDLEWARE] No token, redirecting to login')
+            console.log('[MIDDLEWARE] No tokens on auth page, allowing access')
+        }
+        return NextResponse.next()
+    }
+
+    // 5. For protected routes - require at least one token
+    if (!hasAnyToken) {
+        if (isDev) {
+            console.log(
+                '[MIDDLEWARE] No tokens for protected route, redirecting to login'
+            )
         }
         return NextResponse.redirect(
             new URL(`/${locale}${r.LOGIN}`, request.url)
         )
     }
 
+    // 6. Has tokens and accessing protected route → allow access
+    // Let client-side handle detailed auth validation and state management
     if (isDev) {
-        console.log('[MIDDLEWARE] Access granted')
+        console.log(
+            '[MIDDLEWARE] Has tokens, allowing access to protected route'
+        )
     }
     return NextResponse.next()
 }

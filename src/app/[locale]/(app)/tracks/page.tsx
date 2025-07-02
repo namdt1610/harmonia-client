@@ -1,5 +1,3 @@
-'use client'
-
 import { useTracks } from '@/modules/tracks/hooks/useTracks'
 import { TracksUI } from '@/modules/tracks/components/TrackUI'
 

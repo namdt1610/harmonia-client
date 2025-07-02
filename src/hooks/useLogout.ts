@@ -11,144 +11,57 @@ export const useLogout = () => {
     const router = useRouter()
     const [logout, { isLoading }] = useLogoutMutation()
 
-    const clearAllCookies = () => {
-        // Clear cookies with all possible combinations
-        const cookieNames = ['access_token', 'refresh_token']
-        const paths = ['/', '']
-        const domains = [undefined, 'localhost', '']
-        const sameSiteOptions = ['Lax', 'Strict', 'None'] as const
-
-        // First try using js-cookie
-        cookieNames.forEach((name) => {
-            paths.forEach((path) => {
-                domains.forEach((domain) => {
-                    sameSiteOptions.forEach((sameSite) => {
-                        // Try with secure true and false
-                        Cookies.remove(name, {
-                            path,
-                            domain,
-                            sameSite,
-                            secure: true,
-                        })
-                        Cookies.remove(name, {
-                            path,
-                            domain,
-                            sameSite,
-                            secure: false,
-                        })
-                    })
-                })
-            })
-        })
-
-        // Then try using document.cookie with all combinations
-        cookieNames.forEach((name) => {
-            paths.forEach((path) => {
-                domains.forEach((domain) => {
-                    const domainStr = domain ? `domain=${domain};` : ''
-                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; ${domainStr}`
-                })
-            })
-        })
-
-        // Finally, try to clear all cookies
-        document.cookie.split(';').forEach(function (c) {
-            document.cookie = c
-                .replace(/^ +/, '')
-                .replace(
-                    /=.*/,
-                    '=;expires=' + new Date().toUTCString() + ';path=/'
-                )
-        })
-    }
-
     const handleLogout = async () => {
         try {
-            // Clear Redux store first
+            // 1. Clear Redux state FIRST to update UI immediately
             dispatch(clearCredentials())
 
-            // Clear all cookies before API call
-            clearAllCookies()
+            // 2. Update localStorage to mark user as logged out
+            localStorage.setItem('isLoggedOut', 'true')
+            localStorage.removeItem('userLoggedIn')
 
-            // Clear localStorage and sessionStorage
-            localStorage.clear()
-            sessionStorage.clear()
-
-            // Call logout API
+            // 3. Call server logout endpoint to clear HTTP-only cookies
+            // This is the MOST IMPORTANT step for clearing server-side tokens
             await logout().unwrap()
 
-            // Clear cookies again after API call
-            clearAllCookies()
-
-            // Force clear localStorage and sessionStorage again
-            localStorage.clear()
-            sessionStorage.clear()
-
-            // Thêm đoạn xóa cookie bằng document.cookie với các option phổ biến
-            const cookieNames = ['access_token', 'refresh_token']
-            const paths = ['/', '']
-            const domains = [
-                undefined,
-                'localhost',
-                window.location.hostname,
-                '',
-            ]
-            cookieNames.forEach((name) => {
-                paths.forEach((path) => {
-                    domains.forEach((domain) => {
-                        let cookieStr = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`
-                        if (domain) cookieStr += ` domain=${domain};`
-                        document.cookie = cookieStr
-                    })
-                })
-            })
-
-            // Add a flag to prevent any refresh attempts
-            localStorage.setItem('isLoggedOut', 'true')
-
-            // Use window.location.href for redirect to ensure full page reload
-            window.location.href = '/login'
+            console.log(
+                'Server logout successful - HTTP-only cookies should be cleared'
+            )
         } catch (error) {
-            console.error('Logout failed:', error)
-            // Even if server logout fails, clear all frontend data
-            dispatch(clearCredentials())
-
-            // Force clear all cookies
-            clearAllCookies()
-
-            // Force clear localStorage and sessionStorage
-            localStorage.clear()
-            sessionStorage.clear()
-
-            // Thêm đoạn xóa cookie bằng document.cookie với các option phổ biến
-            const cookieNames = ['access_token', 'refresh_token']
-            const paths = ['/', '']
-            const domains = [
-                undefined,
-                'localhost',
-                window.location.hostname,
-                '',
-            ]
-            cookieNames.forEach((name) => {
-                paths.forEach((path) => {
-                    domains.forEach((domain) => {
-                        let cookieStr = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`
-                        if (domain) cookieStr += ` domain=${domain};`
-                        document.cookie = cookieStr
-                    })
-                })
-            })
-
-            // Add a flag to prevent any refresh attempts
-            localStorage.setItem('isLoggedOut', 'true')
-
-            // Force redirect to login page
-            window.location.href = '/login'
+            console.error('Server logout failed:', error)
+            // Even if server logout fails, we continue with client-side cleanup
         }
+
+        try {
+            // 4. Client-side cookie cleanup as fallback (for non-HTTP-only cookies)
+            const cookieNames = ['access_token', 'refresh_token']
+            cookieNames.forEach((name) => {
+                // Try js-cookie first
+                Cookies.remove(name, { path: '/' })
+                Cookies.remove(name, { path: '/', domain: 'localhost' })
+                Cookies.remove(name, { path: '/', domain: '' })
+
+                // Try document.cookie as fallback
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=localhost;`
+            })
+        } catch (error) {
+            console.warn('Client-side cookie cleanup failed:', error)
+            // This is not critical since server should have cleared HTTP-only cookies
+        }
+
+        // 5. Navigate to login page
+        router.push('/login')
+
+        // 6. Optional: Force page reload to ensure clean state
+        // Uncomment if you experience any state persistence issues
+        // setTimeout(() => {
+        //     window.location.href = '/login'
+        // }, 100)
     }
 
     return {
-        logout: handleLogout,
-        isLoggingOut: isLoading,
+        handleLogout,
+        isLoading,
     }
 }

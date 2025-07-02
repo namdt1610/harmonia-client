@@ -14,7 +14,25 @@ export function PlayerTrackInfo({
     getCoverImage,
     audioError,
 }: PlayerTrackInfoProps) {
-    if (!trackData) return null
+    // Show debug info when no track data
+    if (!trackData) {
+        return (
+            <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-md overflow-hidden bg-neutral-800 flex items-center justify-center">
+                    <span className="text-neutral-400 text-xs">?</span>
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-neutral-400 text-sm">
+                        No track data
+                    </span>
+                    <span className="text-neutral-500 text-xs">
+                        Check console for debug info
+                    </span>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-md overflow-hidden">

@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Download, X } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface VideoPlayerProps {
     videoUrl: string
@@ -34,9 +35,36 @@ export default function VideoPlayer({
         if (!videoRef.current) return
 
         if (!document.fullscreenElement) {
-            videoRef.current.requestFullscreen()
+            videoRef.current.requestFullscreen().catch((error) => {
+                console.error('Error attempting to enable fullscreen:', error)
+                toast.error('Failed to enter fullscreen mode')
+            })
         } else {
-            document.exitFullscreen()
+            document.exitFullscreen().catch((error) => {
+                console.error('Error attempting to exit fullscreen:', error)
+                toast.error('Failed to exit fullscreen mode')
+            })
+        }
+    }
+
+    const handleDownloadClick = () => {
+        try {
+            if (onDownload) {
+                onDownload()
+            } else {
+                // Fallback download method
+                const link = document.createElement('a')
+                link.href = videoUrl
+                link.download = 'video.mp4'
+                link.target = '_blank'
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                toast.success('Video download started')
+            }
+        } catch (error) {
+            console.error('Error downloading video:', error)
+            toast.error('Failed to download video')
         }
     }
 
@@ -64,16 +92,15 @@ export default function VideoPlayer({
                 />
 
                 {/* Download button */}
-                {onDownload && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute bottom-4 right-4 text-white hover:text-white/80"
-                        onClick={onDownload}
-                    >
-                        <Download size={24} />
-                    </Button>
-                )}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute bottom-4 right-4 text-white hover:text-white/80"
+                    onClick={handleDownloadClick}
+                    title="Download video"
+                >
+                    <Download size={24} />
+                </Button>
             </div>
         </div>
     )
