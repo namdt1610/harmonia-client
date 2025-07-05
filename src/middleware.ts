@@ -29,8 +29,38 @@ export async function middleware(request: NextRequest) {
     const page = pathnameParts[2] || ''
 
     if (isDev) {
+        console.log('[MIDDLEWARE] ===== REQUEST DEBUG =====')
         console.log('[MIDDLEWARE] Current pathname:', pathname)
+        console.log('[MIDDLEWARE] Request URL:', request.url)
+        console.log('[MIDDLEWARE] Method:', request.method)
+        console.log(
+            '[MIDDLEWARE] User-Agent:',
+            request.headers.get('user-agent')
+        )
+        console.log(
+            '[MIDDLEWARE] Request headers referer:',
+            request.headers.get('referer')
+        )
+        console.log('[MIDDLEWARE] Accept:', request.headers.get('accept'))
         console.log('[MIDDLEWARE] Current page:', page)
+        console.log('[MIDDLEWARE] Search params:', searchParams.toString())
+        console.log('[MIDDLEWARE] ========================')
+    }
+
+    // Skip middleware for static assets, API routes, and special Next.js paths
+    if (
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/api') ||
+        pathname.startsWith('/favicon') ||
+        pathname.includes('.') ||
+        pathname === '/robots.txt' ||
+        pathname === '/sitemap.xml' ||
+        pathname === '/' // Skip root path completely - Next.js redirects will handle
+    ) {
+        if (isDev) {
+            console.log('[MIDDLEWARE] Skipping:', pathname)
+        }
+        return NextResponse.next()
     }
 
     // 1. Redirect if missing locale
@@ -39,9 +69,16 @@ export async function middleware(request: NextRequest) {
             console.log(
                 '[MIDDLEWARE] Missing locale, redirecting to default locale'
             )
+            console.log('[MIDDLEWARE] Original pathname:', pathname)
+            console.log(
+                '[MIDDLEWARE] Will redirect to:',
+                `/${DEFAULT_LOCALE}${pathname}`
+            )
         }
+        // For non-root paths, add default locale
+        const redirectPath = `/${DEFAULT_LOCALE}${pathname}`
         return NextResponse.redirect(
-            new URL(`/${DEFAULT_LOCALE}${pathname}${searchParams}`, request.url)
+            new URL(`${redirectPath}${searchParams}`, request.url)
         )
     }
 
@@ -100,5 +137,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon (favicon files)
+         * - Files with extensions
+         */
+        '/((?!api/|_next/static|_next/image|favicon|.*\\.[^/]+$).*)',
+    ],
 }

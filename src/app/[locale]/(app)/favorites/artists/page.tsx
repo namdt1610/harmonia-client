@@ -27,18 +27,18 @@ export default function FavoriteArtistsPage() {
                             key={artist.id}
                             className="group relative flex flex-col items-center"
                         >
-                            <div className="aspect-square w-full max-w-[180px] rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                {artist.avatar ? (
-                                    <Image
-                                        src={artist.avatar}
+                            <div className="w-16 h-16 rounded-full overflow-hidden">
+                                {artist.image ? (
+                                    <img
+                                        src={artist.image}
                                         alt={artist.name}
-                                        width={180}
-                                        height={180}
-                                        className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                                        className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                                        <Users className="h-12 w-12 text-primary/50" />
+                                    <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                        <span className="text-sm">
+                                            No Image
+                                        </span>
                                     </div>
                                 )}
                             </div>

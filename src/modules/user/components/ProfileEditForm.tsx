@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import AvatarUpload from './AvatarUpload'
-import { useCurrentUser, useUploadUserAvatar } from '../hooks/useUsers'
+import { useCurrentUser, useUploadUserImage } from '../hooks/useUsers'
 
 export default function ProfileEditForm() {
     const { user, isLoading, updateMe, updateState } = useCurrentUser()
-    const { uploadAvatar, uploadState } = useUploadUserAvatar()
+    const { uploadImage, uploadState } = useUploadUserImage()
     const [form, setForm] = useState({
         username: '',
         email: '',
@@ -17,7 +17,7 @@ export default function ProfileEditForm() {
     })
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
     const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-        undefined
+        user?.image
     )
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export default function ProfileEditForm() {
                 email: user.email || '',
                 display_name: user.display_name || '',
             })
-            setAvatarPreview(user.avatar)
+            setAvatarPreview(user.image)
         }
     }, [user])
 
@@ -43,24 +43,24 @@ export default function ProfileEditForm() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
 
-        // 1. Nếu có file avatar mới, upload trước
-        if (avatarFile) {
-            try {
-                await uploadAvatar(avatarFile).unwrap()
-                toast.success('Update avatar successfully')
-            } catch {
-                toast.error('Error when updating avatar')
-                return
-            }
-            setAvatarFile(null)
-        }
-
-        // 2. Cập nhật thông tin user (JSON)
         try {
+            // 1. Nếu có file image mới, upload trước
+            if (avatarFile) {
+                try {
+                    await uploadImage(avatarFile).unwrap()
+                    toast.success('Update image successfully')
+                } catch (error) {
+                    toast.error('Error when updating image')
+                    return
+                }
+                setAvatarFile(null)
+            }
+
+            // 2. Sau đó cập nhật thông tin user
             await updateMe(form).unwrap()
-            toast.success('Cập nhật hồ sơ thành công')
-        } catch {
-            toast.error('Lỗi khi cập nhật hồ sơ')
+            toast.success('Update profile successfully')
+        } catch (error) {
+            toast.error('Error when updating profile')
         }
     }
 

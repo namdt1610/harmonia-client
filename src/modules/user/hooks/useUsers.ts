@@ -8,18 +8,18 @@ import {
     useGetFavoriteTracksQuery,
     useAddFavoriteTrackMutation,
     useRemoveFavoriteTrackMutation,
-    useUploadAvatarMutation,
+    useUploadImageMutation,
 } from '../api'
 
 export function useCurrentUser() {
-    const { data: user, isLoading, isError, refetch } = useGetMeQuery()
+    const { data: user, isLoading, error } = useGetMeQuery()
     const [updateMe, updateState] = useUpdateMeMutation()
-    return { user, isLoading, isError, refetch, updateMe, updateState }
+    return { user, isLoading, error, updateMe, updateState }
 }
 
-export function useUploadUserAvatar() {
-    const [uploadAvatar, uploadState] = useUploadAvatarMutation()
-    return { uploadAvatar, uploadState }
+export function useUploadUserImage() {
+    const [uploadImage, uploadState] = useUploadImageMutation()
+    return { uploadImage, uploadState }
 }
 
 export function useUserPlaylists() {

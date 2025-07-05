@@ -9,8 +9,6 @@ import { Button } from '../ui/button'
 import { useLazyGlobalSearchQuery } from '@/modules/search/api'
 
 export default function SearchBar() {
-    console.log('SEARCH SearchBar component rendered')
-
     const t = useTranslations('SearchBar')
     const locale = useLocale()
     const [searchQuery, setSearchQuery] = useState('')
@@ -19,6 +17,11 @@ export default function SearchBar() {
 
     const [triggerSearch, { data: searchResults, isLoading, error }] =
         useLazyGlobalSearchQuery()
+
+    // Debug logging - moved to useEffect to prevent state updates during render
+    useEffect(() => {
+        console.log('SEARCH SearchBar component rendered')
+    }, [])
 
     // Debug current locale
     useEffect(() => {

@@ -16,12 +16,10 @@ export default function ArtistItem({
         <Card className="group p-3 aspect-[1/1.13] bg-neutral-900/70 border-none shadow-none relative hover:bg-neutral-800/90 transition-colors">
             <CardContent className="p-0 flex flex-col items-center pb-2">
                 <div className="relative w-full aspect-square rounded-full overflow-hidden shadow-md">
-                    <Image
-                        src={artist.avatar}
+                    <img
+                        className="w-full h-full object-cover"
+                        src={artist.image}
                         alt={artist.name}
-                        fill
-                        className="object-cover"
-                        priority
                     />
                 </div>
             </CardContent>

@@ -8,6 +8,7 @@ import { useGetArtistQuery } from '@/modules/artists/api'
 import { useGetTracksByArtistQuery } from '@/modules/tracks/api'
 import { useGetAlbumsByArtistQuery } from '@/modules/albums/api'
 import DetailHeader from '@/components/shared/DetailHeader'
+import { HeroSection } from '@/components/shared/HeroSection'
 
 export const metadata = {
     title: 'Artist Details',
@@ -58,12 +59,12 @@ export const ArtistPage = () => {
 
     return (
         <>
-            <DetailHeader
+            <HeroSection
                 title={artist.name}
-                subtitle={t('artist')}
-                coverImage={artist.avatar || '/images/default-cover.webp'}
-                type="artist"
+                subtitle="Artist"
                 description={artist.bio}
+                coverImage={artist.image || '/images/default-cover.webp'}
+                type="artist"
             />
             <ArtistDetails
                 artist={artist as Artist}

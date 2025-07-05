@@ -34,9 +34,7 @@ export default function ProfileSettings() {
         <Card className="bg-card border-border">
             <CardHeader>
                 <CardTitle>{t('profile.title')}</CardTitle>
-                <CardDescription>
-                    {t('profile.description')}
-                </CardDescription>
+                <CardDescription>{t('profile.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="flex items-center space-x-6">
@@ -47,9 +45,9 @@ export default function ProfileSettings() {
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        <Button size="sm">{t('profile.changeAvatar')}</Button>
+                        <Button size="sm">{t('profile.changeImage')}</Button>
                         <p className="text-xs text-muted-foreground mt-2">
-                            {t('profile.avatarRequirements')}
+                            {t('profile.imageRequirements')}
                         </p>
                     </div>
                 </div>
@@ -57,17 +55,11 @@ export default function ProfileSettings() {
                 <div className="space-y-4">
                     <div>
                         <Label>{t('profile.displayName')}</Label>
-                        <Input
-                            value="John Doe"
-                            className="bg-muted border-0"
-                        />
+                        <Input value="John Doe" className="bg-muted border-0" />
                     </div>
                     <div>
                         <Label>{t('profile.username')}</Label>
-                        <Input
-                            value="@johndoe"
-                            className="bg-muted border-0"
-                        />
+                        <Input value="@johndoe" className="bg-muted border-0" />
                     </div>
                     <div>
                         <Label>{t('profile.bio')}</Label>

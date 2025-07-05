@@ -1,8 +1,15 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react'
+import {
+    User,
+    ChevronLeft,
+    ChevronRight,
+    LogOut,
+    Settings,
+    Crown,
+} from 'lucide-react'
 import PlaylistSection from '@/components/shared/PlaylistSection'
 import DefaultLogo from '@/assets/images/default-logo.png'
 import { cn } from '@/lib/clsx'
@@ -20,6 +27,10 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { useGetMySubscriptionQuery } from '@/lib/api/subscription'
 
 interface SidebarProps {
     locale: string
@@ -40,6 +51,33 @@ export default function Sidebar({ locale }: SidebarProps) {
     const startX = useRef(0)
     const startWidth = useRef(width)
     const sidebarRef = useRef<HTMLDivElement>(null)
+
+    // Get user and subscription data
+    const { user, isLoggedIn } = useSelector((state: RootState) => state.auth)
+    const { data: subscription } = useGetMySubscriptionQuery(undefined, {
+        skip: !isLoggedIn,
+    })
+
+    // Helper function to get subscription status display
+    const getSubscriptionStatus = () => {
+        if (!subscription) {
+            return { text: 'Free', variant: 'secondary' as const }
+        }
+
+        if (subscription.plan.plan_type === 'FREE') {
+            return { text: 'Free', variant: 'secondary' as const }
+        }
+
+        if (subscription.status === 'ACTIVE') {
+            return { text: 'Premium', variant: 'default' as const }
+        }
+
+        if (subscription.status === 'TRIAL') {
+            return { text: 'Trial', variant: 'default' as const }
+        }
+
+        return { text: 'Free', variant: 'secondary' as const }
+    }
 
     // Handle quick collapse/expand with smooth transition
     const toggleSidebar = () => {
@@ -176,59 +214,107 @@ export default function Sidebar({ locale }: SidebarProps) {
 
                 {/* Bottom user section */}
                 <div className="border-t border-neutral-800/50 p-3">
-                    <div className="flex items-center justify-between">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    className="flex items-center gap-2 w-full justify-start px-2 py-1.5 h-auto rounded-md hover:bg-neutral-800/80"
-                                >
-                                    <div className="h-8 w-8 rounded-full bg-neutral-700 flex items-center justify-center flex-shrink-0">
-                                        <User
-                                            size={16}
-                                            className="text-white"
-                                        />
-                                    </div>
-
-                                    <div
-                                        className={cn(
-                                            'truncate flex-1 text-left transition-all duration-300',
-                                            collapsed
-                                                ? 'opacity-0 w-0 overflow-hidden'
-                                                : 'opacity-100 w-auto'
-                                        )}
+                    {isLoggedIn ? (
+                        <div className="flex items-center justify-between">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        className="flex items-center gap-2 w-full justify-start px-2 py-1.5 h-auto rounded-md hover:bg-neutral-800/80"
                                     >
-                                        <p className="text-sm font-medium truncate">
-                                            User Name
-                                        </p>
-                                        <p className="text-xs text-neutral-400 truncate">
-                                            user@example.com
-                                        </p>
-                                    </div>
-                                </Button>
-                            </DropdownMenuTrigger>
+                                        <div className="h-8 w-8 rounded-full bg-neutral-700 flex items-center justify-center flex-shrink-0">
+                                            <User
+                                                size={16}
+                                                className="text-white"
+                                            />
+                                        </div>
 
-                            <DropdownMenuContent
-                                align="start"
-                                sideOffset={8}
-                                className="w-56"
-                            >
-                                <DropdownMenuItem>
-                                    <User className="mr-2 h-4 w-4" />
-                                    <span>Profile</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    <span>Settings</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    <span>Log out</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                                        <div
+                                            className={cn(
+                                                'truncate flex-1 text-left transition-all duration-300',
+                                                collapsed
+                                                    ? 'opacity-0 w-0 overflow-hidden'
+                                                    : 'opacity-100 w-auto'
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <p className="text-sm font-medium truncate">
+                                                    {user?.display_name ||
+                                                        'User'}
+                                                </p>
+                                                <Badge
+                                                    variant={
+                                                        getSubscriptionStatus()
+                                                            .variant
+                                                    }
+                                                    className={cn(
+                                                        'text-xs px-1.5 py-0 h-4 border-none',
+                                                        getSubscriptionStatus()
+                                                            .variant ===
+                                                            'default'
+                                                            ? 'bg-yellow-500/20 text-yellow-300'
+                                                            : 'bg-gray-500/20 text-gray-400'
+                                                    )}
+                                                >
+                                                    {
+                                                        getSubscriptionStatus()
+                                                            .text
+                                                    }
+                                                </Badge>
+                                            </div>
+                                            <p className="text-xs text-neutral-400 truncate">
+                                                {user?.email ||
+                                                    'user@example.com'}
+                                            </p>
+                                        </div>
+                                    </Button>
+                                </DropdownMenuTrigger>
+
+                                <DropdownMenuContent
+                                    align="start"
+                                    sideOffset={8}
+                                    className="w-56"
+                                >
+                                    <DropdownMenuItem>
+                                        <User className="mr-2 h-4 w-4" />
+                                        <span>Profile</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <Crown className="mr-2 h-4 w-4" />
+                                        <span>Subscription</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        <span>Settings</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        <span>Log out</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    ) : (
+                        <div className="text-center space-y-2">
+                            <p className="text-sm text-gray-400">
+                                {collapsed
+                                    ? '?'
+                                    : 'Sign in to access your music'}
+                            </p>
+                            {!collapsed && (
+                                <Button
+                                    size="sm"
+                                    className="w-full bg-white text-black hover:bg-gray-200"
+                                    onClick={() =>
+                                        (window.location.href = `/${locale}/login`)
+                                    }
+                                >
+                                    Sign In
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </aside>
 

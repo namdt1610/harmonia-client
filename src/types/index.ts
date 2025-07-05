@@ -2,7 +2,7 @@ export interface Artist {
     id: number
     name: string
     bio?: string
-    avatar: string
+    image: string
     genres?: string[]
     tracks: Track[]
     albums: Album[]
@@ -66,7 +66,7 @@ export interface User {
     display_name: string
     email: string
     password: string
-    avatar?: string
+    image?: string
     playlists: Playlist[]
     liked_tracks: Track[]
     created_at: string

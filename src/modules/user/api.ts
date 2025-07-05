@@ -14,6 +14,12 @@ export const userApi = createApi({
             keepUnusedDataFor: 300,
         }),
 
+        getUserProfile: builder.query<any, void>({
+            query: () => '/profiles/',
+            providesTags: [{ type: 'Profile', id: 'ME' }],
+            keepUnusedDataFor: 300,
+        }),
+
         getCurrentTrack: builder.query<Track, void>({
             query: () => api.USERS.CURRENT_TRACK,
             providesTags: [{ type: 'Track', id: 'CURRENT' }],
@@ -43,17 +49,44 @@ export const userApi = createApi({
             },
         }),
 
-        uploadAvatar: builder.mutation<User, File>({
-            query: (file) => {
-                const formData = new FormData()
-                formData.append('avatar', file)
-                return {
-                    url: api.USERS.AVATAR,
-                    method: 'POST',
-                    body: formData,
+        uploadImage: builder.mutation<any, File>({
+            queryFn: async (file, { dispatch }) => {
+                try {
+                    // First get the user's profile
+                    const profileResponse = await dispatch(
+                        userApi.endpoints.getUserProfile.initiate()
+                    ).unwrap()
+                    const profile = profileResponse[0] // ProfileViewSet returns a list with current user's profile
+
+                    // Then update the profile with the image
+                    const formData = new FormData()
+                    formData.append('image', file)
+
+                    const response = await fetch(
+                        `/api/profiles/${profile.id}/`,
+                        {
+                            method: 'PATCH',
+                            body: formData,
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+                            },
+                        }
+                    )
+
+                    if (!response.ok) {
+                        throw new Error('Upload failed')
+                    }
+
+                    const updatedProfile = await response.json()
+                    return { data: updatedProfile }
+                } catch (error) {
+                    return { error: { message: error.message } }
                 }
             },
-            invalidatesTags: [{ type: 'User', id: 'ME' }],
+            invalidatesTags: [
+                { type: 'User', id: 'ME' },
+                { type: 'Profile', id: 'ME' },
+            ],
         }),
 
         getMyPlaylists: builder.query<Playlist[], void>({
@@ -196,9 +229,10 @@ export const userApi = createApi({
 
 export const {
     useGetMeQuery,
+    useGetUserProfileQuery,
     useGetCurrentTrackQuery,
     useUpdateMeMutation,
-    useUploadAvatarMutation,
+    useUploadImageMutation,
     useGetMyPlaylistsQuery,
     useCreatePlaylistMutation,
     useUpdatePlaylistMutation,

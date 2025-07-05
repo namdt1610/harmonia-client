@@ -1,163 +1,164 @@
 {
-  "Error": {
-    "description": "<p>We've unfortunately encountered an error.</p><p>You can try to <retry>reload the page</retry> you were visiting.</p>",
-    "title": "Something went wrong!"
-  },
-  "IndexPage": {
-    "description": "This is a basic example that demonstrates the usage of <code>next-intl</code> with the Next.js App Router. Try changing the locale in the top right corner and see how the content changes.",
-    "title": "next-intl example"
-  },
-  "LocaleLayout": {
-    "title": "next-intl example"
-  },
-  "LocaleSwitcher": {
-    "label": "Change language",
-    "locale": "{locale, select, de {🇩🇪 Deutsch} en {🇺🇸 English} other {Unknown}}"
-  },
-  "Manifest": {
-    "name": "next-intl example"
-  },
-  "Navigation": {
-    "home": "Home",
-    "pathnames": "Pathnames"
-  },
-  "NotFoundPage": {
-    "description": "Please double-check the browser address bar or use the navigation to go to a known page.",
-    "title": "Page not found"
-  },
-  "PageLayout": {
-    "links": {
-      "docs": {
-        "description": "Learn more about next-intl in the official docs.",
-        "href": "https://next-intl.dev",
-        "title": "Docs"
-      },
-      "source": {
-        "description": "Browse the source code of this example on GitHub.",
-        "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
-        "title": "Source code"
-      }
+    "Error": {
+        "description": "<p>We've unfortunately encountered an error.</p><p>You can try to <retry>reload the page</retry> you were visiting.</p>",
+        "title": "Something went wrong!"
+    },
+    "IndexPage": {
+        "description": "This is a basic example that demonstrates the usage of <code>next-intl</code> with the Next.js App Router. Try changing the locale in the top right corner and see how the content changes.",
+        "title": "next-intl example"
+    },
+    "LocaleLayout": {
+        "title": "next-intl example"
+    },
+    "LocaleSwitcher": {
+        "label": "Change language",
+        "locale": "{locale, select, de {🇩🇪 Deutsch} en {🇺🇸 English} other {Unknown}}"
+    },
+    "Manifest": {
+        "name": "next-intl example"
+    },
+    "Navigation": {
+        "home": "Home",
+        "pathnames": "Pathnames"
+    },
+    "NotFoundPage": {
+        "description": "Please double-check the browser address bar or use the navigation to go to a known page.",
+        "title": "Page not found"
+    },
+    "PageLayout": {
+        "links": {
+            "docs": {
+                "description": "Learn more about next-intl in the official docs.",
+                "href": "https://next-intl.dev",
+                "title": "Docs"
+            },
+            "source": {
+                "description": "Browse the source code of this example on GitHub.",
+                "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
+                "title": "Source code"
+            }
+        }
+    },
+    "PathnamesPage": {
+        "description": "<p>The pathnames are internationalized too.</p><p>If you're using the default language English, you'll see <code>/en/pathnames</code> in the browser address bar on this page.</p><p>If you change the locale to German, the URL is localized accordingly (<code>/de/pfadnamen</code>).</p>",
+        "title": "Pathnames"
+    },
+    "LoginPage": {
+        "title": "Sign in",
+        "description": "Please sign in to continue.",
+        "googleSignIn": "Sign in with Google",
+        "error": "An error occurred, please try again."
+    },
+    "HomePage": {
+        "title": "Welcome to the next-intl example",
+        "description": "<p>This is a basic example that demonstrates the usage of <code>next-intl</code> with the Next.js App Router. Try changing the locale in the top right corner and see how the content changes.</p><p>To learn more about <code>next-intl</code>, check out the <a href=\"https://next-intl.dev\">documentation</a>.</p>"
+    },
+    "Playlists": {
+        "createPlaylist": "Create Playlist",
+        "likedSongs": "Liked Songs"
+    },
+    "TopBar": {
+        "upgrade": "Upgrade"
+    },
+    "Player": {
+        "songTitle": "Song Title",
+        "artistName": "Artist Name"
+    },
+    "Settings": {
+        "title": "Settings",
+        "tabs": {
+            "profile": "Profile",
+            "account": "Account",
+            "appearance": "Appearance",
+            "playback": "Playback",
+            "notifications": "Notifications"
+        },
+        "profile": {
+            "title": "Profile Settings",
+            "description": "Manage your profile information and public appearance",
+            "uploadImage": "Upload Profile Image",
+            "imageRequirements": "JPG, PNG or GIF. Maximum 2MB.",
+            "changeImage": "Change Image",
+            "username": "Username",
+            "displayName": "Display Name",
+            "bio": "Bio"
+        },
+        "account": {
+            "title": "Account Settings",
+            "description": "Manage your account details and security",
+            "email": "Email",
+            "phone": "Phone Number (optional)",
+            "security": "Security",
+            "changePassword": "Change Password",
+            "twoFactor": "Two-factor Authentication",
+            "twoFactorDescription": "Add an extra layer of security to your account",
+            "sessions": "Active Sessions",
+            "sessionsDescription": "Manage devices where you're logged in",
+            "manageSessions": "Manage",
+            "deleteAccount": "Delete Account"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "description": "Customize how Spotify looks for you",
+            "theme": "Dark Theme",
+            "themeDescription": "Use dark theme for the application",
+            "compactMode": "Compact Mode",
+            "compactDescription": "Show more items in playlists with reduced spacing",
+            "textSize": "Text Size",
+            "smaller": "Smaller",
+            "larger": "Larger"
+        },
+        "playback": {
+            "title": "Playback Settings",
+            "description": "Customize your music playback experience",
+            "quality": "Audio Quality",
+            "normalQuality": "Normal (128kbps)",
+            "highQuality": "High (256kbps)",
+            "veryHighQuality": "Very High (320kbps)",
+            "qualityNote": "Higher quality uses more data",
+            "automix": "Automix",
+            "automixDescription": "Allow smooth transitions between songs in a playlist",
+            "autoplay": "Autoplay",
+            "autoplayDescription": "Play similar songs when your music ends",
+            "normalization": "Volume Normalization",
+            "normalizationDescription": "Set the same volume level for all tracks",
+            "crossfade": "Crossfade Songs",
+            "off": "Off"
+        },
+        "notifications": {
+            "title": "Notification Settings",
+            "description": "Manage what notifications you receive",
+            "pushNotifications": "Push Notifications",
+            "pushDescription": "Receive notifications even when you're not using the app",
+            "emailPreferences": "Email Preferences",
+            "newMusic": "New Music",
+            "newMusicDescription": "Music from artists you follow and listen to",
+            "playlists": "Playlist Updates",
+            "playlistsDescription": "Updates to playlists you follow",
+            "product": "Product News",
+            "productDescription": "Updates and announcements about Spotify",
+            "offers": "Offers",
+            "offersDescription": "Discounts and promotional offers"
+        },
+        "actions": {
+            "save": "Save Changes",
+            "saving": "Saving...",
+            "cancel": "Cancel"
+        }
+    },
+    "VideoPage": {
+        "loading": "Loading...",
+        "notFound": "Not Found",
+        "noVideo": "No video found."
+    },
+    "AlbumPage": {
+        "album": "Album Details"
+    },
+    "ArtistsPage": {
+        "artists": "Artist Details"
+    },
+    "ArtistPage": {
+        "artist": "Artist Details",
+        "genres": "Genres"
     }
-  },
-  "PathnamesPage": {
-    "description": "<p>The pathnames are internationalized too.</p><p>If you're using the default language English, you'll see <code>/en/pathnames</code> in the browser address bar on this page.</p><p>If you change the locale to German, the URL is localized accordingly (<code>/de/pfadnamen</code>).</p>",
-    "title": "Pathnames"
-  },
-  "LoginPage": {
-    "title": "Sign in",
-    "description": "Please sign in to continue.",
-    "googleSignIn": "Sign in with Google",
-    "error": "An error occurred, please try again."
-  },
-  "HomePage": {
-    "title": "Welcome to the next-intl example",
-    "description": "<p>This is a basic example that demonstrates the usage of <code>next-intl</code> with the Next.js App Router. Try changing the locale in the top right corner and see how the content changes.</p><p>To learn more about <code>next-intl</code>, check out the <a href=\"https://next-intl.dev\">documentation</a>.</p>"
-  },
-  "Playlists": {
-    "createPlaylist": "Create Playlist",
-    "likedSongs": "Liked Songs"
-  },
-  "TopBar": {
-    "upgrade": "Upgrade"
-  },
-  "Player": {
-    "songTitle": "Song Title",
-    "artistName": "Artist Name"
-  },
-  "Settings": {
-    "title": "Settings",
-    "tabs": {
-      "profile": "Profile",
-      "account": "Account",
-      "appearance": "Appearance",
-      "playback": "Playback",
-      "notifications": "Notifications"
-    },
-    "profile": {
-      "title": "Profile Settings",
-      "description": "Manage your profile information and public appearance",
-      "uploadAvatar": "Upload Avatar",
-      "avatarRequirements": "JPG, PNG or GIF. Maximum 2MB.",
-      "username": "Username",
-      "displayName": "Display Name",
-      "bio": "Bio"
-    },
-    "account": {
-      "title": "Account Settings",
-      "description": "Manage your account details and security",
-      "email": "Email",
-      "phone": "Phone Number (optional)",
-      "security": "Security",
-      "changePassword": "Change Password",
-      "twoFactor": "Two-factor Authentication",
-      "twoFactorDescription": "Add an extra layer of security to your account",
-      "sessions": "Active Sessions",
-      "sessionsDescription": "Manage devices where you're logged in",
-      "manageSessions": "Manage",
-      "deleteAccount": "Delete Account"
-    },
-    "appearance": {
-      "title": "Appearance",
-      "description": "Customize how Spotify looks for you",
-      "theme": "Dark Theme",
-      "themeDescription": "Use dark theme for the application",
-      "compactMode": "Compact Mode",
-      "compactDescription": "Show more items in playlists with reduced spacing",
-      "textSize": "Text Size",
-      "smaller": "Smaller",
-      "larger": "Larger"
-    },
-    "playback": {
-      "title": "Playback Settings",
-      "description": "Customize your music playback experience",
-      "quality": "Audio Quality",
-      "normalQuality": "Normal (128kbps)",
-      "highQuality": "High (256kbps)",
-      "veryHighQuality": "Very High (320kbps)",
-      "qualityNote": "Higher quality uses more data",
-      "automix": "Automix",
-      "automixDescription": "Allow smooth transitions between songs in a playlist",
-      "autoplay": "Autoplay",
-      "autoplayDescription": "Play similar songs when your music ends",
-      "normalization": "Volume Normalization",
-      "normalizationDescription": "Set the same volume level for all tracks",
-      "crossfade": "Crossfade Songs",
-      "off": "Off"
-    },
-    "notifications": {
-      "title": "Notification Settings",
-      "description": "Manage what notifications you receive",
-      "pushNotifications": "Push Notifications",
-      "pushDescription": "Receive notifications even when you're not using the app",
-      "emailPreferences": "Email Preferences",
-      "newMusic": "New Music",
-      "newMusicDescription": "Music from artists you follow and listen to",
-      "playlists": "Playlist Updates",
-      "playlistsDescription": "Updates to playlists you follow",
-      "product": "Product News",
-      "productDescription": "Updates and announcements about Spotify",
-      "offers": "Offers",
-      "offersDescription": "Discounts and promotional offers"
-    },
-    "actions": {
-      "save": "Save Changes",
-      "saving": "Saving...",
-      "cancel": "Cancel"
-    }
-  },
-  "VideoPage": {
-    "loading": "Loading...",
-    "notFound": "Not Found",
-    "noVideo": "No video found."
-  },
-  "AlbumPage": {
-    "album": "Album Details"
-  },
-  "ArtistsPage": {
-    "artists": "Artist Details"
-  },
-  "ArtistPage": {
-    "artist": "Artist Details",
-    "genres": "Genres"
-  }
 }

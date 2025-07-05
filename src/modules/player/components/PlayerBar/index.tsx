@@ -16,6 +16,7 @@ import { RootState } from '@/redux/store'
 import { createLogger } from '@/lib/utils/debugLogger'
 import { setIsPlaying } from '@/modules/player/slice'
 import { toast } from 'sonner'
+import { usePlayTracker } from '@/hooks/usePlayTracker'
 
 import PlayerTrackInfo from './PlayerTrackInfo'
 import PlayerControls from './PlayerControls'
@@ -60,6 +61,17 @@ export default function Player({ onToggleQueue }: PlayerProps) {
     const { isPlaying: reduxIsPlaying } = useSelector(
         (state: RootState) => state.player
     )
+
+    // Add play tracking
+    const { trackPlay } = usePlayTracker({
+        trackId: currentTrackId || undefined,
+        isPlaying: reduxIsPlaying,
+        onPlayStart: () => {
+            audioLogger.log('Play tracked for analytics', {
+                trackId: currentTrackId,
+            })
+        },
+    })
 
     // State cho repeat, repeat one, shuffle
     const [isRepeating, setIsRepeating] = useState(false)
@@ -195,6 +207,17 @@ export default function Player({ onToggleQueue }: PlayerProps) {
 
     const dispatch = useDispatch()
 
+    // Enhanced play/pause handler with tracking
+    const handlePlayPause = useCallback(() => {
+        const newPlayingState = !reduxIsPlaying
+        dispatch(setIsPlaying(newPlayingState))
+
+        // Track play when starting to play
+        if (newPlayingState && currentTrackId) {
+            trackPlay(currentTrackId)
+        }
+    }, [reduxIsPlaying, dispatch, currentTrackId, trackPlay])
+
     // Audio event listeners
     useEffect(() => {
         const audio = audioStreamRef.current
@@ -226,7 +249,14 @@ export default function Player({ onToggleQueue }: PlayerProps) {
             setProgressPercentage((audio.currentTime / audio.duration) * 100)
         }
 
-        const handlePlay = () => audioLogger.log('PlayerBar: Audio play event')
+        const handlePlay = () => {
+            audioLogger.log('PlayerBar: Audio play event')
+            // Track play when audio starts playing
+            if (currentTrackId) {
+                trackPlay(currentTrackId)
+            }
+        }
+
         const handlePause = () =>
             audioLogger.log('PlayerBar: Audio pause event')
 
@@ -243,7 +273,7 @@ export default function Player({ onToggleQueue }: PlayerProps) {
             audio.removeEventListener('play', handlePlay)
             audio.removeEventListener('pause', handlePause)
         }
-    }, [currentTrackId])
+    }, [currentTrackId, trackPlay])
 
     const handleProgressBarClick = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
@@ -332,9 +362,7 @@ export default function Player({ onToggleQueue }: PlayerProps) {
             <div className="flex-1 flex flex-col items-center gap-1">
                 <PlayerControls
                     isPlaying={reduxIsPlaying}
-                    onPlayPause={() => {
-                        dispatch(setIsPlaying(!reduxIsPlaying))
-                    }}
+                    onPlayPause={handlePlayPause}
                     onNext={handleNext}
                     onPrev={handlePrev}
                     onShuffle={() => setIsShuffling((v) => !v)}

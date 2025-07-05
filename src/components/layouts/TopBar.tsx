@@ -7,6 +7,7 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
+    Crown,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useSelector } from 'react-redux'
@@ -25,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
     Tooltip,
     TooltipContent,
@@ -32,6 +34,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useLogout } from '@/hooks/useLogout'
+import { useGetMySubscriptionQuery } from '@/lib/api/subscription'
 
 export default function TopBar() {
     const t = useTranslations('TopBar')
@@ -40,6 +43,32 @@ export default function TopBar() {
     const pathname = usePathname()
     const locale = pathname?.split('/')[1] || 'en'
     const { handleLogout, isLoading } = useLogout()
+
+    // Get subscription data for logged in users
+    const { data: subscription } = useGetMySubscriptionQuery(undefined, {
+        skip: !isLoggedIn,
+    })
+
+    // Helper function to get subscription status display
+    const getSubscriptionStatus = () => {
+        if (!subscription) {
+            return { text: 'Free Tier', variant: 'secondary' as const }
+        }
+
+        if (subscription.plan.plan_type === 'FREE') {
+            return { text: 'Free Tier', variant: 'secondary' as const }
+        }
+
+        if (subscription.status === 'ACTIVE') {
+            return { text: 'Premium', variant: 'default' as const }
+        }
+
+        if (subscription.status === 'TRIAL') {
+            return { text: 'Premium Trial', variant: 'default' as const }
+        }
+
+        return { text: 'Free Tier', variant: 'secondary' as const }
+    }
 
     return (
         <header className="h-16 bg-black/80 backdrop-filter backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 border-b border-neutral-800/50">
@@ -101,6 +130,57 @@ export default function TopBar() {
             <div className="flex items-center gap-2">
                 {isLoggedIn ? (
                     <>
+                        {/* Subscription Status Badge */}
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 px-3 text-xs font-medium rounded-full"
+                                        onClick={() =>
+                                            router.push(
+                                                `/${locale}/subscription`
+                                            )
+                                        }
+                                    >
+                                        <Crown
+                                            size={14}
+                                            className={cn(
+                                                'mr-1.5',
+                                                getSubscriptionStatus()
+                                                    .variant === 'default'
+                                                    ? 'text-yellow-400'
+                                                    : 'text-gray-400'
+                                            )}
+                                        />
+                                        <Badge
+                                            variant={
+                                                getSubscriptionStatus().variant
+                                            }
+                                            className={cn(
+                                                'text-xs font-medium border-none',
+                                                getSubscriptionStatus()
+                                                    .variant === 'default'
+                                                    ? 'bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30'
+                                                    : 'bg-gray-500/20 text-gray-300 hover:bg-gray-500/30'
+                                            )}
+                                        >
+                                            {getSubscriptionStatus().text}
+                                        </Badge>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>
+                                        {subscription?.plan.plan_type ===
+                                            'FREE' || !subscription
+                                            ? 'Upgrade to Premium'
+                                            : 'Manage subscription'}
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -126,12 +206,13 @@ export default function TopBar() {
                                 >
                                     <Avatar className="h-8 w-8 transition-transform hover:scale-105">
                                         <AvatarImage
-                                            src={user?.avatar || ''}
-                                            alt={user?.display_name || 'User'}
+                                            src={user?.image || ''}
+                                            alt={user?.username}
                                         />
                                         <AvatarFallback className="bg-neutral-700 text-xs">
-                                            {user?.display_name?.charAt(0) ||
-                                                'U'}
+                                            {user?.username
+                                                ?.slice(0, 2)
+                                                .toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
@@ -148,6 +229,14 @@ export default function TopBar() {
                                 >
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        router.push(`/${locale}/subscription`)
+                                    }
+                                >
+                                    <Crown className="mr-2 h-4 w-4" />
+                                    <span>Subscription</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() =>

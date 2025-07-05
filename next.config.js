@@ -4,6 +4,26 @@ const withNextIntl = require('next-intl/plugin')()
 
 /** @type {import('next').NextConfig} */
 const config = {
+    trailingSlash: false,
+    async redirects() {
+        return [
+            // Redirect root path to default locale
+            {
+                source: '/',
+                destination: '/vi',
+                permanent: false,
+            },
+        ]
+    },
+    // async rewrites() {
+    //     return [
+    //         // Redirect root path to default locale
+    //         {
+    //             source: '/',
+    //             destination: '/vi',
+    //         },
+    //     ]
+    // },
     // async rewrites() {
     //     // return [
     //     //     // Proxy API requests to the backend

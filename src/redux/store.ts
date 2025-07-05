@@ -12,6 +12,8 @@ import { playlistApi } from '@/modules/playlists/api'
 import { userActivityApi } from '@/modules/activity/api'
 import { favoritesApi } from '@/modules/favorites/api'
 import { queueApi } from '@/modules/queue/api'
+import { subscriptionApi } from '@/lib/api/subscription'
+import { adminApi, rbacApi } from '@/modules/admin/api'
 
 import authReducer from '@/modules/auth/slice'
 import playerReducer from '@/modules/player/slice'
@@ -30,6 +32,9 @@ export const store = configureStore({
         [userActivityApi.reducerPath]: userActivityApi.reducer,
         [favoritesApi.reducerPath]: favoritesApi.reducer,
         [queueApi.reducerPath]: queueApi.reducer,
+        [subscriptionApi.reducerPath]: subscriptionApi.reducer,
+        [adminApi.reducerPath]: adminApi.reducer,
+        [rbacApi.reducerPath]: rbacApi.reducer,
         auth: authReducer,
         player: playerReducer,
         queue: queueReducer,
@@ -48,7 +53,10 @@ export const store = configureStore({
             playlistApi.middleware,
             userActivityApi.middleware,
             favoritesApi.middleware,
-            queueApi.middleware
+            queueApi.middleware,
+            subscriptionApi.middleware,
+            adminApi.middleware,
+            rbacApi.middleware
         ),
 })
 

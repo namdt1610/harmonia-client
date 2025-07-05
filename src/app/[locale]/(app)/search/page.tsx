@@ -7,8 +7,6 @@ import { toast } from 'sonner'
 import SearchResults from '@/modules/search/components/SearchResults'
 
 export default function SearchPage() {
-    console.log('MOUNT SearchPage component mounted')
-
     const searchParams = useSearchParams()
     const {
         error,
@@ -27,12 +25,16 @@ export default function SearchPage() {
         handleLimitChange,
     } = useSearch()
 
-    console.log('HOOK useSearch hook initialized:', {
-        searchQuery,
-        isLoading,
-        error,
-        hasResults: !!searchResults,
-    })
+    // Debug logging - moved to useEffect to prevent state updates during render
+    useEffect(() => {
+        console.log('MOUNT SearchPage component mounted')
+        console.log('HOOK useSearch hook initialized:', {
+            searchQuery,
+            isLoading,
+            error,
+            hasResults: !!searchResults,
+        })
+    }, [searchQuery, isLoading, error, searchResults])
 
     useEffect(() => {
         const query = searchParams.get('q')

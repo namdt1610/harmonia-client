@@ -114,7 +114,7 @@ export const API_ROUTES = {
         GET_ALL: '/users/',
         GET_BY_ID: '/users/:id/',
         ME: '/users/me/',
-        AVATAR: '/users/me/avatar/',
+        IMAGE: '/profiles/',
         PLAYLISTS: '/users/playlists/',
         CURRENT_TRACK: '/users/me/current-track/',
     },
